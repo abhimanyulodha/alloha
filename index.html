@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alloha - Cacti Facti</title>
+    <title>Alloha</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -218,31 +218,59 @@
 
     <div id="rules-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
         <div class="modal-content w-full max-w-lg themed-modal p-6 transform scale-95 -translate-y-4">
-            <div class="flex justify-between items-center mb-4">
-                <h2 id="rules-title" class="text-3xl font-bold" style="font-family: 'Pacifico', cursive; color: var(--accent);">How to Play</h2>
-                <button id="close-rules-btn" class="w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex-grow">
+                    <h2 id="rules-title" class="text-3xl font-bold" style="font-family: 'Pacifico', cursive; color: var(--accent);">Alloha - A fun & simple game by Abhimanyu Lodha</h2>
+                    <p class="text-sm -mt-2" style="color: var(--text-secondary);"></p>
+                </div>
+                <button id="close-rules-btn" class="w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold flex-shrink-0">×</button>
             </div>
             <div class="space-y-4 text-sm max-h-[70vh] overflow-y-auto pr-2" style="color: var(--text-secondary)">
-                 <h3 class="font-bold text-lg" style="color: var(--accent);">Gameplay</h3>
-                 <ol class="list-decimal list-inside space-y-1">
-                    <li>Choose your starting Alloha.</li>
-                    <li>Click "Roll Dice" to get two new Allohas.</li>
-                    <li>Place both Allohas in any two empty, adjacent (not diagonal) squares.</li>
-                    <li>Click the "Select Game Edition" button on the right panel to choose from different game versions with unique scoring patterns.</li>
+                <h3 class="font-bold text-lg" style="color: var(--accent);">🎯 The Goal</h3>
+                <p>Fill the 7x7 grid by placing pairs of 'Allohas' to create lines and patterns of matching symbols. Score the most points before the grid is full!</p>
+                
+                <h3 class="font-bold text-lg" style="color: var(--accent);">🕹️ How to Play</h3>
+                <ol class="list-decimal list-inside space-y-1">
+                    <li><b>Start Your Game:</b> At the beginning, choose any Alloha to place on the board.</li>
+                    <li><b>Roll the Dice:</b> Click the '🎲' button to get your two Allohas for the turn.</li>
+                    <li><b>Place Your Pair:</b> Place both Allohas in any two empty, adjacent (but not diagonal) squares on the grid.</li>
+                    <li><b>Explore Editions:</b> Use the "Select Game Edition" button to discover different versions of the game, each with a unique theme and a special "Twinning" scoring pattern!</li>
                 </ol>
-                 <h3 class="font-bold text-lg" style="color: var(--accent);">Special Powers</h3>
-                 <p>Use two different superpowers per game. Each power can only be used once.</p>
-                 <ul class="list-disc list-inside space-y-1"><li><b>Past Lives:</b> Undoes your last completed move.</li><li><b>Bomb Bae:</b> Click to activate, then click a stuck block (💣) to fill it with a random Alloha.</li><li><b>No Return:</b> Click to activate, then click any Alloha on the grid to swap it.</li><li><b>Swap Them:</b> Click to activate, then click any two adjacent Allohas to swap their positions. Must be used before you roll the dice.</li></ul>
-                 <h3 class="font-bold text-lg" style="color: var(--accent);">Special Blocks</h3>
-                 <ul class="list-disc list-inside space-y-1">
-                    <li><b>Wild Card (💎):</b> A rare treasure! This special piece acts as any Alloha and can complete any line. Appears once per game.</li>
-                    <li><b>Cursed Block (☠️):</b> An immovable obstacle! This block cannot be removed by Bomb Bae or swapped with No Return. Appears once per game.</li>
-                 </ul>
-                 <h3 class="font-bold text-lg" style="color: var(--accent);">Scoring</h3>
-                 <ul class="list-disc list-inside space-y-1"><li><b>3 in a line:</b> 3 points</li><li><b>4 in a line:</b> 5 points</li><li><b>5 in a line:</b> 8 points</li><li><b>6 in a line:</b> 12 points</li><li><b>7 in a line:</b> 20 points</li>
-                 <li><b>Twinning Pattern Bonus:</b> Scores on the special highlighted pattern are doubled!</li>
-                 <li><b>Grid Bonus:</b> 2x2, 3x3, etc. grids of the same Alloha give bonus points (size * size).</li>
-                 <li><b>Penalty:</b> A row or column that can no longer form a 3-symbol sequence gets a -5 penalty. A "dead" line on the twinning pattern gets a -5 penalty.</li></ul>
+                
+                <h3 class="font-bold text-lg" style="color: var(--accent);">✨ Superpowers</h3>
+                <p>You can use <b>two different superpowers</b> once per game to get out of a tight spot!</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li><b>Past Lives:</b> Undoes your most recent move (placing a pair of Allohas).</li>
+                    <li><b>Bomb Bae:</b> Lets you clear a stuck block (💣) by filling it with a random Alloha.</li>
+                    <li><b>No Return:</b> Exchange any Alloha on the grid for a new one of your choice from the symbol set.</li>
+                    <li><b>Swap Them:</b> Swap the positions of any two adjacent Allohas. This must be used <b>before</b> you roll the dice.</li>
+                </ul>
+                
+                <h3 class="font-bold text-lg" style="color: var(--accent);">🎲 Special Blocks</h3>
+                <ul class="list-disc list-inside space-y-1">
+                    <li><b>Wild Card (💎):</b> A powerful gem that acts as <b>any</b> Alloha to help you complete a line. It appears once per game.</li>
+                    <li><b>Cursed Block (☠️):</b> An immovable obstacle that cannot be changed or removed by any superpower. It also appears once per game.</li>
+                </ul>
+            
+                <h3 class="font-bold text-lg" style="color: var(--accent);">📈 Scoring & Bonuses</h3>
+                <p>Points are awarded for creating lines of 3 or more matching Allohas in rows or columns.</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li><b>3 in a line:</b> 3 points</li>
+                    <li><b>4 in a line:</b> 5 points</li>
+                    <li><b>5 in a line:</b> 8 points</li>
+                    <li><b>6 in a line:</b> 12 points</li>
+                    <li><b>7 in a line:</b> 20 points</li>
+                </ul>
+                <p>On top of that, you can earn big with these bonuses:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li><b>Twinning Bonus:</b> Create sequences on the special <b>highlighted pattern</b>. You score points for these lines <b>in addition</b> to their normal row or column score!</li>
+                    <li><b>Grid Bonus:</b> Form a square of 2x2, 3x3, or larger with the same Alloha to earn bonus points equal to its size squared (e.g., a 2x2 grid gives 4 bonus points).</li>
+                </ul>
+                
+                <h3 class="font-bold text-lg" style="color: var(--accent);">Penalty</h3>
+                <p>Be careful! Any row, column, or Twinning Pattern line that can no longer form a 3-symbol sequence will receive a <b>-5 point penalty</b>.</p>
+            
+                <p class="pt-4 italic">Have fun. And if you have read till here, then DM @sonofarjuna for a free chocolate.</p>
             </div>
         </div>
     </div>
@@ -780,7 +808,6 @@
                 const highScoreKey = `cactiFactiHighScore_${this.config.id}_${this.isTimeBurst ? 'timeburst' : 'classic'}`;
                 this.highScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
                 this.DOMElements.high_score.textContent = this.highScore;
-                this.DOMElements.rules_title.textContent = this.config.title;
 
                 ['game-over-modal', 'exchange-modal', 'rules-modal'].forEach(id => this.DOMElements[id]?.classList.remove('is-open'));
                 
