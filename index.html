@@ -473,14 +473,14 @@
                 palette: {
                     bg: 'linear-gradient(135deg, #0f0c29 0%, #302b63 100%)',
                     card: 'rgba(48, 43, 99, 0.75)',
-                    text: '#E0E6F8',
+                    text: '#FFFFFF',
                     text_secondary: '#A9B4D1',
                     accent: '#FFD700',
                     accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)',
                     accent_gradient_shaded: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)',
                     highlighted_bg: 'rgba(255, 215, 0, 0.15)',
                     highlighted_border: 'rgba(255, 215, 0, 0.3)',
-                    grid_cell_bg: '#24243e',
+                    grid_cell_bg: '#4A4E69',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '♋':'text-gray-300', '♒':'text-blue-300', '♎':'text-pink-300', '♐':'text-orange-300', '♌':'text-yellow-300', '♉':'text-green-300' }
@@ -873,12 +873,26 @@
                 return new Set(regularSymbols).size <= 1;
             }
             isLineDead(line) {
+                // A line is dead if no possible 3-in-a-row can be formed.
+                // Iterate through all possible 3-cell windows.
                 for (let i = 0; i <= line.length - this.MIN_SEQUENCE_LENGTH; i++) {
                     const window = line.slice(i, i + this.MIN_SEQUENCE_LENGTH);
-                    if (window.includes(this.SPECIAL_SYMBOLS.CURSED)) continue;
-                    const regularSymbols = window.filter(s => s && s !== this.SPECIAL_SYMBOLS.WILD);
-                    if (new Set(regularSymbols).size <= 1) return false;
+
+                    // If the window contains a cursed block, it can't form a sequence.
+                    if (window.includes(this.SPECIAL_SYMBOLS.CURSED)) {
+                        continue;
+                    }
+
+                    // Check the non-special, non-null symbols in the window.
+                    const actualSymbols = window.filter(s => s && s !== this.SPECIAL_SYMBOLS.WILD && s !== this.SPECIAL_SYMBOLS.CURSED);
+                    
+                    // If there are 0 or 1 unique symbols, a sequence is possible (e.g., [A, A, Wild] or [A, null, Wild]).
+                    // If there are more than 1 unique symbols (e.g., [A, B, Wild] or [A, B, C]), no sequence can be formed in this window.
+                    if (new Set(actualSymbols).size <= 1) {
+                        return false; // Found a possible sequence, so the line is NOT dead.
+                    }
                 }
+                // If we checked all windows and none can form a sequence, the line is dead.
                 return true;
             }
             calculateBonusGrids() {
@@ -1183,6 +1197,7 @@
                     if (this.isLineDead(segmentSymbols)) return this.CROSS_DEATH_PENALTY;
                     return 0;
                 };
+
                 this.config.getCrossScoreSegments().forEach(seg => {
                     const segmentSymbols = [];
                     for (let i = seg.start; i <= seg.end; i++) {
@@ -1190,6 +1205,17 @@
                     }
                     bonusScore += getScoreForSegment(segmentSymbols);
                 });
+
+                if (this.config.id === 'zedi_zodi') {
+                    const diagonal = [];
+                    for (let i = 0; i < this.GRID_SIZE; i++) {
+                        diagonal.push(this.gridData[i][this.GRID_SIZE - 1 - i]);
+                    }
+                    // Only score the diagonal if it hasn't already been scored as part of a row/col segment.
+                    // For Zedi Zodi, r=0, r=6, and the diagonal are highlighted. The diagonal is distinct.
+                    bonusScore += getScoreForSegment(diagonal);
+                }
+
                 return bonusScore;
             }
             updateScoreDisplays(r, c, cross, b, p) { this.animateScoreUpdate(this.DOMElements.total_score, r + c + cross + b + p); this.animateScoreUpdate(this.DOMElements.rows_total_score, r); this.animateScoreUpdate(this.DOMElements.cols_total_score, c); this.animateScoreUpdate(this.DOMElements.cross_total_score, cross); this.animateScoreUpdate(this.DOMElements.bonus_grid_score, b); this.animateScoreUpdate(this.DOMElements.empty_block_penalty, p); }
