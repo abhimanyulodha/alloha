@@ -61,6 +61,8 @@
         .themed-modal { border-radius: 20px; background: var(--card); box-shadow: var(--shadow-strong); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
         
         #new-game-btn { background: var(--accent-gradient); }
+        #confirm-restart-btn { background: var(--accent-gradient); }
+        #play-again-btn { background: var(--accent-gradient); }
         #select-edition-btn { background: var(--accent-gradient-shaded); }
 
         .progress-bar-container { position: relative; overflow: hidden; background: var(--accent-light); border-radius: 9999px; }
@@ -80,6 +82,15 @@
         }
         .shake-animation { animation: shake 0.4s ease-in-out; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px) rotate(-3deg); } 75% { transform: translateX(5px) rotate(3deg); } }
+
+        @keyframes magnetic-place {
+            0% { transform: scale(1.5); opacity: 0; }
+            80% { transform: scale(0.95); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .magnetic-place > * {
+             animation: magnetic-place 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
         .modal { transition: all 0.3s var(--ease-smooth); }
         .modal.is-open { opacity: 1; visibility: visible; }
@@ -114,6 +125,8 @@
         #mode-toggle-switch { transition: background-color 0.2s ease-in-out; background-color: var(--toggle-bg-inactive); }
         #mode-toggle-switch.time-burst-active { background-color: var(--accent); }
         #mode-toggle-switch.time-burst-active #mode-toggle-thumb { transform: translateX(1.5rem); }
+
+        #timer-display { font-variant-numeric: tabular-nums; }
 
         #edition-options::-webkit-scrollbar { width: 8px; }
         #edition-options::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
@@ -385,7 +398,7 @@
                     accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)',
                     highlighted_bg: 'rgba(66, 165, 245, 0.2)',
                     highlighted_border: 'rgba(66, 165, 245, 0.4)',
-                    grid_cell_bg: '#1A237E',
+                    grid_cell_bg: '#283593',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '🐡':'text-yellow-300', '🦑':'text-pink-300', '🦀':'text-red-400', '🐙':'text-purple-300', '🐳':'text-blue-300', '🐠':'text-orange-300' }
@@ -403,7 +416,7 @@
                     accent_gradient_shaded: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)',
                     highlighted_bg: 'rgba(25, 118, 210, 0.15)',
                     highlighted_border: 'rgba(25, 118, 210, 0.3)',
-                    grid_cell_bg: '#2F3C43',
+                    grid_cell_bg: '#37474F',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '⛓️':'text-gray-300', '🚔':'text-blue-300', '👮':'text-yellow-300', '🏛️':'text-gray-200', '🔒':'text-amber-300', '🚪':'text-orange-300' }
@@ -472,7 +485,7 @@
                     text_secondary: '#1976D2',
                     accent: '#FFA000',
                     accent_gradient: 'linear-gradient(135deg, #FFA000 0%, #FFB300 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #FFC107 0%, #FFD54F 100%)',
+                    accent_gradient_shaded: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)',
                     highlighted_bg: 'rgba(255, 160, 0, 0.15)',
                     highlighted_border: 'rgba(255, 160, 0, 0.3)',
                     grid_cell_bg: '#F7FBFF',
@@ -493,7 +506,7 @@
                     accent_gradient_shaded: 'linear-gradient(135deg, #B39DDB 0%, #D1C4E9 100%)',
                     highlighted_bg: 'rgba(126, 87, 194, 0.15)',
                     highlighted_border: 'rgba(126, 87, 194, 0.3)',
-                    grid_cell_bg: '#2F3C43',
+                    grid_cell_bg: '#455A64',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '🐍':'text-green-400', '🦎':'text-lime-400', '🦂':'text-red-400', '🐭':'text-gray-300', '🥚':'text-gray-200', '🕷️':'text-gray-100' }
@@ -507,11 +520,11 @@
                     text: '#D7CCC8',
                     text_secondary: '#A1887F',
                     accent: '#FFCA28',
-                    accent_gradient: 'linear-gradient(135deg, #FFCA28 0%, #FFD54F 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #FFE082 0%, #FFECB3 100%)',
+                    accent_gradient: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)',
+                    accent_gradient_shaded: 'linear-gradient(135deg, #FFA000 0%, #FF6F00 100%)',
                     highlighted_bg: 'rgba(255, 202, 40, 0.15)',
                     highlighted_border: 'rgba(255, 202, 40, 0.3)',
-                    grid_cell_bg: '#4E342E',
+                    grid_cell_bg: '#6D4C41',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '🔍':'text-blue-300', '🧩':'text-orange-300', '🀄':'text-red-300', '🔑':'text-yellow-300', '🧭':'text-gray-300', '👁️':'text-cyan-300' }
@@ -529,7 +542,7 @@
                     accent_gradient_shaded: 'linear-gradient(135deg, #7C4DFF 0%, #B388FF 100%)',
                     highlighted_bg: 'rgba(83, 109, 254, 0.2)',
                     highlighted_border: 'rgba(83, 109, 254, 0.4)',
-                    grid_cell_bg: '#1A237E',
+                    grid_cell_bg: '#283593',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '🌍':'text-blue-300', '🚀':'text-gray-200', '🪐':'text-amber-300', '🌗':'text-gray-100', '💫':'text-yellow-300', '🛰️':'text-blue-200' }
@@ -561,11 +574,11 @@
                     text: '#E1BEE7',
                     text_secondary: '#CE93D8',
                     accent: '#76FF03',
-                    accent_gradient: 'linear-gradient(135deg, #76FF03 0%, #B2FF59 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #CCFF90 0%, #F4FF81 100%)',
+                    accent_gradient: 'linear-gradient(135deg, #52C200 0%, #76FF03 100%)',
+                    accent_gradient_shaded: 'linear-gradient(135deg, #64DD17 0%, #AEEA79 100%)',
                     highlighted_bg: 'rgba(118, 255, 3, 0.15)',
                     highlighted_border: 'rgba(118, 255, 3, 0.3)',
-                    grid_cell_bg: '#2C0D52',
+                    grid_cell_bg: '#4527A0',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '👹':'text-red-400', '🐲':'text-green-400', '👻':'text-gray-200', '👽':'text-lime-300', '🐺':'text-gray-300', '😈':'text-purple-300' }
@@ -866,11 +879,24 @@
             }
             updateCell(cell, r, c) {
                 const symbol = this.gridData[r][c];
+                
+                const existingContent = cell.querySelector('span');
+                if(existingContent) existingContent.remove();
+
                 cell.className = this.getCellClasses(r, c);
+                
                 if (symbol) {
-                    cell.textContent = symbol;
-                    if(this.SYMBOL_COLORS[symbol]) cell.className += ` ${this.SYMBOL_COLORS[symbol]}`;
-                    cell.classList.add('pop-in');
+                    const symbolSpan = document.createElement('span');
+                    symbolSpan.textContent = symbol;
+
+                    cell.appendChild(symbolSpan);
+
+                    if(this.SYMBOL_COLORS[symbol]) cell.classList.add(this.SYMBOL_COLORS[symbol]);
+                    
+                    cell.classList.remove('magnetic-place');
+                    void cell.offsetWidth;
+                    cell.classList.add('magnetic-place');
+
                 } else {
                     cell.textContent = this.stuckBlocks.has(`${r},${c}`) ? '💣' : '';
                 }
@@ -1300,7 +1326,7 @@
                     this.currentGameInstance = new Game(variantConfig, themeConfig, isTimeBurst, savedState);
                     
                     const editionDisplay = document.getElementById('current-edition-display');
-                    let timeBurstText = isTimeBurst ? ' - <span class="text-red-500 font-bold">Time Burst</span>' : '';
+                    let timeBurstText = isTimeBurst ? ' - <span style="color: var(--accent);">Time Burst</span>' : '';
                     editionDisplay.innerHTML = 'Now Playing: ' + variantConfig.name + timeBurstText;
                     
                     gameContainer.style.opacity = '1';
