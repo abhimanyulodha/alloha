@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alloha</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
@@ -220,8 +221,8 @@
         <div class="modal-content w-full max-w-lg themed-modal p-6 transform scale-95 -translate-y-4">
             <div class="flex justify-between items-start mb-4">
                 <div class="flex-grow">
-                    <h2 id="rules-title" class="text-3xl font-bold" style="font-family: 'Pacifico', cursive; color: var(--accent);">Alloha - A fun & simple game by Abhimanyu Lodha</h2>
-                    <p class="text-sm -mt-2" style="color: var(--text-secondary);"></p>
+                    <h2 id="rules-title" class="text-3xl font-bold" style="font-family: 'Pacifico', cursive; color: var(--accent);">Alloha</h2>
+                    <p class="text-sm -mt-2" style="color: var(--text-secondary);">A fun & simple game by Abhimanyu Lodha</p>
                 </div>
                 <button id="close-rules-btn" class="w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold flex-shrink-0">×</button>
             </div>
@@ -309,7 +310,7 @@
             <h2 class="text-4xl font-bold mb-2" style="color: var(--accent); font-family: 'Pacifico', cursive;">Game Over!</h2>
             <p id="game-over-reason" class="text-lg mt-2 mb-4" style="color: var(--accent);"></p>
             <p id="final-score-modal" class="text-7xl font-bold my-4" style="color: var(--accent);">0</p>
-            <div id="score-breakdown" class="mb-6 p-4 glass-card rounded-xl text-xs">
+            <div id="score-breakdown" class="mb-6 p-4 glass-card rounded-xl text-xs" style="display: grid;">
                 <div class="grid grid-cols-2 gap-2">
                     <div class="text-left">Rows: <span id="final-rows-score" class="float-right font-bold">0</span></div>
                     <div class="text-left">Columns: <span id="final-cols-score" class="float-right font-bold">0</span></div>
@@ -319,7 +320,15 @@
                 </div>
             </div>
             <p>High score: <span id="high-score-modal" class="font-bold" style="color: #FFC107;">0</span></p>
-            <button id="play-again-btn" class="w-full mt-6 themed-button text-white font-bold py-3 px-4 rounded-xl text-xl">Play Again</button>
+            <div id="game-over-buttons" class="flex items-center gap-3 mt-6">
+                <button id="play-again-btn" class="flex-1 themed-button text-white font-bold py-3 px-4 rounded-xl text-lg">Play Again</button>
+                <button id="share-score-btn" class="flex-1 themed-button text-white font-bold py-3 px-4 rounded-xl text-lg flex items-center justify-center gap-2" style="background: var(--accent-gradient-shaded);">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                    </svg>
+                    <span>Share Score</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -900,26 +909,16 @@
                 return new Set(regularSymbols).size <= 1;
             }
             isLineDead(line) {
-                // A line is dead if no possible 3-in-a-row can be formed.
-                // Iterate through all possible 3-cell windows.
                 for (let i = 0; i <= line.length - this.MIN_SEQUENCE_LENGTH; i++) {
                     const window = line.slice(i, i + this.MIN_SEQUENCE_LENGTH);
-
-                    // If the window contains a cursed block, it can't form a sequence.
                     if (window.includes(this.SPECIAL_SYMBOLS.CURSED)) {
                         continue;
                     }
-
-                    // Check the non-special, non-null symbols in the window.
                     const actualSymbols = window.filter(s => s && s !== this.SPECIAL_SYMBOLS.WILD && s !== this.SPECIAL_SYMBOLS.CURSED);
-                    
-                    // If there are 0 or 1 unique symbols, a sequence is possible (e.g., [A, A, Wild] or [A, null, Wild]).
-                    // If there are more than 1 unique symbols (e.g., [A, B, Wild] or [A, B, C]), no sequence can be formed in this window.
                     if (new Set(actualSymbols).size <= 1) {
-                        return false; // Found a possible sequence, so the line is NOT dead.
+                        return false; 
                     }
                 }
-                // If we checked all windows and none can form a sequence, the line is dead.
                 return true;
             }
             calculateBonusGrids() {
@@ -1175,7 +1174,79 @@
                 this.DOMElements.final_cross_score.textContent = this.DOMElements.cross_total_score.textContent;
                 this.DOMElements.final_bonus_score.textContent = this.DOMElements.bonus_grid_score.textContent;
                 this.DOMElements.final_penalty_score.textContent = this.DOMElements.empty_block_penalty.textContent;
-                setTimeout(() => this.DOMElements.game_over_modal.classList.add('is-open'), 500);
+                
+                setTimeout(() => {
+                    this.DOMElements.game_over_modal.classList.add('is-open');
+                    const shareBtn = document.getElementById('share-score-btn');
+                    if (shareBtn) {
+                        shareBtn.onclick = () => this.handleShareScore(finalScore, this.highScore);
+                    }
+                }, 500);
+            }
+
+            async handleShareScore(score, highScore) {
+                const shareBtn = document.getElementById('share-score-btn');
+                const shareBtnSpan = shareBtn.querySelector('span');
+                if (!shareBtn || !shareBtnSpan) return;
+
+                const originalBtnContent = shareBtn.innerHTML;
+
+                try {
+                    shareBtnSpan.textContent = 'Generating...';
+                    shareBtn.disabled = true;
+
+                    const scoreBreakdown = document.getElementById('score-breakdown');
+                    const buttonContainer = document.getElementById('game-over-buttons');
+                    const modalContent = document.querySelector('#game-over-modal .modal-content');
+
+                    if (scoreBreakdown) scoreBreakdown.style.display = 'none';
+                    if (buttonContainer) buttonContainer.style.display = 'none';
+
+                    // Use a timeout to ensure the DOM updates before capturing
+                    await new Promise(resolve => setTimeout(resolve, 50));
+
+                    const canvas = await html2canvas(modalContent, {
+                        allowTaint: true,
+                        useCORS: true,
+                        backgroundColor: null 
+                    });
+
+                    if (scoreBreakdown) scoreBreakdown.style.display = 'grid';
+                    if (buttonContainer) buttonContainer.style.display = 'flex';
+
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    if (!blob) throw new Error("Canvas to Blob conversion failed.");
+                    
+                    const file = new File([blob], 'alloha-score.png', { type: 'image/png' });
+                    const editionName = this.config.name;
+                    const shareText = `✨ I scored ${score} in Alloha! ✨\n\nThink you can beat my score in the Alloha - ${editionName} edition? 🎲\n\nPlay now: https://abhimanyulodha.github.io/alloha/`;
+
+                    if (navigator.share && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: 'My Alloha Score!',
+                            text: shareText,
+                            files: [file]
+                        });
+                    } else {
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'Alloha-Score.png';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(link.href);
+                    }
+                } catch (error) {
+                    console.error('Sharing/downloading failed:', error);
+                    shareBtnSpan.textContent = 'Error!';
+                    if (document.getElementById('score-breakdown')) document.getElementById('score-breakdown').style.display = 'grid';
+                    if (document.getElementById('game-over-buttons')) document.getElementById('game-over-buttons').style.display = 'flex';
+                } finally {
+                    setTimeout(() => {
+                        shareBtn.innerHTML = originalBtnContent;
+                        shareBtn.disabled = false;
+                    }, 2000);
+                }
             }
 
             triggerConfetti() {
@@ -1238,8 +1309,6 @@
                     for (let i = 0; i < this.GRID_SIZE; i++) {
                         diagonal.push(this.gridData[i][this.GRID_SIZE - 1 - i]);
                     }
-                    // Only score the diagonal if it hasn't already been scored as part of a row/col segment.
-                    // For Zedi Zodi, r=0, r=6, and the diagonal are highlighted. The diagonal is distinct.
                     bonusScore += getScoreForSegment(diagonal);
                 }
 
