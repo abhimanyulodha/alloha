@@ -109,7 +109,15 @@
         @keyframes pulse-highlight { 0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); } 70% { box-shadow: 0 0 0 4px rgba(76, 175, 80, 0); } 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); } }
         
         .alloha-logo { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-        .alloha-logo svg { width: 100%; height: 100%; }
+        .alloha-logo svg { 
+            width: 100%; 
+            height: 100%;
+            transition: filter 0.3s ease;
+            filter: 
+                drop-shadow(1px 1px 0 var(--text-secondary))
+                drop-shadow(2px 2px 0 var(--text-secondary))
+                drop-shadow(3px 3px 0 rgba(0,0,0,0.1));
+        }
         .alloha-logo svg path, .alloha-logo svg g { fill: var(--accent) !important; }
 
         #mode-toggle-switch { transition: background-color 0.2s ease-in-out; background-color: var(--toggle-bg-inactive); }
@@ -145,6 +153,13 @@
             outline: 3px solid var(--accent);
             outline-offset: 2px;
             box-shadow: 0 0 12px var(--accent);
+        }
+        @keyframes pulse-faint {
+            0%, 100% { transform: scale(1); box-shadow: var(--shadow-soft); }
+            50% { transform: scale(1.02); box-shadow: var(--shadow-medium); }
+        }
+        #select-edition-btn {
+            animation: pulse-faint 3s infinite ease-in-out;
         }
     </style>
 </head>
@@ -320,13 +335,18 @@
                 </div>
             </div>
             <p>High score: <span id="high-score-modal" class="font-bold" style="color: #FFC107;">0</span></p>
-            <div id="game-over-buttons" class="flex items-center gap-3 mt-6">
-                <button id="play-again-btn" class="flex-1 themed-button text-white font-bold py-3 px-4 rounded-xl text-lg">Play Again</button>
-                <button id="share-score-btn" class="flex-1 themed-button text-white font-bold py-3 px-4 rounded-xl text-lg flex items-center justify-center gap-2" style="background: var(--accent-gradient-shaded);">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
-                    </svg>
-                    <span>Share Score</span>
+            <div id="game-over-buttons" class="flex flex-col items-center gap-3 mt-6">
+                <div class="flex w-full items-center gap-3">
+                    <button id="play-again-btn" class="flex-1 themed-button text-white font-bold py-3 px-4 rounded-xl text-lg">Play Again</button>
+                    <button id="share-score-btn" class="flex-1 themed-button text-white font-bold py-3 px-4 rounded-xl text-lg flex items-center justify-center gap-2" style="background: var(--accent-gradient-shaded);">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                        </svg>
+                        <span>Share Score</span>
+                    </button>
+                </div>
+                <button id="change-edition-btn-modal" class="no-screenshot themed-button w-full py-2 px-4 text-sm font-semibold" style="color: var(--text-secondary); background: transparent; text-decoration: underline;">
+                    Choose a different Game Edition
                 </button>
             </div>
         </div>
@@ -1088,11 +1108,11 @@
             }
             renderSymbolSelector() {
                 const container = document.createElement('div'); container.className = 'w-full flex flex-col items-center pt-2';
-                container.innerHTML = `<h2 class="text-base lg:text-lg font-semibold text-center mb-4 uppercase tracking-wider" style="color: var(--accent);">CHOOSE YOUR ALLOHA</h2>`;
-                const selector = document.createElement('div'); selector.className = 'grid grid-cols-3 gap-2 lg:gap-4';
+                container.innerHTML = `<h2 class="text-base lg:text-lg font-semibold text-center mb-3 uppercase tracking-wider" style="color: var(--accent);">CHOOSE YOUR ALLOHA</h2>`;
+                const selector = document.createElement('div'); selector.className = 'grid grid-cols-3 gap-2 lg:gap-3';
                 this.SYMBOLS.forEach(symbol => {
                     const btn = document.createElement('button');
-                    btn.className = `w-16 h-16 rounded-xl text-4xl hover:bg-orange-100/50 ${this.SYMBOL_COLORS[symbol] || ''} flex items-center justify-center transition-transform hover:scale-110 active:scale-95`;
+                    btn.className = `w-14 h-14 rounded-xl text-3xl hover:bg-orange-100/50 ${this.SYMBOL_COLORS[symbol] || ''} flex items-center justify-center transition-transform hover:scale-110 active:scale-95`;
                     btn.textContent = symbol; btn.onclick = () => this.handleSymbolSelect(symbol); btn.onmouseenter = () => this.audioPlay('hover'); selector.appendChild(btn);
                 });
                 container.appendChild(selector);
@@ -1239,6 +1259,13 @@
                     if (shareBtn) {
                         shareBtn.onclick = () => this.handleShareScore(finalScore, this.highScore);
                     }
+                    const changeEditionBtn = document.getElementById('change-edition-btn-modal');
+                    if (changeEditionBtn) {
+                        changeEditionBtn.onclick = () => {
+                            this.DOMElements.game_over_modal.classList.remove('is-open');
+                            document.getElementById('select-edition-btn').click();
+                        };
+                    }
                 }, 500);
             }
 
@@ -1260,13 +1287,13 @@
                     if (scoreBreakdown) scoreBreakdown.style.display = 'none';
                     if (buttonContainer) buttonContainer.style.display = 'none';
 
-                    // Use a timeout to ensure the DOM updates before capturing
                     await new Promise(resolve => setTimeout(resolve, 50));
 
                     const canvas = await html2canvas(modalContent, {
                         allowTaint: true,
                         useCORS: true,
-                        backgroundColor: null 
+                        backgroundColor: null,
+                        ignoreElements: (element) => element.classList.contains('no-screenshot')
                     });
 
                     if (scoreBreakdown) scoreBreakdown.style.display = 'grid';
