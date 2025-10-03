@@ -32,6 +32,11 @@
             --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
             --ease-quick: cubic-bezier(0.25, 0.8, 0.25, 1);
         }
+        @keyframes gradient-pan {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
         body {
             font-family: 'Quicksand', sans-serif;
             font-weight: 500;
@@ -40,6 +45,8 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             transition: background 0.3s ease-in-out;
+            background-size: 400% 400%;
+            animation: gradient-pan 20s ease infinite;
         }
         .themed-button {
             font-weight: 600; border-radius: 12px; transition: all 0.3s var(--ease-smooth);
@@ -59,6 +66,11 @@
             border: 1px solid rgba(0, 0, 0, 0.08);
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
             position: relative; overflow: hidden; min-width: 40px; min-height: 40px;
+        }
+        .grid-cell:hover:not(.highlighted):not(.stuck-cell):not(.score-display-cell) {
+            transform: scale(1.03);
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+            z-index: 2;
         }
         .themed-modal { border-radius: 20px; background: var(--card); box-shadow: var(--shadow-strong); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
         
@@ -124,6 +136,19 @@
         #edition-options::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
 
         .edition-selected { background-color: var(--accent-light) !important; font-weight: 700; color: var(--accent); }
+
+        @keyframes shimmer-text-anim {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, var(--toggle-bg-inactive), white, var(--toggle-bg-inactive));
+            background-size: 200% auto;
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            animation: shimmer-text-anim 2.5s linear infinite;
+        }
 
         .confetti-piece {
             position: absolute; width: 8px; height: 16px; background: var(--accent); top: -20px;
@@ -309,7 +334,7 @@
                     <div id="game-board" class="col-span-7 grid grid-cols-7 gap-1 lg:gap-2"></div>
                     <div id="row-scores-display" class="col-span-1 grid grid-rows-7 gap-1 lg:gap-2"></div>
                     <div id="col-scores-display" class="col-span-7 grid grid-cols-7 mt-1 lg:mt-0 gap-1 lg:gap-2"></div>
-                    <div class="flex items-center justify-center p-1">
+                    <div class="flex items-center justify-center">
                         <div class="alloha-logo">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 396.75 396.749985" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="864cd2432c"><path d="M 40 0 L 355 0 L 355 396.5 L 40 396.5 Z M 40 0 "/></clipPath></defs><g clip-path="url(#864cd2432c)"><g transform="matrix(1, 0, 0, 1, 40, 0)"><g><g transform="matrix(1, 0, 0, 1, 1, 0)"><g><g fill-opacity="1"><g transform="translate(0.873977, 194.870819)"><g><path d="M 137.910156 0 L 137.910156 -174.546875 L 6.804688 -174.546875 L 6.804688 0 L 50.503906 0 L 50.503906 -48.675781 L 94.207031 -48.675781 L 94.207031 0 Z M 94.207031 -88.449219 L 50.503906 -88.449219 L 50.503906 -134.507812 L 94.207031 -134.507812 Z M 94.207031 -88.449219 "/></g></g></g></g><g transform="matrix(1, 0, 0, 1, 146, 116)"><g><g fill-opacity="1"><g transform="translate(1.206642, 267.950498)"><g><path d="M 137.910156 0 L 137.910156 -174.546875 L 6.804688 -174.546875 L 6.804688 0 Z M 94.207031 -39.777344 L 50.503906 -39.777344 L 50.503906 -134.507812 L 94.207031 -134.507812 Z M 94.207031 -39.777344 "/></g></g></g></g></g><g transform="matrix(1, 0, 0, 1, 148, 0)"><g><g fill-opacity="1"><g transform="translate(0.26582, 194.870819)"><g><path d="M 137.386719 0 L 137.386719 -39.777344 L 50.503906 -39.777344 L 50.503906 -174.546875 L 6.804688 -174.546875 L 6.804688 0 Z M 137.386719 0 "/></g></g></g></g></g><g transform="matrix(1, 0, 0, 1, -0.000000000000007105, 116)"><g><g fill-opacity="1"><g transform="translate(1.876102, 267.950498)"><g><path d="M 137.910156 0 L 137.910156 -174.546875 L 94.207031 -174.546875 L 94.207031 -107.03125 L 50.503906 -107.03125 L 50.503906 -174.546875 L 6.804688 -174.546875 L 6.804688 0 L 50.503906 0 L 50.503906 -68.5625 L 94.207031 -68.5625 L 94.207031 0 Z M 137.910156 0 "/></g></g></g></g></g><g transform="matrix(1, 0, 0, 1, 242, 20)"><g><path fill-rule="nonzero" d="M 43.164062 120.25 L 0.375 120.25 L 0.375 0.414062 L 43.164062 0.414062 Z M 43.164062 120.25 "/></g></g><g transform="matrix(1, 0, 0, 1, 213, 20)"><g><path fill-rule="nonzero" d="M 0.839844 43.222656 L 0.839844 0.4375 L 63.683594 0.4375 L 63.683594 43.222656 Z M 0.839844 43.222656 "/></g></g></g></g></g></g></svg>
                         </div>
@@ -325,21 +350,23 @@
                     <div id="in-game-content"></div>
                 </div>
 
-                <div class="relative w-full h-2.5 progress-bar-container mt-4">
-                    <div id="progress-bar-fill" class="progress-bar-fill h-full rounded-full" style="width: 0%;"></div>
-                </div>
+                <div class="relative w-full h-2.5 progress-bar-container"></div>
 
-                <div class="flex justify-center items-center gap-3">
-                    <button id="rules-btn" class="flex-1 py-2 px-4 themed-button text-sm" style="color: var(--accent); background: var(--accent-light);">How to Play</button>
-                    <button id="new-game-btn" class="flex-1 py-2 px-4 themed-button text-white text-sm">New Game</button>
-                </div>
+                <div class="my-auto">
+                    <div class="flex justify-center items-center gap-3">
+                        <button id="rules-btn" class="flex-1 py-2 px-4 themed-button text-sm" style="color: var(--accent); background: var(--accent-light);">How to Play</button>
+                        <button id="new-game-btn" class="flex-1 py-2 px-4 themed-button text-white text-sm">New Game</button>
+                    </div>
 
-                <div class="text-center mt-3">
-                    <button id="select-edition-btn" class="w-full py-2 px-4 themed-button text-white text-sm flex items-center justify-center gap-2">
-                        Select Game Edition
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <p id="current-edition-display" class="text-xs font-semibold mt-2" style="color: var(--text-secondary);"></p>
+                    <div class="text-center mt-3">
+                        <button id="select-edition-btn" class="w-full py-2 px-4 themed-button text-white text-sm flex items-center justify-center gap-2">
+                            Select Game Edition
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="mt-2">
+                            <p id="current-edition-display" class="inline-block px-4 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--accent-light); color: var(--accent);"></p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-3 text-center">
@@ -1404,11 +1431,11 @@
 
                 wrapper.innerHTML = `<div class="flex justify-center items-center gap-2 lg:gap-4">
                     <button id="roll-dice-btn" class="w-14 h-14 lg:w-16 lg:h-16 text-4xl lg:text-5xl flex items-center justify-center" style="color: var(--accent);">🎲</button>
-                    <div id="dice-1" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl" style="color: var(--toggle-bg-inactive);">?</div>
-                    <div id="dice-2" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl" style="color: var(--toggle-bg-inactive);">?</div>
+                    <div id="dice-1" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
+                    <div id="dice-2" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
                     ${timerHTML}
                 </div>
-                <div class="glass-card rounded-xl px-3 py-4 text-center"><h2 class="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center justify-center gap-2" style="color: var(--text-secondary);">Alloha Superpowers 🪄</h2><div class="grid grid-cols-4 gap-1 text-center">
+                <div class="glass-card rounded-xl px-3 py-4 text-center"><h2 class="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center justify-center gap-2" style="color: var(--text-secondary);">Alloha Superpowers <span id="sp-charges" class="text-base">✨✨</span></h2><div class="grid grid-cols-4 gap-1 text-center">
                     <button id="past-lives-btn" class="superpower-btn"><div>Past</div><div>Lives</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
                     <button id="no-return-btn" class="superpower-btn"><div>No</div><div>Return</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
                     <button id="bomb-bae-btn" class="superpower-btn"><div>Bomb</div><div>Bae</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
@@ -1437,20 +1464,20 @@
                 }
                 const dice1 = document.getElementById('dice-1'), dice2 = document.getElementById('dice-2');
                 if (!dice1 || !dice2) return;
+                
+                const symbolColorClass1 = this.currentRoll[0] ? this.SYMBOL_COLORS[this.currentRoll[0]] : '';
+                const symbolColorClass2 = this.currentRoll[1] ? this.SYMBOL_COLORS[this.currentRoll[1]] : '';
+                
                 if (this.gameStateManager.is('AWAITING_PLACEMENT') && this.currentRoll.length === 2) {
                     dice1.textContent = this.currentRoll[0];
-                    dice1.className = `w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card-prominent flex items-center justify-center text-3xl lg:text-4xl ${this.SYMBOL_COLORS[this.currentRoll[0]] || ''}`;
-                    dice1.style.color = '';
+                    dice1.className = `w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card-prominent flex items-center justify-center text-3xl lg:text-4xl ${symbolColorClass1 || ''}`;
                     dice2.textContent = this.currentRoll[1];
-                    dice2.className = `w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card-prominent flex items-center justify-center text-3xl lg:text-4xl ${this.SYMBOL_COLORS[this.currentRoll[1]] || ''}`;
-                    dice2.style.color = '';
+                    dice2.className = `w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card-prominent flex items-center justify-center text-3xl lg:text-4xl ${symbolColorClass2 || ''}`;
                 } else {
                     dice1.textContent = '?';
-                    dice1.className = 'w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl';
-                    dice1.style.color = 'var(--toggle-bg-inactive)';
+                    dice1.className = 'w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text';
                     dice2.textContent = '?';
-                    dice2.className = 'w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl';
-                    dice2.style.color = 'var(--toggle-bg-inactive)';
+                    dice2.className = 'w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text';
                 }
             }
             async handleRollDice() {
@@ -1985,6 +2012,17 @@
                     btns[this.activeSuperpower].classList.add('superpower-btn--active');
                 }
                 document.body.classList.toggle('cursor-target', this.activeSuperpower === 'bombBae');
+
+                const spChargesEl = document.getElementById('sp-charges');
+                if (spChargesEl) {
+                    if (totalUsed === 0) {
+                        spChargesEl.innerHTML = '✨✨';
+                    } else if (totalUsed === 1) {
+                        spChargesEl.innerHTML = '✨<span class="opacity-30">✨</span>';
+                    } else {
+                        spChargesEl.innerHTML = '<span class="opacity-30">✨✨</span>';
+                    }
+                }
             }
             handleSuperpowerCellClick(r, c, cell) {
                 if (this.activeSuperpower === 'swapThem') {
