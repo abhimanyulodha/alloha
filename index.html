@@ -153,7 +153,7 @@
     <main id="game-container" class="w-full max-w-5xl mx-auto flex flex-col lg:flex-row gap-4 lg:gap-6 items-center lg:items-stretch pt-8 lg:pt-16">
         <div class="w-full lg:w-2/3 relative">
             <div id="effects-container" class="absolute inset-0 pointer-events-none z-10 overflow-hidden"></div>
-            <div id="game-board-container" class="p-2 lg:p-6 rounded-card shadow-lg h-full">
+            <div id="game-board-container" class="p-2 lg:p-6 h-full glass-card rounded-2xl">
                 <div class="grid grid-cols-8 gap-1 lg:gap-3 h-full">
                     <div id="game-board" class="col-span-7 grid grid-cols-7 gap-1 lg:gap-2"></div>
                     <div id="row-scores-display" class="col-span-1 grid grid-rows-7 gap-1 lg:gap-2"></div>
@@ -396,6 +396,25 @@
                 },
                 symbolColors: { '🦋':'text-blue-500', '🐝':'text-yellow-500', '🪲':'text-amber-800', '🐛':'text-lime-600', '🐞':'text-red-600', '🪰':'text-gray-700' }
             },
+            hats_off: {
+                name: "Hats Off",
+                symbols: ['🪖', '🎩', '🧢', '👒', '⛑️', '👑'],
+                palette: {
+                    bg: 'linear-gradient(135deg, #A1887F 0%, #795548 100%)',
+                    card: 'rgba(255, 255, 255, 0.85)',
+                    text: '#3E2723',
+                    text_secondary: '#5D4037',
+                    accent: '#FFD700',
+                    accent_light: '#6D4C41',
+                    accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFC107 100%)',
+                    accent_gradient_shaded: 'linear-gradient(135deg, #5D4037 0%, #4E342E 100%)',
+                    highlighted_bg: 'rgba(255, 215, 0, 0.45)',
+                    highlighted_border: 'rgba(255, 215, 0, 0.6)',
+                    grid_cell_bg: '#EFEBE9',
+                    toggle_bg_inactive: '#E0E0E0',
+                },
+                symbolColors: { '🪖':'text-green-800', '🎩':'text-gray-800', '🧢':'text-blue-600', '👒':'text-pink-400', '⛑️':'text-red-600', '👑':'text-yellow-500' }
+            },
             golden_bakery: {
                 name: "Golden Bakery",
                 symbols: ['🍞', '🥯', '🥐', '🧇', '🍪', '🥞'],
@@ -414,6 +433,24 @@
                 },
                 symbolColors: { '🍞':'text-amber-800', '🥯':'text-amber-700', '🥐':'text-orange-600', '🧇':'text-yellow-700', '🍪':'text-amber-900', '🥞':'text-amber-600' }
             },
+             sporty_vibes: {
+                name: "Sporty Vibes",
+                symbols: ['🏀', '⚽️', '🥎', '🏉', '🏐', '🏈'],
+                palette: {
+                    bg: 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)',
+                    card: 'rgba(255, 255, 255, 0.9)',
+                    text: '#1B5E20',
+                    text_secondary: '#2E7D32',
+                    accent: '#FF9800',
+                    accent_gradient: 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
+                    accent_gradient_shaded: 'linear-gradient(135deg, #FFB74D 0%, #FFCC80 100%)',
+                    highlighted_bg: 'rgba(255, 152, 0, 0.45)',
+                    highlighted_border: 'rgba(255, 152, 0, 0.6)',
+                    grid_cell_bg: '#F1F8E9',
+                    toggle_bg_inactive: '#E0E0E0',
+                },
+                symbolColors: { '🏀':'text-orange-600', '⚽️':'text-black', '🥎':'text-lime-400', '🏉':'text-amber-800', '🏐':'text-blue-500', '🏈':'text-amber-900' }
+            },
             school_of_magic: {
                 name: "School of Magic",
                 symbols: ['🧙‍♀️', '🦉', '📜', '🏆', '🏟️', '🔮'],
@@ -427,10 +464,28 @@
                     accent_gradient_shaded: 'linear-gradient(135deg, #EF5350 0%, #FFD54F 100%)',
                     highlighted_bg: 'rgba(211, 47, 47, 0.15)',
                     highlighted_border: 'rgba(211, 47, 47, 0.3)',
-                    grid_cell_bg: '#5D4037',
+                    grid_cell_bg: '#6D4C41',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '🧙‍♀️':'text-purple-300', '🦉':'text-gray-300', '📜':'text-yellow-200', '🏆':'text-yellow-400', '🏟️':'text-gray-400', '🔮':'text-purple-400' }
+            },
+            emoji_fun: {
+                name: "Emoji Fun",
+                symbols: ['😍', '😎', '🤩', '😂', '🥵', '🤯'],
+                palette: {
+                    bg: 'linear-gradient(135deg, #FFF9C4 0%, #FFF176 100%)',
+                    card: 'rgba(255, 255, 255, 0.9)',
+                    text: '#4E342E',
+                    text_secondary: '#795548',
+                    accent: '#42A5F5',
+                    accent_gradient: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)',
+                    accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)',
+                    highlighted_bg: 'rgba(66, 165, 245, 0.15)',
+                    highlighted_border: 'rgba(66, 165, 245, 0.3)',
+                    grid_cell_bg: '#FFFDE7',
+                    toggle_bg_inactive: '#E0E0E0',
+                },
+                 symbolColors: { '😍':'text-red-500', '😎':'text-black', '🤩':'text-yellow-600', '😂':'text-blue-500', '🥵':'text-orange-500', '🤯':'text-purple-500' }
             },
             deep_ocean: {
                 name: "Deep Ocean",
@@ -450,23 +505,23 @@
                 },
                 symbolColors: { '🐡':'text-yellow-300', '🦑':'text-pink-300', '🦀':'text-red-400', '🐙':'text-purple-300', '🐳':'text-blue-300', '🐠':'text-orange-300' }
             },
-            concrete_justice: {
-                name: "Concrete Justice",
-                symbols: ['⛓️', '🚔', '👮', '🏛️', '🔒', '🚪'],
+            road_block_theme: {
+                name: "Road Block",
+                symbols: ['🚑', '🚌', '🚗', '🚎', '🚜', '✈️'],
                 palette: {
-                    bg: 'linear-gradient(135deg, #455A64 0%, #263238 100%)',
-                    card: 'rgba(55, 71, 79, 0.8)',
-                    text: '#ECEFF1',
-                    text_secondary: '#B0BEC5',
-                    accent: '#1976D2',
-                    accent_gradient: 'linear-gradient(135deg, #1976D2 0%, #2196F3 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)',
-                    highlighted_bg: 'rgba(25, 118, 210, 0.15)',
-                    highlighted_border: 'rgba(25, 118, 210, 0.3)',
-                    grid_cell_bg: '#546E7A',
-                    toggle_bg_inactive: 'rgba(255,255,255,0.2)',
+                    bg: 'linear-gradient(135deg, #B0BEC5 0%, #78909C 100%)',
+                    card: 'rgba(255, 255, 255, 0.8)',
+                    text: '#263238',
+                    text_secondary: '#455A64',
+                    accent: '#FFC107',
+                    accent_gradient: 'linear-gradient(135deg, #FFCA28 0%, #FFD54F 100%)',
+                    accent_gradient_shaded: 'linear-gradient(135deg, #FFE082 0%, #FFEE58 100%)',
+                    highlighted_bg: 'rgba(255, 193, 7, 0.15)',
+                    highlighted_border: 'rgba(255, 193, 7, 0.3)',
+                    grid_cell_bg: '#ECEFF1',
+                    toggle_bg_inactive: 'rgba(0,0,0,0.2)',
                 },
-                symbolColors: { '⛓️':'text-gray-300', '🚔':'text-blue-300', '👮':'text-yellow-300', '🏛️':'text-gray-200', '🔒':'text-amber-300', '🚪':'text-orange-300' }
+                symbolColors: { '🚑':'text-red-500', '🚌':'text-yellow-500', '🚗':'text-blue-500', '🚎':'text-green-500', '🚜':'text-orange-500', '✈️':'text-gray-400' }
             },
             the_post_office: {
                 name: "The Post Office",
@@ -517,7 +572,7 @@
                     accent_gradient_shaded: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)',
                     highlighted_bg: 'rgba(255, 215, 0, 0.15)',
                     highlighted_border: 'rgba(255, 215, 0, 0.3)',
-                    grid_cell_bg: '#4A4E69',
+                    grid_cell_bg: '#6A6E89',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '♋':'text-gray-300', '♒':'text-blue-300', '♎':'text-pink-300', '♐':'text-orange-300', '♌':'text-yellow-300', '♉':'text-green-300' }
@@ -571,7 +626,7 @@
                     accent_gradient_shaded: 'linear-gradient(135deg, #B39DDB 0%, #D1C4E9 100%)',
                     highlighted_bg: 'rgba(126, 87, 194, 0.15)',
                     highlighted_border: 'rgba(126, 87, 194, 0.3)',
-                    grid_cell_bg: '#455A64',
+                    grid_cell_bg: '#546E7A',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '🐍':'text-green-400', '🦎':'text-lime-400', '🦂':'text-red-400', '🐭':'text-gray-300', '🥚':'text-gray-200', '🐁':'text-gray-100' }
@@ -589,7 +644,7 @@
                     accent_gradient_shaded: 'linear-gradient(135deg, #FFA000 0%, #FF6F00 100%)',
                     highlighted_bg: 'rgba(255, 202, 40, 0.15)',
                     highlighted_border: 'rgba(255, 202, 40, 0.3)',
-                    grid_cell_bg: '#6D4C41',
+                    grid_cell_bg: '#795548',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '🔍':'text-blue-300', '🧩':'text-orange-300', '🀄':'text-red-300', '🔑':'text-yellow-300', '🧭':'text-gray-300', '👁️':'text-cyan-300' }
@@ -607,7 +662,7 @@
                     accent_gradient_shaded: 'linear-gradient(135deg, #7C4DFF 0%, #B388FF 100%)',
                     highlighted_bg: 'rgba(83, 109, 254, 0.2)',
                     highlighted_border: 'rgba(83, 109, 254, 0.4)',
-                    grid_cell_bg: '#3949AB',
+                    grid_cell_bg: '#5C6BC0',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
                 symbolColors: { '🌍':'text-blue-300', '🚀':'text-gray-200', '🪐':'text-amber-300', '🌗':'text-gray-100', '💫':'text-yellow-300', '🛰️':'text-blue-200' }
@@ -632,21 +687,21 @@
             },
             monster_mash: {
                 name: "Monster Mash",
-                symbols: ['👹', '🐲', '👻', '👽', '🐺', '😈'],
+                symbols: ['👹', '🐲', '👻', '👽', '🎃', '😈'],
                 palette: {
-                    bg: 'linear-gradient(135deg, #4A148C 0%, #1A001A 100%)',
-                    card: 'rgba(40, 10, 70, 0.8)',
-                    text: '#E1BEE7',
-                    text_secondary: '#CE93D8',
-                    accent: '#76FF03',
-                    accent_gradient: 'linear-gradient(135deg, #52C200 0%, #76FF03 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #64DD17 0%, #AEEA79 100%)',
-                    highlighted_bg: 'rgba(118, 255, 3, 0.15)',
-                    highlighted_border: 'rgba(118, 255, 3, 0.3)',
-                    grid_cell_bg: '#4527A0',
+                    bg: 'linear-gradient(135deg, #432874 0%, #18142a 100%)',
+                    card: 'rgba(40, 30, 60, 0.8)',
+                    text: '#E0D6FF',
+                    text_secondary: '#BCA9F0',
+                    accent: '#FF7900',
+                    accent_gradient: 'linear-gradient(135deg, #FF7900 0%, #FF983D 100%)',
+                    accent_gradient_shaded: 'linear-gradient(135deg, #FFB47A 0%, #FFD0B1 100%)',
+                    highlighted_bg: 'rgba(255, 121, 0, 0.15)',
+                    highlighted_border: 'rgba(255, 121, 0, 0.3)',
+                    grid_cell_bg: '#4A3F71',
                     toggle_bg_inactive: 'rgba(255,255,255,0.2)',
                 },
-                symbolColors: { '👹':'text-red-400', '🐲':'text-green-400', '👻':'text-gray-200', '👽':'text-lime-300', '🐺':'text-gray-300', '😈':'text-purple-300' }
+                symbolColors: { '👹':'text-red-400', '🐲':'text-green-400', '👻':'text-gray-200', '👽':'text-lime-300', '🎃':'text-orange-400', '😈':'text-purple-400' }
             }
         };
 
@@ -706,10 +761,13 @@
             'plain_jean': { id: 'plain_jean', name: 'Plain Jean', themeId: 'pastel_pals', timeLimit: 100, isTwinningCell: (r, c) => false, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'one_won': { id: 'one_won', name: 'One Won', themeId: 'green_grocer', timeLimit: 100, isTwinningCell: (r, c) => c === 3, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'plus_minus': { id: 'plus_minus', name: 'Plus Minus', themeId: 'bug_life', timeLimit: 100, isTwinningCell: (r, c) => r === 3 || c === 3, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'hat_trick': { id: 'hat_trick', name: 'Hat Trick', themeId: 'hats_off', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 6 || c === 0, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'sugar_cube': { id: 'sugar_cube', name: 'Sugar Cube', themeId: 'golden_bakery', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 6 || c === 0 || c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'spoil_sport': { id: 'spoil_sport', name: 'Spoil Sport', themeId: 'sporty_vibes', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 3 || c === 0 || c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'marry_harry': { id: 'marry_harry', name: 'Marry Harry', themeId: 'school_of_magic', timeLimit: 100, isTwinningCell: (r, c) => c === 1 || c === 5 || (r === 3 && c >= 1 && c <= 5), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'cosy_emoji': { id: 'cosy_emoji', name: 'Cosy Emoji', themeId: 'emoji_fun', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 3 || r === 6 || c === 0, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'wonder_wander': { id: 'wonder_wander', name: 'Wonder Wander', themeId: 'deep_ocean', timeLimit: 120, isTwinningCell: (r, c) => r === 6 || [0, 3, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'jail_mail': { id: 'jail_mail', name: 'Jail Mail', themeId: 'concrete_justice', timeLimit: 120, isTwinningCell: (r, c) => [0, 2, 4, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'road_block': { id: 'road_block', name: 'Road Block', themeId: 'road_block_theme', timeLimit: 120, isTwinningCell: (r, c) => [0, 2, 4, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'box_vox': { id: 'box_vox', name: 'Box Vox', themeId: 'the_post_office', timeLimit: 120, isTwinningCell: (r, c) => [0, 3, 6].includes(r) || [0, 3, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'hash_hush': { id: 'hash_hush', name: 'Hash Hush', themeId: 'tutti_frutti', timeLimit: 120, isTwinningCell: (r, c) => [2, 4].includes(r) || [2, 4].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'zedi_zodi': { id: 'zedi_zodi', name: 'Zedi Zodi', themeId: 'zedi_zodi', timeLimit: 120, isTwinningCell: (r, c) => r === 0 || r === 6 || r + c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
@@ -1218,8 +1276,7 @@
                     if (!blob) throw new Error("Canvas to Blob conversion failed.");
                     
                     const file = new File([blob], 'alloha-score.png', { type: 'image/png' });
-                    const editionName = this.config.name;
-                    const shareText = `✨ I scored ${score} in Alloha! ✨\n\nThink you can beat my score in the Alloha - ${editionName} edition? 🎲\n\nPlay now: https://abhimanyulodha.github.io/alloha/`;
+                    const shareText = `✨ I scored ${score} in Alloha! ✨\n\nThink you can beat my score in Alloha? 🎲\n\nPlay now: https://abhimanyulodha.github.io/alloha/`;
 
                     if (navigator.share && navigator.canShare({ files: [file] })) {
                         await navigator.share({
