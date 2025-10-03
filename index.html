@@ -170,6 +170,133 @@
             50% { background-color: var(--accent); }
         }
         .twinning-flash-animation { animation: twinning-flash 1.5s ease-in-out; }
+        
+        /* Tutorial Styles - Matching Game Over Modal */
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s var(--ease-smooth);
+        }
+
+        .tutorial-overlay.is-open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tutorial-content {
+            width: 100%;
+            max-w-md;
+            text-center;
+            themed-modal;
+            p-8;
+            transform: scale(0.95) translateY(4px);
+            transition: all 0.3s var(--ease-smooth);
+        }
+
+        .tutorial-overlay.is-open .tutorial-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .tutorial-content h2 {
+            text-4xl;
+            font-bold;
+            mb-2;
+            font-family: 'Pacifico', cursive;
+            color: var(--accent);
+        }
+
+        .tutorial-content p {
+            text-lg;
+            mt-2;
+            mb-6;
+            color: var(--text-secondary);
+        }
+
+        .tutorial-content .tutorial-step {
+            text-base;
+            mb-4;
+            color: var(--text);
+        }
+
+        .tutorial-content .tutorial-step-number {
+            inline-block;
+            w-8;
+            h-8;
+            rounded-full;
+            bg: var(--accent);
+            text-white;
+            font-bold;
+            mr-2;
+            mb-1;
+        }
+
+        .tutorial-next-btn {
+            themed-button;
+            text-white;
+            font-bold;
+            py-3;
+            px-6;
+            rounded-xl;
+            text-lg;
+            background: var(--accent-gradient);
+        }
+
+        .tutorial-progress {
+            flex;
+            justify-center;
+            mt-4;
+            gap-2;
+        }
+
+        .tutorial-progress-dot {
+            w-2;
+            h-2;
+            rounded-full;
+            bg: var(--accent-light);
+        }
+
+        .tutorial-progress-dot.active {
+            bg: var(--accent);
+        }
+
+        /* Enhanced Visual Feedback Styles */
+        .last-move {
+            box-shadow: 0 0 0 2px var(--accent) !important;
+            animation: lastMovePulse 2s ease-out;
+        }
+
+        @keyframes lastMovePulse {
+            0% { box-shadow: 0 0 0 0 var(--accent); }
+            50% { box-shadow: 0 0 0 4px var(--accent); }
+            100% { box-shadow: 0 0 0 2px var(--accent); }
+        }
+
+        .score-indicator {
+            animation: floatUp 0.5s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            to {
+                transform: translate(-50%, -150%);
+                opacity: 0;
+            }
+        }
+
+        .valid-placement {
+            box-shadow: 0 0 0 1px rgba(229, 115, 115, 0.3) !important;
+            transform: scale(1.02) !important;
+        }
     </style>
 </head>
 <body class="p-2 lg:p-4">
@@ -376,6 +503,22 @@
         <div class="modal-content w-full max-w-sm text-center themed-modal p-6 transform scale-95 -translate-y-4">
             <h2 id="exchange-modal-title" class="text-xl font-bold mb-4" style="color: var(--accent);">Choose a new Alloha</h2>
             <div id="exchange-options" class="grid grid-cols-3 gap-4"></div>
+        </div>
+    </div>
+
+    <div id="tutorial-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
+        <div class="modal-content w-full max-w-md text-center themed-modal p-8 transform scale-95 -translate-y-4 relative">
+            <button id="close-tutorial-btn" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
+            <h2 class="text-4xl font-bold mb-2" style="font-family: 'Pacifico', cursive; color: var(--accent);">Welcome to Alloha!</h2>
+            <div id="tutorial-content" class="text-lg mt-4 mb-6" style="color: var(--text-secondary);">
+                </div>
+            <div class="tutorial-progress flex justify-center mt-4 gap-2">
+                <div class="tutorial-progress-dot active"></div>
+                <div class="tutorial-progress-dot"></div>
+                <div class="tutorial-progress-dot"></div>
+                <div class="tutorial-progress-dot"></div>
+            </div>
+            <button id="tutorial-next-btn" class="themed-button text-white font-bold py-3 px-6 rounded-xl text-lg mt-6" style="background: var(--accent-gradient);">Next</button>
         </div>
     </div>
 
@@ -588,7 +731,7 @@
                     bg: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)',
                     card: 'rgba(255, 255, 255, 0.9)',
                     text: '#4E342E',
-                    text_secondary: '#8D6E63',
+                    text_secondary: '#6D4C41', // <<< FIX APPLIED HERE
                     accent: '#EC407A',
                     accent_gradient: 'linear-gradient(135deg, #EC407A 0%, #F06292 100%)',
                     accent_gradient_shaded: 'linear-gradient(135deg, #F48FB1 0%, #F8BBD0 100%)',
@@ -624,7 +767,7 @@
                     bg: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)',
                     card: 'rgba(255, 255, 255, 0.85)',
                     text: '#5D4037',
-                    text_secondary: '#8D6E63',
+                    text_secondary: '#6D4C41', // <<< FIX APPLIED HERE
                     accent: '#00897B',
                     accent_gradient: 'linear-gradient(135deg, #00897B 0%, #26A69A 100%)',
                     accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)',
@@ -678,7 +821,7 @@
                     bg: 'linear-gradient(135deg, #5D4037 0%, #3E2723 100%)',
                     card: 'rgba(62, 39, 35, 0.75)',
                     text: '#D7CCC8',
-                    text_secondary: '#A1887F',
+                    text_secondary: '#D7CCC8', // <<< FIX APPLIED HERE
                     accent: '#FFCA28',
                     accent_gradient: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)',
                     accent_gradient_shaded: 'linear-gradient(135deg, #FFA000 0%, #FF6F00 100%)',
@@ -856,6 +999,11 @@
                 this.timerId = null;
                 this.timeLeft = this.config.timeLimit;
                 
+                // Tutorial system
+                this.tutorialMode = false;
+                this.tutorialStep = 0;
+                this.tutorialModal = null;
+                
                 this.SYMBOLS = this.theme.symbols;
                 this.SYMBOL_COLORS = this.theme.symbolColors;
                 this.SPECIAL_SYMBOLS = { 'WILD': '💎', 'CURSED': '☠️' };
@@ -888,7 +1036,8 @@
                     new_game_btn: 'new-game-btn', game_board_container: 'game-board-container', scoring_panel: 'scoring-panel',
                     effects_container: 'effects-container', rules_title: 'rules-title', 
                     in_game_content: 'in-game-content', pre_game_content: 'pre-game-content',
-                    controls_container: 'controls-container'
+                    controls_container: 'controls-container',
+                    tutorial_modal: 'tutorial-modal', tutorial_content: 'tutorial-content', tutorial_next_btn: 'tutorial-next-btn', close_tutorial_btn: 'close-tutorial-btn'
                 };
                 for (const key in idMap) {
                     elements[key] = document.getElementById(idMap[key]);
@@ -932,6 +1081,9 @@
                     this.cursedBlockTurn = Math.floor(Math.random() * 8) + 5;
                     this.wildcardTurn = Math.floor(Math.random() * 8) + 15;
                     if (this.wildcardTurn === this.cursedBlockTurn) this.wildcardTurn++;
+                    
+                    // Initialize tutorial for new games
+                    this.initTutorial();
                 }
 
                 this.cellToExchange = null; this.swapFirstCell = null;
@@ -940,7 +1092,7 @@
                 this.highScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
                 this.DOMElements.high_score.textContent = this.highScore;
 
-                ['game-over-modal', 'exchange-modal', 'rules-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
+                ['game-over-modal', 'exchange-modal', 'rules-modal', 'tutorial-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
                 
                 this.audioInit();
                 this.renderGrid().then(() => {
@@ -953,6 +1105,79 @@
                 this.updateAllScores();
                 this.updateProgressBar();
                 this.syncPanelHeights();
+            }
+
+            // Tutorial System Methods
+            initTutorial() {
+                if (localStorage.getItem('allohaTutorialCompleted')) return;
+                
+                this.tutorialMode = true;
+                this.tutorialStep = 0;
+                setTimeout(() => this.showTutorialStep(), 1000);
+            }
+
+            showTutorialStep() {
+                const steps = [
+                    {
+                        title: "Welcome to Alloha!",
+                        content: "Let's learn how to play. Click the dice button to roll your first pair!",
+                    },
+                    {
+                        title: "Place Your Allohas",
+                        content: "Click on an empty cell to place your first symbol, then an adjacent cell for the second.",
+                    },
+                    {
+                        title: "Create Lines",
+                        content: "Match 3 or more symbols in a row or column to score points!",
+                    },
+                    {
+                        title: "Special Patterns",
+                        content: "Highlighted cells give bonus points when you create lines through them!",
+                    }
+                ];
+
+                if (this.tutorialStep >= steps.length) {
+                    this.completeTutorial();
+                    return;
+                }
+
+                const step = steps[this.tutorialStep];
+                this.updateTutorialModal(step);
+            }
+
+            updateTutorialModal(step) {
+                const modal = this.DOMElements.tutorial_modal;
+                const content = this.DOMElements.tutorial_content;
+                const nextBtn = this.DOMElements.tutorial_next_btn;
+                const progressDots = modal.querySelectorAll('.tutorial-progress-dot');
+                
+                // Update content
+                content.innerHTML = `<p class="text-lg">${step.content}</p>`;
+                
+                // Update progress dots
+                progressDots.forEach((dot, index) => {
+                    if (index === this.tutorialStep) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+                
+                // Update button text for last step
+                if (this.tutorialStep === 3) {
+                    nextBtn.textContent = "Start Playing";
+                } else {
+                    nextBtn.textContent = "Next";
+                }
+                
+                // Show modal
+                modal.classList.add('is-open');
+            }
+
+            completeTutorial() {
+                this.tutorialMode = false;
+                localStorage.setItem('allohaTutorialCompleted', 'true');
+                this.DOMElements.tutorial_modal.classList.remove('is-open');
             }
 
             getState() {
@@ -1253,6 +1478,7 @@
                 await delay(600);
                 
                 d1.classList.remove('dice-tumble'); d2.classList.remove('dice-tumble');
+                
                 this.gameStateManager.setState('AWAITING_PLACEMENT');
                 this.saveStateForUndo(); 
                 this.updateControlsState(); 
@@ -1269,12 +1495,34 @@
                 if (!this.gameStateManager.is('AWAITING_PLACEMENT')) return;
                 if (this.firstPlacementCell) { this.handleSecondPlacement(r, c, cell); } else { this.handleFirstPlacement(r, c); }
             }
-            handleFirstPlacement(r, c) { if (!this.gridData[r][c]) { this.gridData[r][c] = this.currentRoll[0]; this.firstPlacementCell = { r, c }; this.updateGridCell(r, c); this.updateSuperpowerButtonsUI(); } }
+            handleFirstPlacement(r, c) { 
+                if (!this.gridData[r][c]) { 
+                    this.gridData[r][c] = this.currentRoll[0]; 
+                    this.firstPlacementCell = { r, c }; 
+                    this.updateGridCell(r, c); 
+                    this.highlightValidPlacements(r, c);
+                    this.updateSuperpowerButtonsUI(); 
+                } 
+            }
             handleSecondPlacement(r, c, cell) {
                 const { r: pR, c: pC } = this.firstPlacementCell;
-                if (pR === r && pC === c) { this.gridData[r][c] = null; this.firstPlacementCell = null; this.updateGridCell(r, c); this.updateSuperpowerButtonsUI(); return; }
-                if ((Math.abs(pR - r) + Math.abs(pC - c) === 1) && !this.gridData[r][c]) { this.completeMove(r, c); }
-                else { cell.classList.add('shake-animation'); setTimeout(() => cell.classList.remove('shake-animation'), 400); this.audioPlay('invalid'); }
+                if (pR === r && pC === c) { 
+                    this.gridData[r][c] = null; 
+                    this.firstPlacementCell = null; 
+                    this.updateGridCell(r, c); 
+                    this.clearPlacementHighlights();
+                    this.updateSuperpowerButtonsUI(); 
+                    return; 
+                }
+                if ((Math.abs(pR - r) + Math.abs(pC - c) === 1) && !this.gridData[r][c]) { 
+                    this.clearPlacementHighlights();
+                    this.completeMove(r, c); 
+                }
+                else { 
+                    cell.classList.add('shake-animation'); 
+                    setTimeout(() => cell.classList.remove('shake-animation'), 400); 
+                    this.audioPlay('invalid'); 
+                }
             }
             saveStateForUndo() { this.lastGameState = this.getState(); }
             async completeMove(r, c) {
@@ -1286,6 +1534,18 @@
                 this.updateGridCell(r, c);
                 this.audioPlay('pop');
                 this.triggerVibration(20);
+                
+                // Add last move indicator
+                this.gridCells[r][c].classList.add('last-move');
+                this.gridCells[this.firstPlacementCell?.r || r][this.firstPlacementCell?.c || c].classList.add('last-move');
+                
+                // Remove after delay
+                setTimeout(() => {
+                    this.gridCells[r][c].classList.remove('last-move');
+                    if (this.firstPlacementCell) {
+                        this.gridCells[this.firstPlacementCell.r][this.firstPlacementCell.c].classList.remove('last-move');
+                    }
+                }, 2000);
                 
                 await delay(300);
                 this.processTurnEnd();
@@ -1301,6 +1561,70 @@
                 }
                 this.gameStateManager.setState('AWAITING_ROLL');
                 this.renderControls();
+            }
+
+            // Enhanced Visual Feedback Methods
+            highlightValidPlacements(r, c) {
+                const adjacent = [
+                    [r-1, c], [r+1, c], [r, c-1], [r, c+1]
+                ];
+                
+                adjacent.forEach(([nr, nc]) => {
+                    if (nr >= 0 && nr < this.GRID_SIZE && 
+                        nc >= 0 && nc < this.GRID_SIZE && 
+                        !this.gridData[nr][nc]) {
+                        
+                        const cell = this.gridCells[nr][nc];
+                        cell.classList.add('valid-placement');
+                    }
+                });
+            }
+
+            clearPlacementHighlights() {
+                this.gridCells.flat().forEach(cell => {
+                    cell.classList.remove('valid-placement');
+                });
+            }
+
+            celebrateMatch(cells) {
+                cells.forEach(({r, c}) => {
+                    const cell = this.gridCells[r][c];
+                    
+                    // Add pulse effect using transform
+                    cell.style.transform = 'scale(1.2)';
+                    cell.style.transition = 'transform 0.3s ease-out';
+                    
+                    // Create floating score indicator
+                    const scoreIndicator = document.createElement('div');
+                    scoreIndicator.className = 'score-indicator';
+                    scoreIndicator.textContent = '+3';
+                    scoreIndicator.style.cssText = `
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        font-weight: bold;
+                        color: var(--accent);
+                        font-size: 1.5rem;
+                        pointer-events: none;
+                        z-index: 100;
+                    `;
+                    
+                    cell.appendChild(scoreIndicator);
+                    
+                    // Animate score indicator
+                    setTimeout(() => {
+                        scoreIndicator.style.transform = 'translate(-50%, -150%)';
+                        scoreIndicator.style.opacity = '0';
+                        scoreIndicator.style.transition = 'all 0.5s ease-out';
+                    }, 100);
+                    
+                    // Clean up
+                    setTimeout(() => {
+                        cell.style.transform = '';
+                        scoreIndicator.remove();
+                    }, 600);
+                });
             }
 
             // --- NEW HELPER & SEQUENCE METHODS FOR GOLDEN ALLOHA ---
@@ -1730,6 +2054,17 @@
                 this.DOMElements.close_rules_btn.addEventListener('click', () => this.DOMElements.rules_modal.classList.remove('is-open'));
                 this.DOMElements.close_game_over_btn.addEventListener('click', () => this.DOMElements.game_over_modal.classList.remove('is-open'));
                 this.DOMElements.play_again_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); gameManager.resetCurrentVariant(); });
+                
+                // Tutorial event listeners
+                this.DOMElements.close_tutorial_btn.addEventListener('click', () => {
+                    this.completeTutorial();
+                });
+                
+                this.DOMElements.tutorial_next_btn.addEventListener('click', () => {
+                    this.tutorialStep++;
+                    this.showTutorialStep();
+                });
+                
                 window.addEventListener('resize', this.syncPanelHeights.bind(this));
             }
         }
@@ -1929,7 +2264,7 @@
                             game.updateSuperpowerButtonsUI();
                             game.gameStateManager.setState(game.firstPlacementCell ? 'AWAITING_PLACEMENT' : 'AWAITING_ROLL');
                         } else {
-                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal'].forEach(id => document.getElementById(id).classList.remove('is-open'));
+                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
                         }
                     }
                     if (e.key === ' ' && game.gameStateManager.is('AWAITING_ROLL')) {
