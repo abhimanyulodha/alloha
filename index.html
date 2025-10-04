@@ -266,7 +266,7 @@
             100% { opacity: 0; transform: scale(1.5) translate(var(--sparkle-x), var(--sparkle-y)); }
         }
 
-        /* --- NEW: Hero Symbol Hint Style --- */
+        /* --- UPDATED: Smaller Hero Symbol Hint Style --- */
         .hero-block-hint::before {
             content: var(--hero-symbol);
             position: absolute;
@@ -274,7 +274,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5em; /* Make hint larger than placed symbol */
+            font-size: 1.5em;
             color: var(--text);
             opacity: 0.1;
             z-index: 0;
@@ -316,7 +316,9 @@
                     <div id="in-game-content"></div>
                 </div>
 
-                <div class="relative w-full h-2.5 progress-bar-container"></div>
+                <div class="relative w-full h-2.5 progress-bar-container">
+                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                </div>
 
                 <div class="my-auto">
                     <div class="flex justify-center items-center gap-3">
@@ -375,7 +377,7 @@
                     <h2 id="rules-title" class="text-3xl font-bold" style="font-family: 'Pacifico', cursive; color: var(--accent);">How to Play Alloha</h2>
                     <p class="text-sm mt-2 font-bold" style="color: var(--text-secondary);">A fun & simple game by Abhimanyu Lodha</p>
                 </div>
-                <button id="close-rules-btn" class="w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold flex-shrink-0">×</button>
+                <button id="close-rules-btn" aria-label="Close How to Play" class="w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold flex-shrink-0">×</button>
             </div>
             <div class="space-y-4 text-sm max-h-[70vh] overflow-y-auto pr-2" style="color: var(--text-secondary)">
                 <h3 class="font-bold text-lg" style="color: var(--accent);">🎯 The Goal</h3>
@@ -443,7 +445,7 @@
         <div class="modal-content w-full max-w-sm themed-modal p-6 transform scale-95 -translate-y-4">
             <div class="flex justify-between items-center mb-4">
                  <h2 class="text-2xl font-bold" style="color: var(--accent);">Select Edition</h2>
-                 <button id="close-edition-select-btn" class="w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
+                 <button id="close-edition-select-btn" aria-label="Close Select Edition" class="w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
             </div>
             <div class="flex items-center justify-center mb-4 space-x-4">
                 <span id="classic-text" class="font-semibold" style="color: var(--text-secondary)">Classic</span>
@@ -469,7 +471,7 @@
 
     <div id="game-over-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
         <div class="modal-content w-full max-w-md text-center themed-modal p-8 transform scale-95 -translate-y-4 relative">
-            <button id="close-game-over-btn" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
+            <button id="close-game-over-btn" aria-label="Close Game Over" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
             <h2 class="text-4xl font-bold mb-2" style="font-family: 'Pacifico', cursive; color: var(--accent);">Game Over Alloha!</h2>
             <p id="game-over-reason" class="text-lg mt-2 mb-4" style="color: var(--accent);"></p>
             <div id="final-score-modal" class="text-7xl font-bold my-4" style="color: var(--accent);"></div>
@@ -510,7 +512,7 @@
 
     <div id="tutorial-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
         <div class="modal-content w-full max-w-md text-center themed-modal p-8 transform scale-95 -translate-y-4 relative">
-            <button id="close-tutorial-btn" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
+            <button id="close-tutorial-btn" aria-label="Close Tutorial" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
             <h2 class="text-4xl font-bold mb-2" style="font-family: 'Pacifico', cursive; color: var(--accent);">Welcome to Alloha!</h2>
             <div id="tutorial-content" class="text-lg mt-4 mb-6" style="color: var(--text-secondary);">
                 </div>
@@ -525,6 +527,7 @@
     </div>
 
     <script>
+    (function() { // <-- FIX 1: Start of IIFE wrapper
         // --- NEW: Helper functions for animations ---
         function createSparkles(element) {
             const rect = element.getBoundingClientRect();
@@ -792,8 +795,13 @@
                     controls_container: 'controls-container',
                     tutorial_modal: 'tutorial-modal', tutorial_content: 'tutorial-content', tutorial_next_btn: 'tutorial-next-btn', close_tutorial_btn: 'close-tutorial-btn'
                 };
+                // -- FIX 2: Defensive Programming --
                 for (const key in idMap) {
-                    elements[key] = document.getElementById(idMap[key]);
+                    const element = document.getElementById(idMap[key]);
+                    if (!element) {
+                        console.warn(`[Alloha Dev Warning] DOM element not found for key: "${key}" with ID: "${idMap[key]}"`);
+                    }
+                    elements[key] = element;
                 }
                 return elements;
             }
@@ -1146,7 +1154,7 @@
                 }
 
                 wrapper.innerHTML = `<div class="flex justify-center items-center gap-2 lg:gap-4">
-                    <button id="roll-dice-btn" class="w-14 h-14 lg:w-16 lg:h-16 text-4xl lg:text-5xl flex items-center justify-center" style="color: var(--accent);">🎲</button>
+                    <button id="roll-dice-btn" aria-label="Roll Dice" class="w-14 h-14 lg:w-16 lg:h-16 text-4xl lg:text-5xl flex items-center justify-center" style="color: var(--accent);">🎲</button>
                     <div id="dice-1" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
                     <div id="dice-2" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
                     ${timerHTML}
@@ -1384,22 +1392,30 @@
                 animateScoreUpdate('end-game-score-display', score, 3);
             }
 
-            waitForCellClick(validCells) {
-                return new Promise(resolve => {
-                    const board = this.DOMElements.game_board;
-                    const clickHandler = (e) => {
-                        const cellEl = e.target.closest('[data-row]');
-                        if (!cellEl) return;
-                        const r = parseInt(cellEl.dataset.row);
-                        const c = parseInt(cellEl.dataset.col);
+            // -- FIX 3: Robust Event Listener handling --
+            async waitForCellClick(validCells) {
+                const board = this.DOMElements.game_board;
+                let clickHandler;
+                try {
+                    return await new Promise(resolve => {
+                        clickHandler = (e) => {
+                            const cellEl = e.target.closest('[data-row]');
+                            if (!cellEl) return;
+                            const r = parseInt(cellEl.dataset.row);
+                            const c = parseInt(cellEl.dataset.col);
 
-                        if (validCells.some(cell => cell.r === r && cell.c === c)) {
-                            board.removeEventListener('click', clickHandler);
-                            resolve({ r, c });
-                        }
-                    };
-                    board.addEventListener('click', clickHandler);
-                });
+                            if (validCells.some(cell => cell.r === r && cell.c === c)) {
+                                resolve({ r, c });
+                            }
+                        };
+                        board.addEventListener('click', clickHandler);
+                    });
+                } finally {
+                    // This block ensures the listener is always removed once the promise resolves.
+                    if (clickHandler) {
+                        board.removeEventListener('click', clickHandler);
+                    }
+                }
             }
 
             async startGoldenAllohaSequence() {
@@ -2053,6 +2069,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             gameManager.init();
         });
+    })(); // <-- FIX 1: End of IIFE wrapper
     </script>
 </body>
 </html>
