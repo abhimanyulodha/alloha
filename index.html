@@ -320,7 +320,8 @@
                     <div id="progress-bar-fill" class="progress-bar-fill"></div>
                 </div>
 
-                <div class="my-auto">
+                <!-- REMOVED 'my-auto' FROM THIS DIV -->
+                <div>
                     <div class="flex justify-center items-center gap-3">
                         <button id="rules-btn" class="flex-1 py-2 px-4 themed-button text-sm" style="color: var(--accent); background: var(--accent-light);">How to Play</button>
                         <button id="new-game-btn" class="flex-1 py-2 px-4 themed-button text-white text-sm">New Game</button>
@@ -337,31 +338,35 @@
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-2 gap-3 text-center">
-                    <div class="glass-card rounded-xl px-3 py-2">
-                        <h3 class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">Total Score</h3>
-                        <div id="total-score" class="text-2xl font-bold" style="color: var(--accent);"></div>
+                <!-- ADDED A WRAPPER DIV WITH 'mt-auto' TO PUSH SCORE CARDS TO THE BOTTOM -->
+                <div class="mt-auto flex flex-col gap-y-4">
+                    <div class="grid grid-cols-2 gap-3 text-center">
+                        <div class="glass-card rounded-xl px-3 py-2">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">Total Score</h3>
+                            <div id="total-score" class="text-2xl font-bold" style="color: var(--accent);"></div>
+                        </div>
+                        <div class="glass-card rounded-xl px-3 py-2">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">High Score</h3>
+                            <div id="high-score" class="text-2xl font-bold" style="color: #FFC107;"></div>
+                        </div>
                     </div>
-                    <div class="glass-card rounded-xl px-3 py-2">
-                        <h3 class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">High Score</h3>
-                        <div id="high-score" class="text-2xl font-bold" style="color: #FFC107;"></div>
-                    </div>
-                </div>
 
-                <div id="score-breakdown-card" class="glass-card rounded-xl p-3 text-center">
-                    <div class="grid grid-cols-3 gap-2 mb-2">
-                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Rows</h3><div id="rows-total-score" class="text-lg font-bold"></div></div>
-                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Columns</h3><div id="cols-total-score" class="text-lg font-bold"></div></div>
-                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Twinning</h3><div id="cross-total-score" class="text-lg font-bold" style="color: #FFC107;"></div></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Grid Bonus</h3><div id="bonus-grid-score" class="text-lg font-bold" style="color: #FFC107;"></div></div>
-                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Hero Bonus</h3><div id="hero-bonus-score" class="text-lg font-bold" style="color: #FFC107;"></div></div>
-                    </div>
-                    <div class="border-t border-white/20 mt-2 pt-2 mb-1">
-                        <div class="flex justify-center items-center gap-4">
-                             <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Bomb Squad Charge</h3>
-                             <div id="empty-block-penalty" class="text-lg font-bold" style="color: var(--text);"></div>
+                    <!-- INCREASED PADDING AND GAPS FOR MORE BREATHING ROOM -->
+                    <div id="score-breakdown-card" class="glass-card rounded-xl p-4 text-center">
+                        <div class="grid grid-cols-3 gap-3 mb-3">
+                            <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Rows</h3><div id="rows-total-score" class="text-lg font-bold mt-1"></div></div>
+                            <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Columns</h3><div id="cols-total-score" class="text-lg font-bold mt-1"></div></div>
+                            <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Twinning</h3><div id="cross-total-score" class="text-lg font-bold mt-1" style="color: #FFC107;"></div></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Grid Bonus</h3><div id="bonus-grid-score" class="text-lg font-bold mt-1" style="color: #FFC107;"></div></div>
+                            <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Hero Bonus</h3><div id="hero-bonus-score" class="text-lg font-bold mt-1" style="color: #FFC107;"></div></div>
+                        </div>
+                        <div class="border-t border-white/20 mt-3 pt-3 mb-1">
+                            <div class="flex justify-center items-center gap-4">
+                                 <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Bomb Squad Charge</h3>
+                                 <div id="empty-block-penalty" class="text-lg font-bold" style="color: var(--text);"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
