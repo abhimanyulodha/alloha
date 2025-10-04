@@ -25,9 +25,9 @@
             --toggle-bg-inactive: #E0E0E0;
             --stuck-block: linear-gradient(135deg, #757575 0%, #616161 100%);
             --glass-border: rgba(255, 255, 255, 0.2);
-            --shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.06);
-            --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.08);
-            --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.10);
+            --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.07);
+            --shadow-strong: 0 15px 50px rgba(0, 0, 0, 0.09);
             --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
             --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
             --ease-quick: cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -48,6 +48,9 @@
             background-size: 400% 400%;
             animation: gradient-pan 20s ease infinite;
         }
+        body.modal-open {
+            overflow: hidden;
+        }
         .themed-button {
             font-weight: 600; border-radius: 12px; transition: all 0.3s var(--ease-smooth);
             border: none; position: relative; overflow: hidden; transform-origin: center;
@@ -63,8 +66,8 @@
         .grid-cell {
             aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: clamp(1.2rem, 5.5vw, 2.75rem);
             transition: all 0.3s var(--ease-smooth); background: var(--grid-cell-bg);
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
             position: relative; overflow: hidden; min-width: 40px; min-height: 40px;
         }
         .grid-cell:hover:not(.highlighted):not(.stuck-cell):not(.score-display-cell) {
@@ -130,6 +133,10 @@
         #mode-toggle-switch.time-burst-active { background-color: var(--accent); }
         #mode-toggle-switch.time-burst-active #mode-toggle-thumb { transform: translateX(1.5rem); }
         #timer-display { font-variant-numeric: tabular-nums; transform: translateZ(0); }
+        
+        #edition-options, #rules-modal .space-y-4 {
+             -webkit-overflow-scrolling: touch;
+        }
         #edition-options::-webkit-scrollbar { width: 8px; }
         #edition-options::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
         #edition-options::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
@@ -158,9 +165,7 @@
             0% { top: -20px; opacity: 1; transform: rotate(0deg); }
             100% { top: 100%; opacity: 1; transform: rotate(720deg); }
         }
-        .focused-cell {
-            outline: 3px solid var(--accent); outline-offset: 2px; box-shadow: 0 0 12px var(--accent);
-        }
+        
         @keyframes pulse-faint {
             0%, 100% { transform: scale(1); box-shadow: var(--shadow-soft); }
             50% { transform: scale(1.02); box-shadow: var(--shadow-medium); }
@@ -184,145 +189,106 @@
             50% { transform: translateY(-4px); }
         }
         .bob-animation { animation: bob-animation 2s ease-in-out infinite; }
-        @keyframes score-pop {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.2); color: var(--accent); }
-          100% { transform: scale(1); }
-        }
-        .score-update-animation { animation: score-pop 0.3s ease-in-out; }
+        
         @keyframes twinning-flash {
             0%, 100% { background-color: var(--highlighted-bg); }
             50% { background-color: var(--accent); }
         }
         .twinning-flash-animation { animation: twinning-flash 1.5s ease-in-out; }
-        
-        /* Tutorial Styles - Matching Game Over Modal */
-        .tutorial-overlay {
+
+        .tutorial-progress-dot {
+            width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: var(--accent-light);
+        }
+        .tutorial-progress-dot.active {
+            background-color: var(--accent);
+        }
+
+        .valid-placement { box-shadow: 0 0 0 1px rgba(229, 115, 115, 0.3) !important; transform: scale(1.02) !important; }
+
+        @keyframes score-pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.5); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 215, 0, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+        }
+        .score-pulse-animation {
+            animation: score-pulse 0.8s ease-in-out; z-index: 10;
+        }
+
+        .floating-score {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 50;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            z-index: 100;
+            pointer-events: none;
+            animation: float-to-score 1.2s ease-in forwards;
+        }
+        @keyframes float-to-score {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0.5); }
+        }
+        
+        .digit-score-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .digit-container {
+            height: 1em; 
+            overflow: hidden;
+            line-height: 1em;
+        }
+        .digit-strip {
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+        .score-parenthesis {
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .sparkle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: #FFD700;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0;
+            animation: sparkle-anim 0.7s ease-out;
+        }
+        @keyframes sparkle-anim {
+            0% { opacity: 1; transform: scale(0.5) translate(0, 0); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: scale(1.5) translate(var(--sparkle-x), var(--sparkle-y)); }
+        }
+
+        /* --- NEW: Hero Symbol Hint Style --- */
+        .hero-block-hint::before {
+            content: var(--hero-symbol);
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            backdrop-filter: blur(4px);
-            transition: all 0.3s var(--ease-smooth);
-        }
-
-        .tutorial-overlay.is-open {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .tutorial-content {
-            width: 100%;
-            max-w-md;
-            text-center;
-            themed-modal;
-            p-8;
-            transform: scale(0.95) translateY(4px);
-            transition: all 0.3s var(--ease-smooth);
-        }
-
-        .tutorial-overlay.is-open .tutorial-content {
-            transform: scale(1) translateY(0);
-        }
-
-        .tutorial-content h2 {
-            text-4xl;
-            font-bold;
-            mb-2;
-            font-family: 'Pacifico', cursive;
-            color: var(--accent);
-        }
-
-        .tutorial-content p {
-            text-lg;
-            mt-2;
-            mb-6;
-            color: var(--text-secondary);
-        }
-
-        .tutorial-content .tutorial-step {
-            text-base;
-            mb-4;
+            font-size: 2.5em; /* Make hint larger than placed symbol */
             color: var(--text);
-        }
-
-        .tutorial-content .tutorial-step-number {
-            inline-block;
-            w-8;
-            h-8;
-            rounded-full;
-            bg: var(--accent);
-            text-white;
-            font-bold;
-            mr-2;
-            mb-1;
-        }
-
-        .tutorial-next-btn {
-            themed-button;
-            text-white;
-            font-bold;
-            py-3;
-            px-6;
-            rounded-xl;
-            text-lg;
-            background: var(--accent-gradient);
-        }
-
-        .tutorial-progress {
-            flex;
-            justify-center;
-            mt-4;
-            gap-2;
-        }
-
-        .tutorial-progress-dot {
-            w-2;
-            h-2;
-            rounded-full;
-            bg: var(--accent-light);
-        }
-
-        .tutorial-progress-dot.active {
-            bg: var(--accent);
-        }
-
-        /* Enhanced Visual Feedback Styles */
-        .last-move {
-            box-shadow: 0 0 0 2px var(--accent) !important;
-            animation: lastMovePulse 2s ease-out;
-        }
-
-        @keyframes lastMovePulse {
-            0% { box-shadow: 0 0 0 0 var(--accent); }
-            50% { box-shadow: 0 0 0 4px var(--accent); }
-            100% { box-shadow: 0 0 0 2px var(--accent); }
-        }
-
-        .score-indicator {
-            animation: floatUp 0.5s ease-out forwards;
-        }
-
-        @keyframes floatUp {
-            to {
-                transform: translate(-50%, -150%);
-                opacity: 0;
-            }
-        }
-
-        .valid-placement {
-            box-shadow: 0 0 0 1px rgba(229, 115, 115, 0.3) !important;
-            transform: scale(1.02) !important;
+            opacity: 0.1;
+            z-index: 0;
         }
     </style>
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-62DV4PDJ4X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-62DV4PDJ4X');
+    </script>
 </head>
 <body class="p-2 lg:p-4">
     <audio id="audio-unlocker" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" preload="auto"></audio>
@@ -372,27 +338,32 @@
                 <div class="grid grid-cols-2 gap-3 text-center">
                     <div class="glass-card rounded-xl px-3 py-2">
                         <h3 class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">Total Score</h3>
-                        <p id="total-score" class="text-2xl font-bold" style="color: var(--accent);">0</p>
+                        <div id="total-score" class="text-2xl font-bold" style="color: var(--accent);"></div>
                     </div>
                     <div class="glass-card rounded-xl px-3 py-2">
                         <h3 class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">High Score</h3>
-                        <p id="high-score" class="text-2xl font-bold" style="color: #FFC107;">0</p>
+                        <div id="high-score" class="text-2xl font-bold" style="color: #FFC107;"></div>
                     </div>
                 </div>
+
                 <div id="score-breakdown-card" class="glass-card rounded-xl p-3 text-center">
+                    <div class="grid grid-cols-3 gap-2 mb-2">
+                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Rows</h3><div id="rows-total-score" class="text-lg font-bold"></div></div>
+                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Columns</h3><div id="cols-total-score" class="text-lg font-bold"></div></div>
+                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Twinning</h3><div id="cross-total-score" class="text-lg font-bold" style="color: #FFC107;"></div></div>
+                    </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Rows</h3><p id="rows-total-score" class="text-lg font-bold">0</p></div>
-                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Columns</h3><p id="cols-total-score" class="text-lg font-bold">0</p></div>
-                        <div><h3 class="text-xs font-semibold uppercase tracking-wider mt-2" style="color: var(--text-secondary);">Twinning</h3><p id="cross-total-score" class="text-lg font-bold" style="color: #FFC107;">0</p></div>
-                        <div><h3 class="text-xs font-semibold uppercase tracking-wider mt-2" style="color: var(--text-secondary);">Grid Bonus</h3><p id="bonus-grid-score" class="text-lg font-bold" style="color: #FFC107;">0</p></div>
+                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Grid Bonus</h3><div id="bonus-grid-score" class="text-lg font-bold" style="color: #FFC107;"></div></div>
+                        <div><h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Hero Bonus</h3><div id="hero-bonus-score" class="text-lg font-bold" style="color: #FFC107;"></div></div>
                     </div>
                     <div class="border-t border-white/20 mt-2 pt-2 mb-1">
                         <div class="flex justify-center items-center gap-4">
                              <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Bomb Squad Charge</h3>
-                             <p id="empty-block-penalty" class="text-lg font-bold" style="color: var(--text);">0</p>
+                             <div id="empty-block-penalty" class="text-lg font-bold" style="color: var(--text);"></div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </main>
@@ -416,6 +387,9 @@
                     <li><b>Place Your Pair:</b> Place both Allohas in any two empty, adjacent (but not diagonal) squares on the grid.</li>
                     <li><b>Explore Editions:</b> Use the "Select Game Edition" button to discover different versions of the game, each with a unique theme and a special "Twinning" scoring pattern!</li>
                 </ol>
+
+                <h3 class="font-bold text-lg" style="color: var(--accent);">👑 The Hero Symbol</h3>
+                <p>At the start of each game, one symbol is chosen as the "Hero." You will see faint watermarks of this symbol on 7 random squares. Place the correct Hero Symbol on these squares to earn a <b>+2 Hero Bonus</b> each time!</p>
                 
                 <h3 class="font-bold text-lg" style="color: var(--accent);">✨ Superpowers</h3>
                 <p>You can use <b>two different superpowers</b> once per game to get out of a tight spot!</p>
@@ -498,13 +472,14 @@
             <button id="close-game-over-btn" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
             <h2 class="text-4xl font-bold mb-2" style="font-family: 'Pacifico', cursive; color: var(--accent);">Game Over Alloha!</h2>
             <p id="game-over-reason" class="text-lg mt-2 mb-4" style="color: var(--accent);"></p>
-            <p id="final-score-modal" class="text-7xl font-bold my-4" style="color: var(--accent);">0</p>
+            <div id="final-score-modal" class="text-7xl font-bold my-4" style="color: var(--accent);"></div>
             <div id="score-breakdown" class="mb-6 p-4 glass-card rounded-xl text-xs" style="display: grid;">
                 <div class="grid grid-cols-2 gap-2">
                     <div class="text-left">Rows: <span id="final-rows-score" class="float-right font-bold">0</span></div>
                     <div class="text-left">Columns: <span id="final-cols-score" class="float-right font-bold">0</span></div>
                     <div class="text-left">Twinning: <span id="final-cross-score" class="float-right font-bold">0</span></div>
                     <div class="text-left">Bonus Grids: <span id="final-bonus-score" class="float-right font-bold">0</span></div>
+                    <div class="text-left">Hero Bonus: <span id="final-hero-score" class="float-right font-bold">0</span></div>
                     <div class="text-left col-span-2 border-t pt-2 mt-2">Bomb Squad Charge: <span id="final-penalty-score" class="float-right font-bold">0</span></div>
                 </div>
             </div>
@@ -550,369 +525,122 @@
     </div>
 
     <script>
+        // --- NEW: Helper functions for animations ---
+        function createSparkles(element) {
+            const rect = element.getBoundingClientRect();
+            const container = document.body;
+            for (let i = 0; i < 8; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.top = `${rect.top + rect.height / 2}px`;
+                sparkle.style.left = `${rect.left + rect.width / 2}px`;
+                const randomAngle = Math.random() * 2 * Math.PI;
+                const randomDist = Math.random() * 50 + 20;
+                sparkle.style.setProperty('--sparkle-x', `${Math.cos(randomAngle) * randomDist}px`);
+                sparkle.style.setProperty('--sparkle-y', `${Math.sin(randomAngle) * randomDist}px`);
+                container.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 700);
+            }
+        }
+
+        function showFloatingScore(text, sourceElement) {
+            const floater = document.createElement('div');
+            floater.className = 'floating-score';
+            floater.textContent = text;
+            const startRect = sourceElement.getBoundingClientRect();
+            floater.style.top = `${startRect.top + startRect.height / 2 - 15}px`;
+            floater.style.left = `${startRect.left + startRect.width / 2 - 15}px`;
+            document.body.appendChild(floater);
+            setTimeout(() => floater.remove(), 1200);
+        }
+
+        function animateScoreUpdate(containerId, newValue, minLength = 1) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            container.classList.add('digit-score-container');
+            const oldValue = parseInt(container.dataset.currentValue || '0');
+            if (newValue > oldValue) createSparkles(container);
+            container.dataset.currentValue = newValue;
+
+            const isNegative = newValue < 0;
+            const absValueStr = String(Math.abs(newValue)).padStart(minLength, '0');
+
+            // Handle Parentheses
+            const openParenId = `paren-open-${containerId}`;
+            const closeParenId = `paren-close-${containerId}`;
+            let openParen = document.getElementById(openParenId);
+            let closeParen = document.getElementById(closeParenId);
+
+            if (isNegative) {
+                if (!openParen) {
+                    openParen = document.createElement('span');
+                    openParen.id = openParenId;
+                    openParen.className = 'score-parenthesis';
+                    openParen.textContent = '(';
+                    container.prepend(openParen);
+                }
+                if (!closeParen) {
+                    closeParen = document.createElement('span');
+                    closeParen.id = closeParenId;
+                    closeParen.className = 'score-parenthesis';
+                    closeParen.textContent = ')';
+                    container.appendChild(closeParen);
+                }
+            } else {
+                if (openParen) openParen.remove();
+                if (closeParen) closeParen.remove();
+            }
+
+            // Handle Digits
+            const numDigits = absValueStr.length;
+            let existingDigitContainers = container.querySelectorAll('.digit-container');
+            while (existingDigitContainers.length < numDigits) {
+                const digitContainer = document.createElement('div');
+                digitContainer.className = 'digit-container';
+                let stripHTML = '';
+                for(let i=0; i<10; i++) stripHTML += `<span>${i}</span>`;
+                digitContainer.innerHTML = `<div class="digit-strip">${stripHTML}</div>`;
+                if (closeParen) container.insertBefore(digitContainer, closeParen);
+                else container.appendChild(digitContainer);
+                existingDigitContainers = container.querySelectorAll('.digit-container');
+            }
+             while (existingDigitContainers.length > numDigits) {
+                container.querySelector('.digit-container').remove();
+                existingDigitContainers = container.querySelectorAll('.digit-container');
+            }
+            
+            for (let i = 0; i < numDigits; i++) {
+                const digit = parseInt(absValueStr[i]);
+                const digitStrip = container.querySelectorAll('.digit-strip')[i];
+                if (digitStrip) {
+                    const yOffset = -digit * 10;
+                    digitStrip.style.transform = `translateY(${yOffset}%)`;
+                }
+            }
+        }
         // --- THEME CONFIGURATIONS ---
         const themeConfigs = {
-            pastel_pals: {
-                name: "Pastel Pals",
-                symbols: ['🐰', '🐶', '🐯', '🐼', '🦄', '🐸'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)',
-                    card: 'rgba(255, 255, 255, 0.88)',
-                    text: '#4A148C',
-                    text_secondary: '#7B1FA2',
-                    accent: '#8E24AA',
-                    accent_gradient: 'linear-gradient(135deg, #8E24AA 0%, #AB47BC 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #BA68C8 0%, #CE93D8 100%)',
-                    highlighted_bg: 'rgba(142, 36, 170, 0.15)',
-                    highlighted_border: 'rgba(142, 36, 170, 0.3)',
-                    grid_cell_bg: '#F9F6FB',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '🐰':'text-pink-400', '🐶':'text-amber-600', '🐯':'text-orange-500', '🐼':'text-gray-700', '🦄':'text-purple-500', '🐸':'text-green-500' }
-            },
-            green_grocer: {
-                name: "Green Grocer",
-                symbols: ['🥑', '🥦', '🧄', '🌽', '🫑', '🌶️'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%)',
-                    card: 'rgba(255, 255, 255, 0.9)',
-                    text: '#33691E',
-                    text_secondary: '#689F38',
-                    accent: '#8BC34A',
-                    accent_gradient: 'linear-gradient(135deg, #8BC34A 0%, #9CCC65 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #AED581 0%, #C5E1A5 100%)',
-                    highlighted_bg: 'rgba(139, 195, 74, 0.15)',
-                    highlighted_border: 'rgba(139, 195, 74, 0.3)',
-                    grid_cell_bg: '#FCFFF5',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '🥑':'text-green-800', '🥦':'text-green-600', '🧄':'text-gray-500', '🌽':'text-yellow-500', '🫑':'text-green-700', '🌶️':'text-red-600' }
-            },
-            bug_life: {
-                name: "Bug's Life",
-                symbols: ['🦋', '🐝', '🪲', '🐛', '🐞', '🪰'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%)',
-                    card: 'rgba(255, 255, 255, 0.85)',
-                    text: '#004D40',
-                    text_secondary: '#00796B',
-                    accent: '#009688',
-                    accent_gradient: 'linear-gradient(135deg, #009688 0%, #26A69A 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)',
-                    highlighted_bg: 'rgba(0, 150, 136, 0.15)',
-                    highlighted_border: 'rgba(0, 150, 136, 0.3)',
-                    grid_cell_bg: '#F5FCFB',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '🦋':'text-blue-500', '🐝':'text-yellow-500', '🪲':'text-amber-800', '🐛':'text-lime-600', '🐞':'text-red-600', '🪰':'text-gray-700' }
-            },
-            hats_off: {
-                name: "Hats Off",
-                symbols: ['🪖', '🎩', '🧢', '👒', '⛑️', '👑'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #A1887F 0%, #795548 100%)',
-                    card: 'rgba(255, 255, 255, 0.85)',
-                    text: '#3E2723',
-                    text_secondary: '#5D4037',
-                    accent: '#FFD700',
-                    accent_light: '#6D4C41',
-                    accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFC107 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #5D4037 0%, #4E342E 100%)',
-                    highlighted_bg: 'rgba(255, 215, 0, 0.45)',
-                    highlighted_border: 'rgba(255, 215, 0, 0.6)',
-                    grid_cell_bg: '#EFEBE9',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '🪖':'text-green-800', '🎩':'text-gray-800', '🧢':'text-blue-600', '👒':'text-pink-400', '⛑️':'text-red-600', '👑':'text-yellow-500' }
-            },
-            golden_bakery: {
-                name: "Golden Bakery",
-                symbols: ['🍞', '🥯', '🥐', '🧇', '🍪', '🥞'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%)',
-                    card: 'rgba(255, 255, 255, 0.9)',
-                    text: '#8D6E63',
-                    text_secondary: '#A1887F',
-                    accent: '#AF8260',
-                    accent_gradient: 'linear-gradient(135deg, #AF8260 0%, #C19A7B 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #D4B298 0%, #E6C9B4 100%)',
-                    highlighted_bg: 'rgba(175, 130, 96, 0.15)',
-                    highlighted_border: 'rgba(175, 130, 96, 0.3)',
-                    grid_cell_bg: '#FFFBF2',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '🍞':'text-amber-800', '🥯':'text-amber-700', '🥐':'text-orange-600', '🧇':'text-yellow-700', '🍪':'text-amber-900', '🥞':'text-amber-600' }
-            },
-             sporty_vibes: {
-                name: "Sporty Vibes",
-                symbols: ['🏀', '⚽️', '🥎', '🏉', '🏐', '🏈'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)',
-                    card: 'rgba(255, 255, 255, 0.9)',
-                    text: '#1B5E20',
-                    text_secondary: '#2E7D32',
-                    accent: '#FF9800',
-                    accent_gradient: 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #FFB74D 0%, #FFCC80 100%)',
-                    highlighted_bg: 'rgba(255, 152, 0, 0.45)',
-                    highlighted_border: 'rgba(255, 152, 0, 0.6)',
-                    grid_cell_bg: '#F1F8E9',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '🏀':'text-orange-600', '⚽️':'text-black', '🥎':'text-lime-400', '🏉':'text-amber-800', '🏐':'text-blue-500', '🏈':'text-amber-900' }
-            },
-            school_of_magic: {
-                name: "School of Magic",
-                symbols: ['🧙‍♀️', '🦉', '📜', '🏆', '🏟️', '🔮'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #4E342E 0%, #212121 100%)',
-                    card: 'rgba(78, 52, 46, 0.75)',
-                    text: '#FFECB3',
-                    text_secondary: '#D7CCC8',
-                    accent: '#D32F2F',
-                    accent_gradient: 'linear-gradient(135deg, #D32F2F 0%, #FFC107 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #EF5350 0%, #FFD54F 100%)',
-                    highlighted_bg: 'rgba(211, 47, 47, 0.15)',
-                    highlighted_border: 'rgba(211, 47, 47, 0.3)',
-                    grid_cell_bg: '#6D4C41',
-                    toggle_bg_inactive: 'rgba(255,255,255,0.2)',
-                },
-                symbolColors: { '🧙‍♀️':'text-purple-300', '🦉':'text-gray-300', '📜':'text-yellow-200', '🏆':'text-yellow-400', '🏟️':'text-gray-400', '🔮':'text-purple-400' }
-            },
-            emoji_fun: {
-                name: "Emoji Fun",
-                symbols: ['😍', '😎', '🤩', '😂', '🥵', '🤯'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #FFF9C4 0%, #FFF176 100%)',
-                    card: 'rgba(255, 255, 255, 0.9)',
-                    text: '#4E342E',
-                    text_secondary: '#795548',
-                    accent: '#42A5F5',
-                    accent_gradient: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)',
-                    highlighted_bg: 'rgba(66, 165, 245, 0.15)',
-                    highlighted_border: 'rgba(66, 165, 245, 0.3)',
-                    grid_cell_bg: '#FFFDE7',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                 symbolColors: { '😍':'text-red-500', '😎':'text-black', '🤩':'text-yellow-600', '😂':'text-blue-500', '🥵':'text-orange-500', '🤯':'text-purple-500' }
-            },
-            deep_ocean: {
-                name: "Deep Ocean",
-                symbols: ['🐡', '🦑', '🦀', '🐙', '🐳', '🐠'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #1A237E 0%, #0D47A1 100%)',
-                    card: 'rgba(26, 35, 126, 0.7)',
-                    text: '#E3F2FD',
-                    text_secondary: '#90CAF9',
-                    accent: '#42A5F5',
-                    accent_gradient: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)',
-                    highlighted_bg: 'rgba(66, 165, 245, 0.2)',
-                    highlighted_border: 'rgba(66, 165, 245, 0.4)',
-                    grid_cell_bg: '#1976D2',
-                    toggle_bg_inactive: 'rgba(255,255,255,0.2)',
-                },
-                symbolColors: { '🐡':'text-yellow-300', '🦑':'text-pink-300', '🦀':'text-red-400', '🐙':'text-purple-300', '🐳':'text-blue-300', '🐠':'text-orange-300' }
-            },
-            road_block_theme: {
-                name: "Road Block",
-                symbols: ['🚑', '🚌', '🚗', '🚎', '🚜', '✈️'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #B0BEC5 0%, #78909C 100%)',
-                    card: 'rgba(255, 255, 255, 0.8)',
-                    text: '#263238',
-                    text_secondary: '#455A64',
-                    accent: '#FFC107',
-                    accent_gradient: 'linear-gradient(135deg, #FFCA28 0%, #FFD54F 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #FFE082 0%, #FFEE58 100%)',
-                    highlighted_bg: 'rgba(255, 193, 7, 0.15)',
-                    highlighted_border: 'rgba(255, 193, 7, 0.3)',
-                    grid_cell_bg: '#ECEFF1',
-                    toggle_bg_inactive: 'rgba(0,0,0,0.2)',
-                },
-                symbolColors: { '🚑':'text-red-500', '🚌':'text-yellow-500', '🚗':'text-blue-500', '🚎':'text-green-500', '🚜':'text-orange-500', '✈️':'text-gray-400' }
-            },
-            the_post_office: {
-                name: "The Post Office",
-                symbols: ['📦', '📮', '🗂️', '🗳️', '🗄️', '📬'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #EFEBE9 0%, #D7CCC8 100%)',
-                    card: 'rgba(255, 255, 255, 0.9)',
-                    text: '#3E2723',
-                    text_secondary: '#6D4C41',
-                    accent: '#D32F2F',
-                    accent_gradient: 'linear-gradient(135deg, #D32F2F 0%, #E53935 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #EF5350 0%, #E57373 100%)',
-                    highlighted_bg: 'rgba(211, 47, 47, 0.1)',
-                    highlighted_border: 'rgba(211, 47, 47, 0.25)',
-                    grid_cell_bg: '#F8F5F3',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '📦':'text-amber-800', '📮':'text-red-600', '🗂️':'text-gray-500', '🗳️':'text-blue-700', '🗄️':'text-gray-600', '📬':'text-red-700' }
-            },
-            tutti_frutti: {
-                name: "Tutti Frutti",
-                symbols: ['🍓', '🫐', '🍉', '🥝', '🥭', '🍋'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)',
-                    card: 'rgba(255, 255, 255, 0.9)',
-                    text: '#4E342E',
-                    text_secondary: '#6D4C41', // <<< FIX APPLIED HERE
-                    accent: '#EC407A',
-                    accent_gradient: 'linear-gradient(135deg, #EC407A 0%, #F06292 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #F48FB1 0%, #F8BBD0 100%)',
-                    highlighted_bg: 'rgba(236, 64, 122, 0.1)',
-                    highlighted_border: 'rgba(236, 64, 122, 0.25)',
-                    grid_cell_bg: '#FFFFFF',
-                    toggle_bg_inactive: '#F0F0F0',
-                },
-                symbolColors: { '🍓':'text-red-500', '🫐':'text-blue-600', '🍉':'text-green-600', '🥝':'text-lime-700', '🥭':'text-orange-500', '🍋':'text-yellow-500' }
-            },
-            zedi_zodi: {
-                name: "Zodiac Night",
-                symbols: ['♋', '♒', '♎', '♐', '♌', '♉'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #0f0c29 0%, #302b63 100%)',
-                    card: 'rgba(48, 43, 99, 0.75)',
-                    text: '#FFFFFF',
-                    text_secondary: '#A9B4D1',
-                    accent: '#FFD700',
-                    accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)',
-                    highlighted_bg: 'rgba(255, 215, 0, 0.15)',
-                    highlighted_border: 'rgba(255, 215, 0, 0.3)',
-                    grid_cell_bg: '#6A6E89',
-                    toggle_bg_inactive: 'rgba(255,255,255,0.2)',
-                },
-                symbolColors: { '♋':'text-gray-300', '♒':'text-blue-300', '♎':'text-pink-300', '♐':'text-orange-300', '♌':'text-yellow-300', '♉':'text-green-300' }
-            },
-            desert_oasis: {
-                name: "Desert Oasis",
-                symbols: ['🌵', '🪨', '☀️', '🐍', '⛺', '🌴'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)',
-                    card: 'rgba(255, 255, 255, 0.85)',
-                    text: '#5D4037',
-                    text_secondary: '#6D4C41', // <<< FIX APPLIED HERE
-                    accent: '#00897B',
-                    accent_gradient: 'linear-gradient(135deg, #00897B 0%, #26A69A 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)',
-                    highlighted_bg: 'rgba(0, 137, 123, 0.15)',
-                    highlighted_border: 'rgba(0, 137, 123, 0.3)',
-                    grid_cell_bg: '#FFFBF2',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '🌵':'text-green-700', '🪨':'text-gray-600', '☀️':'text-yellow-600', '🐍':'text-emerald-800', '⛺':'text-orange-700', '🌴':'text-lime-800' }
-            },
-            morning_aviary: {
-                name: "Morning Aviary",
-                symbols: ['🐔', '🐦', '🐥', '🐣', '🐝', '🐧'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)',
-                    card: 'rgba(255, 255, 255, 0.9)',
-                    text: '#0D47A1',
-                    text_secondary: '#1976D2',
-                    accent: '#FFA000',
-                    accent_gradient: 'linear-gradient(135deg, #FFA000 0%, #FFB300 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)',
-                    highlighted_bg: 'rgba(255, 160, 0, 0.15)',
-                    highlighted_border: 'rgba(255, 160, 0, 0.3)',
-                    grid_cell_bg: '#F7FBFF',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '🐔':'text-red-600', '🐦':'text-blue-500', '🐥':'text-yellow-500', '🐣':'text-yellow-400', '🐝':'text-yellow-600', '🐧':'text-gray-800' }
-            },
-            creepy_crawlies: {
-                name: "Creepy Crawlies",
-                symbols: ['🐍', '🦎', '🦂', '🐭', '🥚', '🐁'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #37474F 0%, #212121 100%)',
-                    card: 'rgba(38, 50, 56, 0.8)',
-                    text: '#CFD8DC',
-                    text_secondary: '#90A4AE',
-                    accent: '#7E57C2',
-                    accent_gradient: 'linear-gradient(135deg, #7E57C2 0%, #9575CD 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #B39DDB 0%, #D1C4E9 100%)',
-                    highlighted_bg: 'rgba(126, 87, 194, 0.15)',
-                    highlighted_border: 'rgba(126, 87, 194, 0.3)',
-                    grid_cell_bg: '#546E7A',
-                    toggle_bg_inactive: 'rgba(255,255,255,0.2)',
-                },
-                symbolColors: { '🐍':'text-green-400', '🦎':'text-lime-400', '🦂':'text-red-400', '🐭':'text-gray-300', '🥚':'text-gray-200', '🐁':'text-gray-100' }
-            },
-            ancient_secrets: {
-                name: "Ancient Secrets",
-                symbols: ['🔍', '🧩', '🀄', '🔑', '🧭', '👁️'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #5D4037 0%, #3E2723 100%)',
-                    card: 'rgba(62, 39, 35, 0.75)',
-                    text: '#D7CCC8',
-                    text_secondary: '#D7CCC8', // <<< FIX APPLIED HERE
-                    accent: '#FFCA28',
-                    accent_gradient: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #FFA000 0%, #FF6F00 100%)',
-                    highlighted_bg: 'rgba(255, 202, 40, 0.15)',
-                    highlighted_border: 'rgba(255, 202, 40, 0.3)',
-                    grid_cell_bg: '#795548',
-                    toggle_bg_inactive: 'rgba(255,255,255,0.2)',
-                },
-                symbolColors: { '🔍':'text-blue-300', '🧩':'text-orange-300', '🀄':'text-red-300', '🔑':'text-yellow-300', '🧭':'text-gray-300', '👁️':'text-cyan-300' }
-            },
-            cosmic_drift: {
-                name: "Cosmic Drift",
-                symbols: ['🌍', '🚀', '🪐', '🌗', '💫', '🛰️'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #1A237E 0%, #0D123B 100%)',
-                    card: 'rgba(48, 59, 128, 0.7)',
-                    text: '#E8EAF6',
-                    text_secondary: '#9FA8DA',
-                    accent: '#536DFE',
-                    accent_gradient: 'linear-gradient(135deg, #536DFE 0%, #7C4DFF 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #7C4DFF 0%, #B388FF 100%)',
-                    highlighted_bg: 'rgba(83, 109, 254, 0.2)',
-                    highlighted_border: 'rgba(83, 109, 254, 0.4)',
-                    grid_cell_bg: '#5C6BC0',
-                    toggle_bg_inactive: 'rgba(255,255,255,0.2)',
-                },
-                symbolColors: { '🌍':'text-blue-300', '🚀':'text-gray-200', '🪐':'text-amber-300', '🌗':'text-gray-100', '💫':'text-yellow-300', '🛰️':'text-blue-200' }
-            },
-            petal_meadow: {
-                name: "Petal Meadow",
-                symbols: ['🌸', '🌺', '🌷', '🪷', '🪻', '🌻'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #E6EE9C 0%, #C5E1A5 100%)',
-                    card: 'rgba(255, 255, 255, 0.9)',
-                    text: '#2E7D32',
-                    text_secondary: '#558B2F',
-                    accent: '#D81B60',
-                    accent_gradient: 'linear-gradient(135deg, #D81B60 0%, #E91E63 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #F06292 0%, #F48FB1 100%)',
-                    highlighted_bg: 'rgba(216, 27, 96, 0.1)',
-                    highlighted_border: 'rgba(216, 27, 96, 0.25)',
-                    grid_cell_bg: '#F8FFF0',
-                    toggle_bg_inactive: '#E0E0E0',
-                },
-                symbolColors: { '🌸':'text-pink-400', '🌺':'text-red-500', '🌷':'text-orange-500', '🪷':'text-pink-500', '🪻':'text-purple-500', '🌻':'text-yellow-500' }
-            },
-            monster_mash: {
-                name: "Monster Mash",
-                symbols: ['👹', '🐲', '👻', '👽', '🎃', '😈'],
-                palette: {
-                    bg: 'linear-gradient(135deg, #432874 0%, #18142a 100%)',
-                    card: 'rgba(40, 30, 60, 0.8)',
-                    text: '#E0D6FF',
-                    text_secondary: '#BCA9F0',
-                    accent: '#FF7900',
-                    accent_gradient: 'linear-gradient(135deg, #FF7900 0%, #FF983D 100%)',
-                    accent_gradient_shaded: 'linear-gradient(135deg, #FFB47A 0%, #FFD0B1 100%)',
-                    highlighted_bg: 'rgba(255, 121, 0, 0.15)',
-                    highlighted_border: 'rgba(255, 121, 0, 0.3)',
-                    grid_cell_bg: '#4A3F71',
-                    toggle_bg_inactive: 'rgba(255,255,255,0.2)',
-                },
-                symbolColors: { '👹':'text-red-400', '🐲':'text-green-400', '👻':'text-gray-200', '👽':'text-lime-300', '🎃':'text-orange-400', '😈':'text-purple-400' }
-            }
+            pastel_pals: { name: "Pastel Pals", symbols: ['🐰', '🐶', '🐯', '🐼', '🦄', '🐸'], palette: { bg: 'linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)', card: 'rgba(255, 255, 255, 0.88)', text: '#4A148C', text_secondary: '#7B1FA2', accent: '#8E24AA', accent_gradient: 'linear-gradient(135deg, #8E24AA 0%, #AB47BC 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #BA68C8 0%, #CE93D8 100%)', highlighted_bg: 'rgba(142, 36, 170, 0.15)', highlighted_border: 'rgba(142, 36, 170, 0.3)', grid_cell_bg: '#F9F6FB', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🐰':'text-pink-400', '🐶':'text-amber-600', '🐯':'text-orange-500', '🐼':'text-gray-700', '🦄':'text-purple-500', '🐸':'text-green-500' } },
+            green_grocer: { name: "Green Grocer", symbols: ['🥑', '🥦', '🧄', '🌽', '🫑', '🌶️'], palette: { bg: 'linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#33691E', text_secondary: '#689F38', accent: '#8BC34A', accent_gradient: 'linear-gradient(135deg, #8BC34A 0%, #9CCC65 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #AED581 0%, #C5E1A5 100%)', highlighted_bg: 'rgba(139, 195, 74, 0.15)', highlighted_border: 'rgba(139, 195, 74, 0.3)', grid_cell_bg: '#FCFFF5', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🥑':'text-green-800', '🥦':'text-green-600', '🧄':'text-gray-500', '🌽':'text-yellow-500', '🫑':'text-green-700', '🌶️':'text-red-600' } },
+            bug_life: { name: "Bug's Life", symbols: ['🦋', '🐝', '🪲', '🐛', '🐞', '🪰'], palette: { bg: 'linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#004D40', text_secondary: '#00796B', accent: '#009688', accent_gradient: 'linear-gradient(135deg, #009688 0%, #26A69A 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)', highlighted_bg: 'rgba(0, 150, 136, 0.15)', highlighted_border: 'rgba(0, 150, 136, 0.3)', grid_cell_bg: '#F5FCFB', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🦋':'text-blue-500', '🐝':'text-yellow-500', '🪲':'text-amber-800', '🐛':'text-lime-600', '🐞':'text-red-600', '🪰':'text-gray-700' } },
+            hats_off: { name: "Hats Off", symbols: ['🪖', '🎩', '🧢', '👒', '⛑️', '👑'], palette: { bg: 'linear-gradient(135deg, #A1887F 0%, #795548 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#3E2723', text_secondary: '#5D4037', accent: '#FFD700', accent_light: '#6D4C41', accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFC107 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #5D4037 0%, #4E342E 100%)', highlighted_bg: 'rgba(255, 215, 0, 0.45)', highlighted_border: 'rgba(255, 215, 0, 0.6)', grid_cell_bg: '#EFEBE9', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🪖':'text-green-800', '🎩':'text-gray-800', '🧢':'text-blue-600', '👒':'text-pink-400', '⛑️':'text-red-600', '👑':'text-yellow-500' } },
+            golden_bakery: { name: "Golden Bakery", symbols: ['🍞', '🥯', '🥐', '🧇', '🍪', '🥞'], palette: { bg: 'linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#8D6E63', text_secondary: '#A1887F', accent: '#AF8260', accent_gradient: 'linear-gradient(135deg, #AF8260 0%, #C19A7B 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #D4B298 0%, #E6C9B4 100%)', highlighted_bg: 'rgba(175, 130, 96, 0.15)', highlighted_border: 'rgba(175, 130, 96, 0.3)', grid_cell_bg: '#FFFBF2', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🍞':'text-amber-800', '🥯':'text-amber-700', '🥐':'text-orange-600', '🧇':'text-yellow-700', '🍪':'text-amber-900', '🥞':'text-amber-600' } },
+             sporty_vibes: { name: "Sporty Vibes", symbols: ['🏀', '⚽️', '🥎', '🏉', '🏐', '🏈'], palette: { bg: 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#1B5E20', text_secondary: '#2E7D32', accent: '#FF9800', accent_gradient: 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFB74D 0%, #FFCC80 100%)', highlighted_bg: 'rgba(255, 152, 0, 0.45)', highlighted_border: 'rgba(255, 152, 0, 0.6)', grid_cell_bg: '#F1F8E9', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🏀':'text-orange-600', '⚽️':'text-black', '🥎':'text-lime-400', '🏉':'text-amber-800', '🏐':'text-blue-500', '🏈':'text-amber-900' } },
+            school_of_magic: { name: "School of Magic", symbols: ['🧙‍♀️', '🦉', '📜', '🏆', '🏟️', '🔮'], palette: { bg: 'linear-gradient(135deg, #4E342E 0%, #212121 100%)', card: 'rgba(78, 52, 46, 0.75)', text: '#FFECB3', text_secondary: '#D7CCC8', accent: '#D32F2F', accent_gradient: 'linear-gradient(135deg, #D32F2F 0%, #FFC107 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #EF5350 0%, #FFD54F 100%)', highlighted_bg: 'rgba(211, 47, 47, 0.15)', highlighted_border: 'rgba(211, 47, 47, 0.3)', grid_cell_bg: '#6D4C41', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🧙‍♀️':'text-purple-300', '🦉':'text-gray-300', '📜':'text-yellow-200', '🏆':'text-yellow-400', '🏟️':'text-gray-400', '🔮':'text-purple-400' } },
+            emoji_fun: { name: "Emoji Fun", symbols: ['😍', '😎', '🤩', '😂', '🥵', '🤯'], palette: { bg: 'linear-gradient(135deg, #FFF9C4 0%, #FFF176 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#4E342E', text_secondary: '#795548', accent: '#42A5F5', accent_gradient: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)', highlighted_bg: 'rgba(66, 165, 245, 0.15)', highlighted_border: 'rgba(66, 165, 245, 0.3)', grid_cell_bg: '#FFFDE7', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '😍':'text-red-500', '😎':'text-black', '🤩':'text-yellow-600', '😂':'text-blue-500', '🥵':'text-orange-500', '🤯':'text-purple-500' } },
+            deep_ocean: { name: "Deep Ocean", symbols: ['🐡', '🦑', '🦀', '🐙', '🐳', '🐠'], palette: { bg: 'linear-gradient(135deg, #1A237E 0%, #0D47A1 100%)', card: 'rgba(26, 35, 126, 0.7)', text: '#E3F2FD', text_secondary: '#90CAF9', accent: '#42A5F5', accent_gradient: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)', highlighted_bg: 'rgba(66, 165, 245, 0.2)', highlighted_border: 'rgba(66, 165, 245, 0.4)', grid_cell_bg: '#1976D2', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🐡':'text-yellow-300', '🦑':'text-pink-300', '🦀':'text-red-400', '🐙':'text-purple-300', '🐳':'text-blue-300', '🐠':'text-orange-300' } },
+            road_block_theme: { name: "Road Block", symbols: ['🚑', '🚌', '🚗', '🚎', '🚜', '✈️'], palette: { bg: 'linear-gradient(135deg, #B0BEC5 0%, #78909C 100%)', card: 'rgba(255, 255, 255, 0.8)', text: '#263238', text_secondary: '#455A64', accent: '#FFC107', accent_gradient: 'linear-gradient(135deg, #FFCA28 0%, #FFD54F 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFE082 0%, #FFEE58 100%)', highlighted_bg: 'rgba(255, 193, 7, 0.15)', highlighted_border: 'rgba(255, 193, 7, 0.3)', grid_cell_bg: '#ECEFF1', toggle_bg_inactive: 'rgba(0,0,0,0.2)', }, symbolColors: { '🚑':'text-red-500', '🚌':'text-yellow-500', '🚗':'text-blue-500', '🚎':'text-green-500', '🚜':'text-orange-500', '✈️':'text-gray-400' } },
+            the_post_office: { name: "The Post Office", symbols: ['📦', '📮', '🗂️', '🗳️', '🗄️', '📬'], palette: { bg: 'linear-gradient(135deg, #EFEBE9 0%, #D7CCC8 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#3E2723', text_secondary: '#6D4C41', accent: '#D32F2F', accent_gradient: 'linear-gradient(135deg, #D32F2F 0%, #E53935 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #EF5350 0%, #E57373 100%)', highlighted_bg: 'rgba(211, 47, 47, 0.1)', highlighted_border: 'rgba(211, 47, 47, 0.25)', grid_cell_bg: '#F8F5F3', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '📦':'text-amber-800', '📮':'text-red-600', '🗂️':'text-gray-500', '🗳️':'text-blue-700', '🗄️':'text-gray-600', '📬':'text-red-700' } },
+            tutti_frutti: { name: "Tutti Frutti", symbols: ['🍓', '🫐', '🍉', '🥝', '🥭', '🍋'], palette: { bg: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#4E342E', text_secondary: '#6D4C41', accent: '#EC407A', accent_gradient: 'linear-gradient(135deg, #EC407A 0%, #F06292 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #F48FB1 0%, #F8BBD0 100%)', highlighted_bg: 'rgba(236, 64, 122, 0.1)', highlighted_border: 'rgba(236, 64, 122, 0.25)', grid_cell_bg: '#FFFFFF', toggle_bg_inactive: '#F0F0F0', }, symbolColors: { '🍓':'text-red-500', '🫐':'text-blue-600', '🍉':'text-green-600', '🥝':'text-lime-700', '🥭':'text-orange-500', '🍋':'text-yellow-500' } },
+            zedi_zodi: { name: "Zodiac Night", symbols: ['♋', '♒', '♎', '♐', '♌', '♉'], palette: { bg: 'linear-gradient(135deg, #0f0c29 0%, #302b63 100%)', card: 'rgba(48, 43, 99, 0.75)', text: '#FFFFFF', text_secondary: '#A9B4D1', accent: '#FFD700', accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)', highlighted_bg: 'rgba(255, 215, 0, 0.15)', highlighted_border: 'rgba(255, 215, 0, 0.3)', grid_cell_bg: '#6A6E89', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '♋':'text-gray-300', '♒':'text-blue-300', '♎':'text-pink-300', '♐':'text-orange-300', '♌':'text-yellow-300', '♉':'text-green-300' } },
+            desert_oasis: { name: "Desert Oasis", symbols: ['🌵', '🪨', '☀️', '🐍', '⛺', '🌴'], palette: { bg: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#5D4037', text_secondary: '#6D4C41', accent: '#00897B', accent_gradient: 'linear-gradient(135deg, #00897B 0%, #26A69A 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)', highlighted_bg: 'rgba(0, 137, 123, 0.15)', highlighted_border: 'rgba(0, 137, 123, 0.3)', grid_cell_bg: '#FFFBF2', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🌵':'text-green-700', '🪨':'text-gray-600', '☀️':'text-yellow-600', '🐍':'text-emerald-800', '⛺':'text-orange-700', '🌴':'text-lime-800' } },
+            morning_aviary: { name: "Morning Aviary", symbols: ['🐔', '🐦', '🐥', '🐣', '🐝', '🐧'], palette: { bg: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#0D47A1', text_secondary: '#1976D2', accent: '#FFA000', accent_gradient: 'linear-gradient(135deg, #FFA000 0%, #FFB300 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)', highlighted_bg: 'rgba(255, 160, 0, 0.15)', highlighted_border: 'rgba(255, 160, 0, 0.3)', grid_cell_bg: '#F7FBFF', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🐔':'text-red-600', '🐦':'text-blue-500', '🐥':'text-yellow-500', '🐣':'text-yellow-400', '🐝':'text-yellow-600', '🐧':'text-gray-800' } },
+            creepy_crawlies: { name: "Creepy Crawlies", symbols: ['🐍', '🦎', '🦂', '🐭', '🥚', '🐁'], palette: { bg: 'linear-gradient(135deg, #37474F 0%, #212121 100%)', card: 'rgba(38, 50, 56, 0.8)', text: '#CFD8DC', text_secondary: '#90A4AE', accent: '#7E57C2', accent_gradient: 'linear-gradient(135deg, #7E57C2 0%, #9575CD 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #B39DDB 0%, #D1C4E9 100%)', highlighted_bg: 'rgba(126, 87, 194, 0.15)', highlighted_border: 'rgba(126, 87, 194, 0.3)', grid_cell_bg: '#546E7A', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🐍':'text-green-400', '🦎':'text-lime-400', '🦂':'text-red-400', '🐭':'text-gray-300', '🥚':'text-gray-200', '🐁':'text-gray-100' } },
+            ancient_secrets: { name: "Ancient Secrets", symbols: ['🔍', '🧩', '🀄', '🔑', '🧭', '👁️'], palette: { bg: 'linear-gradient(135deg, #5D4037 0%, #3E2723 100%)', card: 'rgba(62, 39, 35, 0.75)', text: '#D7CCC8', text_secondary: '#D7CCC8', accent: '#FFCA28', accent_gradient: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFA000 0%, #FF6F00 100%)', highlighted_bg: 'rgba(255, 202, 40, 0.15)', highlighted_border: 'rgba(255, 202, 40, 0.3)', grid_cell_bg: '#795548', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🔍':'text-blue-300', '🧩':'text-orange-300', '🀄':'text-red-300', '🔑':'text-yellow-300', '🧭':'text-gray-300', '👁️':'text-cyan-300' } },
+            cosmic_drift: { name: "Cosmic Drift", symbols: ['🌍', '🚀', '🪐', '🌗', '💫', '🛰️'], palette: { bg: 'linear-gradient(135deg, #1A237E 0%, #0D123B 100%)', card: 'rgba(48, 59, 128, 0.7)', text: '#E8EAF6', text_secondary: '#9FA8DA', accent: '#536DFE', accent_gradient: 'linear-gradient(135deg, #536DFE 0%, #7C4DFF 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #7C4DFF 0%, #B388FF 100%)', highlighted_bg: 'rgba(83, 109, 254, 0.2)', highlighted_border: 'rgba(83, 109, 254, 0.4)', grid_cell_bg: '#5C6BC0', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🌍':'text-blue-300', '🚀':'text-gray-200', '🪐':'text-amber-300', '🌗':'text-gray-100', '💫':'text-yellow-300', '🛰️':'text-blue-200' } },
+            petal_meadow: { name: "Petal Meadow", symbols: ['🌸', '🌺', '🌷', '🪷', '🪻', '🌻'], palette: { bg: 'linear-gradient(135deg, #E6EE9C 0%, #C5E1A5 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#2E7D32', text_secondary: '#558B2F', accent: '#D81B60', accent_gradient: 'linear-gradient(135deg, #D81B60 0%, #E91E63 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #F06292 0%, #F48FB1 100%)', highlighted_bg: 'rgba(216, 27, 96, 0.1)', highlighted_border: 'rgba(216, 27, 96, 0.25)', grid_cell_bg: '#F8FFF0', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🌸':'text-pink-400', '🌺':'text-red-500', '🌷':'text-orange-500', '🪷':'text-pink-500', '🪻':'text-purple-500', '🌻':'text-yellow-500' } },
+            monster_mash: { name: "Monster Mash", symbols: ['👹', '🐲', '👻', '👽', '🎃', '😈'], palette: { bg: 'linear-gradient(135deg, #432874 0%, #18142a 100%)', card: 'rgba(40, 30, 60, 0.8)', text: '#E0D6FF', text_secondary: '#BCA9F0', accent: '#FF7900', accent_gradient: 'linear-gradient(135deg, #FF7900 0%, #FF983D 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFB47A 0%, #FFD0B1 100%)', highlighted_bg: 'rgba(255, 121, 0, 0.15)', highlighted_border: 'rgba(255, 121, 0, 0.3)', grid_cell_bg: '#4A3F71', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '👹':'text-red-400', '🐲':'text-green-400', '👻':'text-gray-200', '👽':'text-lime-300', '🎃':'text-orange-400', '😈':'text-purple-400' } }
         };
 
         function applyTheme(themeId) {
@@ -1026,7 +754,6 @@
                 this.timerId = null;
                 this.timeLeft = this.config.timeLimit;
                 
-                // Tutorial system
                 this.tutorialMode = false;
                 this.tutorialStep = 0;
                 this.tutorialModal = null;
@@ -1039,7 +766,6 @@
                 this.GRID_SIZE = 7; this.MAX_TURNS = 24; this.CROSS_MULTIPLIER = 2; this.LINE_DEATH_PENALTY = -5; this.CROSS_DEATH_PENALTY = -5; this.MIN_SEQUENCE_LENGTH = 3;
                 
                 this.gridCells = [];
-                this.focusedCell = null;
                 this.audio = { unlocked: false, context: null, sounds: new Map() };
                 this.DOMElements = this.getDOMElements();
                 
@@ -1053,12 +779,12 @@
                     game_board: 'game-board', row_scores_display: 'row-scores-display',
                     col_scores_display: 'col-scores-display', total_score: 'total-score', high_score: 'high-score',
                     rows_total_score: 'rows-total-score', cols_total_score: 'cols-total-score', cross_total_score: 'cross-total-score',
-                    bonus_grid_score: 'bonus-grid-score', empty_block_penalty: 'empty-block-penalty', rules_btn: 'rules-btn',
-                    rules_modal: 'rules-modal', close_rules_btn: 'close-rules-btn', game_over_modal: 'game-over-modal',
-                    game_over_reason: 'game-over-reason', close_game_over_btn: 'close-game-over-btn',
+                    bonus_grid_score: 'bonus-grid-score', empty_block_penalty: 'empty-block-penalty', hero_bonus_score: 'hero-bonus-score',
+                    rules_btn: 'rules-btn', rules_modal: 'rules-modal', close_rules_btn: 'close-rules-btn', 
+                    game_over_modal: 'game-over-modal', game_over_reason: 'game-over-reason', close_game_over_btn: 'close-game-over-btn',
                     final_score_modal: 'final-score-modal', high_score_modal: 'high-score-modal', play_again_btn: 'play-again-btn',
                     final_rows_score: 'final-rows-score', final_cols_score: 'final-cols-score', final_cross_score: 'final-cross-score',
-                    final_bonus_score: 'final-bonus-score', final_penalty_score: 'final-penalty-score',
+                    final_bonus_score: 'final-bonus-score', final_hero_score: 'final-hero-score', final_penalty_score: 'final-penalty-score',
                     exchange_modal: 'exchange-modal', exchange_options: 'exchange-options', progress_bar_fill: 'progress-bar-fill',
                     new_game_btn: 'new-game-btn', game_board_container: 'game-board-container', scoring_panel: 'scoring-panel',
                     effects_container: 'effects-container', rules_title: 'rules-title', 
@@ -1082,9 +808,10 @@
                 this.usedSuperpowers = new Set();
                 this.activeSuperpower = null;
                 this.lastGameState = null;
+                this.lastMoveCoords = null;
                 this.currentTotalScore = 0;
+                this.scores = { rows: 0, cols: 0, cross: 0, bonus: 0, hero: 0, penalty: 0 };
                 this.gameStateManager = new GameState();
-                this.focusedCell = null;
 
                 if (savedState) {
                     this.gridData = JSON.parse(savedState.gridData);
@@ -1098,6 +825,8 @@
                     this.currentTotalScore = savedState.currentTotalScore;
                     this.cursedBlockTurn = savedState.cursedBlockTurn;
                     this.wildcardTurn = savedState.wildcardTurn;
+                    this.heroSymbol = savedState.heroSymbol;
+                    this.heroBlocks = new Set(savedState.heroBlocks);
                     this.gameStateManager.currentState = savedState.currentState;
                     this.timeLeft = savedState.timeLeft;
                     if(this.isTimeBurst && this.turnCount > 0 && !this.gameStateManager.is('GAME_OVER')) this.startTimer();
@@ -1108,8 +837,7 @@
                     this.cursedBlockTurn = Math.floor(Math.random() * 8) + 5;
                     this.wildcardTurn = Math.floor(Math.random() * 8) + 15;
                     if (this.wildcardTurn === this.cursedBlockTurn) this.wildcardTurn++;
-                    
-                    // Initialize tutorial for new games
+                    this.initializeHeroFeature();
                     this.initTutorial();
                 }
 
@@ -1117,7 +845,7 @@
                 
                 const highScoreKey = `cactiFactiHighScore_${this.config.id}_${this.isTimeBurst ? 'timeburst' : 'classic'}`;
                 this.highScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
-                this.DOMElements.high_score.textContent = this.highScore;
+                animateScoreUpdate('high-score', this.highScore, 3);
 
                 ['game-over-modal', 'exchange-modal', 'rules-modal', 'tutorial-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
                 
@@ -1134,7 +862,16 @@
                 this.syncPanelHeights();
             }
 
-            // Tutorial System Methods
+            initializeHeroFeature() {
+                this.heroSymbol = this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)];
+                this.heroBlocks = new Set();
+                while (this.heroBlocks.size < 7) {
+                    const r = Math.floor(Math.random() * this.GRID_SIZE);
+                    const c = Math.floor(Math.random() * this.GRID_SIZE);
+                    this.heroBlocks.add(`${r},${c}`);
+                }
+            }
+
             initTutorial() {
                 if (localStorage.getItem('allohaTutorialCompleted')) return;
                 
@@ -1178,33 +915,23 @@
                 const nextBtn = this.DOMElements.tutorial_next_btn;
                 const progressDots = modal.querySelectorAll('.tutorial-progress-dot');
                 
-                // Update content
                 content.innerHTML = `<p class="text-lg">${step.content}</p>`;
                 
-                // Update progress dots
                 progressDots.forEach((dot, index) => {
-                    if (index === this.tutorialStep) {
-                        dot.classList.add('active');
-                    } else {
-                        dot.classList.remove('active');
-                    }
+                    dot.classList.toggle('active', index === this.tutorialStep);
                 });
                 
-                // Update button text for last step
-                if (this.tutorialStep === 3) {
-                    nextBtn.textContent = "Start Playing";
-                } else {
-                    nextBtn.textContent = "Next";
-                }
+                nextBtn.textContent = this.tutorialStep === 3 ? "Start Playing" : "Next";
                 
-                // Show modal
                 modal.classList.add('is-open');
+                document.body.classList.add('modal-open');
             }
 
             completeTutorial() {
                 this.tutorialMode = false;
                 localStorage.setItem('allohaTutorialCompleted', 'true');
                 this.DOMElements.tutorial_modal.classList.remove('is-open');
+                document.body.classList.remove('modal-open');
             }
 
             getState() {
@@ -1215,11 +942,13 @@
                     turnCount: this.turnCount,
                     stuckBlocks: [...this.stuckBlocks],
                     usedSuperpowers: [...this.usedSuperpowers],
-                    lastGameState: this.lastGameState ? { ...this.lastGameState, gridData: JSON.stringify(this.lastGameState.gridData), stuckBlocks: [...this.lastGameState.stuckBlocks] } : null,
+                    lastGameState: this.lastGameState ? { ...this.lastGameState, gridData: JSON.stringify(this.lastGameState.gridData), stuckBlocks: new Set(this.lastGameState.stuckBlocks) } : null,
                     activeSuperpower: this.activeSuperpower,
                     currentTotalScore: this.currentTotalScore,
                     cursedBlockTurn: this.cursedBlockTurn,
                     wildcardTurn: this.wildcardTurn,
+                    heroSymbol: this.heroSymbol,
+                    heroBlocks: [...this.heroBlocks],
                     currentState: this.gameStateManager.currentState,
                     timeLeft: this.timeLeft,
                     isTimeBurst: this.isTimeBurst
@@ -1265,29 +994,35 @@
                 }
             }
 
-            calculateLineScore(line) {
-                let totalScore = 0; const usedIndices = new Set();
+            calculateLineScore(line, lineType, index) {
+                let totalScore = 0; const usedIndices = new Set(); const scoredLines = [];
                 for (let len = this.GRID_SIZE; len >= this.MIN_SEQUENCE_LENGTH; len--) {
                     for (let i = 0; i <= this.GRID_SIZE - len; i++) {
                         if ([...Array(len).keys()].some(k => usedIndices.has(i + k))) continue;
                         const slice = line.slice(i, i + len);
                         if (this.isValidSequence(slice)) {
-                            totalScore += this.SCORING_RULES[len];
+                            const score = this.SCORING_RULES[len];
+                            totalScore += score;
+                            const cells = [];
                             for (let k = 0; k < len; k++) {
                                 if (slice[k] !== this.SPECIAL_SYMBOLS.WILD) usedIndices.add(i + k);
+                                cells.push(lineType === 'row' ? {r: index, c: i + k} : {r: i + k, c: index});
                             }
+                            scoredLines.push({ score, cells });
                         }
                     }
                 }
-                if (totalScore === 0 && this.isLineDead(line)) return this.LINE_DEATH_PENALTY;
-                return totalScore;
+                if (totalScore === 0 && this.isLineDead(line)) return { total: this.LINE_DEATH_PENALTY, lines: [] };
+                return { total: totalScore, lines: scoredLines };
             }
+
             isValidSequence(slice) {
                 if (slice.some(s => s === null)) return false;
                 if (!slice.some(s => s !== null)) return false;
                 const regularSymbols = slice.filter(s => s && s !== this.SPECIAL_SYMBOLS.WILD);
                 return new Set(regularSymbols).size <= 1;
             }
+
             isLineDead(line) {
                 for (let i = 0; i <= line.length - this.MIN_SEQUENCE_LENGTH; i++) {
                     const window = line.slice(i, i + this.MIN_SEQUENCE_LENGTH);
@@ -1325,22 +1060,28 @@
                 let classes = 'grid-cell';
                 if (this.config.isTwinningCell(r, c)) classes += ' highlighted';
                 if (this.stuckBlocks.has(`${r},${c}`)) classes += ' stuck-cell';
+                if (this.heroBlocks.has(`${r},${c}`)) classes += ' hero-block-hint';
                 return classes;
             }
             updateCell(cell, r, c) {
                 cell.className = this.getCellClasses(r, c);
                 const symbol = this.gridData[r][c];
                 
+                cell.innerHTML = ''; 
+                cell.style.setProperty('--hero-symbol', `'${this.heroSymbol}'`);
+
                 if (symbol) {
-                    cell.textContent = symbol;
+                    const symbolSpan = document.createElement('span');
+                    symbolSpan.textContent = symbol;
                     if(this.SYMBOL_COLORS[symbol]) {
-                        cell.classList.add(this.SYMBOL_COLORS[symbol]);
+                       symbolSpan.className = this.SYMBOL_COLORS[symbol];
                     }
+                    cell.appendChild(symbolSpan);
                 } else {
                     cell.textContent = this.stuckBlocks.has(`${r},${c}`) ? '💣' : '';
                 }
             }
-            addCellEventListeners(cell) { cell.addEventListener('click', this.handleCellClick.bind(this)); cell.addEventListener('mouseenter', () => { if (this.gameStateManager.is('AWAITING_PLACEMENT') || this.activeSuperpower) this.audioPlay('hover'); }); }
+            addCellEventListeners(cell) { cell.addEventListener('click', this.handleCellClick.bind(this)); }
             syncPanelHeights() { setTimeout(() => { if (window.innerWidth < 1024) return; const boardHeight = this.DOMElements.game_board_container?.getBoundingClientRect().height; if (boardHeight) this.DOMElements.scoring_panel.style.height = `${boardHeight}px`; }, 50); }
             
             updateProgressBar() {
@@ -1374,35 +1115,10 @@
                     this.gridCells.push(row);
                 }
                 this.DOMElements.game_board.appendChild(fragment);
-                this.updateFocusVisuals();
             }
             updateFullGrid() { for (let r = 0; r < this.GRID_SIZE; r++) for (let c = 0; c < this.GRID_SIZE; c++) this.updateGridCell(r, c); }
             updateGridCell(r, c) { if (this.gridCells[r]?.[c]) this.updateCell(this.gridCells[r][c], r, c); }
             
-            updateFocusVisuals() {
-                this.gridCells.flat().forEach(cell => cell.classList.remove('focused-cell'));
-                if (this.focusedCell) {
-                    const { r, c } = this.focusedCell;
-                    this.gridCells[r][c].classList.add('focused-cell');
-                }
-            }
-            
-            moveFocus(dr, dc) {
-                if (!this.focusedCell) this.focusedCell = { r: 0, c: 0 };
-                let { r, c } = this.focusedCell;
-                r = Math.max(0, Math.min(this.GRID_SIZE - 1, r + dr));
-                c = Math.max(0, Math.min(this.GRID_SIZE - 1, c + dc));
-                this.focusedCell = { r, c };
-                this.updateFocusVisuals();
-            }
-            
-            placeWithKeyboard() {
-                if (!this.focusedCell) return;
-                const { r, c } = this.focusedCell;
-                const cellElement = this.gridCells[r][c];
-                this.handleCellClick({ target: cellElement });
-            }
-
             renderScorePlaceholders() {
                 this.DOMElements.row_scores_display.innerHTML = ''; 
                 this.DOMElements.col_scores_display.innerHTML = '';
@@ -1465,19 +1181,21 @@
                 const dice1 = document.getElementById('dice-1'), dice2 = document.getElementById('dice-2');
                 if (!dice1 || !dice2) return;
                 
-                const symbolColorClass1 = this.currentRoll[0] ? this.SYMBOL_COLORS[this.currentRoll[0]] : '';
-                const symbolColorClass2 = this.currentRoll[1] ? this.SYMBOL_COLORS[this.currentRoll[1]] : '';
+                dice1.classList.remove('shimmer-text');
+                dice2.classList.remove('shimmer-text');
                 
                 if (this.gameStateManager.is('AWAITING_PLACEMENT') && this.currentRoll.length === 2) {
-                    dice1.textContent = this.currentRoll[0];
-                    dice1.className = `w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card-prominent flex items-center justify-center text-3xl lg:text-4xl ${symbolColorClass1 || ''}`;
-                    dice2.textContent = this.currentRoll[1];
-                    dice2.className = `w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card-prominent flex items-center justify-center text-3xl lg:text-4xl ${symbolColorClass2 || ''}`;
+                    const symbol1 = this.currentRoll[0], symbol2 = this.currentRoll[1];
+                    const color1 = this.SYMBOL_COLORS[symbol1] || 'text-gray-700';
+                    const color2 = this.SYMBOL_COLORS[symbol2] || 'text-gray-700';
+
+                    dice1.innerHTML = `<span class="${color1}">${symbol1}</span>`;
+                    dice2.innerHTML = `<span class="${color2}">${symbol2}</span>`;
                 } else {
                     dice1.textContent = '?';
-                    dice1.className = 'w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text';
                     dice2.textContent = '?';
-                    dice2.className = 'w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text';
+                    dice1.classList.add('shimmer-text');
+                    dice2.classList.add('shimmer-text');
                 }
             }
             async handleRollDice() {
@@ -1490,22 +1208,22 @@
                 }
 
                 this.gameStateManager.setState('ANIMATING_ROLL');
-                this.updateControlsState();
                 if (this.isTimeBurst && !this.timerId) { this.startTimer(); }
+
+                const d1 = document.getElementById('dice-1'), d2 = document.getElementById('dice-2');
+                this.updateControlsState();
+                d1.classList.add('dice-tumble');
+                d2.classList.add('dice-tumble');
 
                 const nextTurn = this.turnCount + 1; let tempRoll;
                 if (nextTurn === this.cursedBlockTurn) { this.audioPlay('thud'); tempRoll = [this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)], this.SPECIAL_SYMBOLS.CURSED]; }
                 else if (nextTurn === this.wildcardTurn) { this.audioPlay('chime'); tempRoll = [this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)], this.SPECIAL_SYMBOLS.WILD]; }
                 else { this.audioPlay('roll'); tempRoll = [this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)], this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)]]; }
+                
                 this.currentRoll = tempRoll.sort(() => Math.random() - 0.5);
-
-                const d1 = document.getElementById('dice-1'), d2 = document.getElementById('dice-2');
-                d1.classList.add('dice-tumble'); d2.classList.add('dice-tumble');
                 
                 await delay(600);
-                
-                d1.classList.remove('dice-tumble'); d2.classList.remove('dice-tumble');
-                
+                                
                 this.gameStateManager.setState('AWAITING_PLACEMENT');
                 this.saveStateForUndo(); 
                 this.updateControlsState(); 
@@ -1514,9 +1232,6 @@
             handleCellClick(e) {
                 const cell = e.target.closest('[data-row]'); if (!cell) return;
                 const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
-                
-                this.focusedCell = { r, c };
-                this.updateFocusVisuals();
 
                 if (this.activeSuperpower) { this.handleSuperpowerCellClick(r, c, cell); return; }
                 if (!this.gameStateManager.is('AWAITING_PLACEMENT')) return;
@@ -1554,25 +1269,15 @@
             saveStateForUndo() { this.lastGameState = this.getState(); }
             async completeMove(r, c) {
                 this.gameStateManager.setState('PROCESSING_TURN');
+                const firstCellCoords = this.firstPlacementCell; 
                 this.gridData[r][c] = this.currentRoll[1];
+                this.lastMoveCoords = [{r,c}, firstCellCoords];
                 this.firstPlacementCell = null;
                 this.turnCount++;
                 this.updateProgressBar();
                 this.updateGridCell(r, c);
                 this.audioPlay('pop');
                 this.triggerVibration(20);
-                
-                // Add last move indicator
-                this.gridCells[r][c].classList.add('last-move');
-                this.gridCells[this.firstPlacementCell?.r || r][this.firstPlacementCell?.c || c].classList.add('last-move');
-                
-                // Remove after delay
-                setTimeout(() => {
-                    this.gridCells[r][c].classList.remove('last-move');
-                    if (this.firstPlacementCell) {
-                        this.gridCells[this.firstPlacementCell.r][this.firstPlacementCell.c].classList.remove('last-move');
-                    }
-                }, 2000);
                 
                 await delay(300);
                 this.processTurnEnd();
@@ -1582,25 +1287,18 @@
                 if (this.gameStateManager.is('GAME_OVER')) return;
                 this.updateAllScores(); 
                 if (this.turnCount >= this.MAX_TURNS || !this.hasValidMoves()) {
-                    this.gameStateManager.setState('AWAITING_ROLL'); // Set state to allow final roll
-                    this.renderControls(); // Re-render to show roll button
+                    this.gameStateManager.setState('AWAITING_ROLL');
+                    this.renderControls();
                     return;
                 }
                 this.gameStateManager.setState('AWAITING_ROLL');
                 this.renderControls();
             }
 
-            // Enhanced Visual Feedback Methods
             highlightValidPlacements(r, c) {
-                const adjacent = [
-                    [r-1, c], [r+1, c], [r, c-1], [r, c+1]
-                ];
-                
+                const adjacent = [ [r-1, c], [r+1, c], [r, c-1], [r, c+1] ];
                 adjacent.forEach(([nr, nc]) => {
-                    if (nr >= 0 && nr < this.GRID_SIZE && 
-                        nc >= 0 && nc < this.GRID_SIZE && 
-                        !this.gridData[nr][nc]) {
-                        
+                    if (nr >= 0 && nr < this.GRID_SIZE && nc >= 0 && nc < this.GRID_SIZE && !this.gridData[nr][nc]) {
                         const cell = this.gridCells[nr][nc];
                         cell.classList.add('valid-placement');
                     }
@@ -1613,48 +1311,6 @@
                 });
             }
 
-            celebrateMatch(cells) {
-                cells.forEach(({r, c}) => {
-                    const cell = this.gridCells[r][c];
-                    
-                    // Add pulse effect using transform
-                    cell.style.transform = 'scale(1.2)';
-                    cell.style.transition = 'transform 0.3s ease-out';
-                    
-                    // Create floating score indicator
-                    const scoreIndicator = document.createElement('div');
-                    scoreIndicator.className = 'score-indicator';
-                    scoreIndicator.textContent = '+3';
-                    scoreIndicator.style.cssText = `
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        font-weight: bold;
-                        color: var(--accent);
-                        font-size: 1.5rem;
-                        pointer-events: none;
-                        z-index: 100;
-                    `;
-                    
-                    cell.appendChild(scoreIndicator);
-                    
-                    // Animate score indicator
-                    setTimeout(() => {
-                        scoreIndicator.style.transform = 'translate(-50%, -150%)';
-                        scoreIndicator.style.opacity = '0';
-                        scoreIndicator.style.transition = 'all 0.5s ease-out';
-                    }, 100);
-                    
-                    // Clean up
-                    setTimeout(() => {
-                        cell.style.transform = '';
-                        scoreIndicator.remove();
-                    }, 600);
-                });
-            }
-
-            // --- NEW HELPER & SEQUENCE METHODS FOR GOLDEN ALLOHA ---
             async renderGoldenAllohaSelector() {
                 return new Promise(resolve => {
                     const container = this.DOMElements.in_game_content;
@@ -1673,8 +1329,11 @@
 
                     this.SYMBOLS.forEach(symbol => {
                         const btn = document.createElement('button');
-                        btn.className = `w-12 h-12 lg:w-14 lg:h-14 rounded-xl text-3xl ${this.SYMBOL_COLORS[symbol] || ''} flex items-center justify-center transition-transform hover:scale-110 active:scale-95`;
-                        btn.textContent = symbol;
+                        btn.className = `w-12 h-12 lg:w-14 lg:h-14 rounded-xl text-3xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95`;
+                        const symbolSpan = document.createElement('span');
+                        symbolSpan.className = this.SYMBOL_COLORS[symbol] || '';
+                        symbolSpan.textContent = symbol;
+                        btn.appendChild(symbolSpan);
                         btn.onclick = () => resolve(symbol);
                         selector.appendChild(btn);
                     });
@@ -1693,7 +1352,7 @@
                 const line1 = document.createElement('h2');
                 line1.className = 'text-xl lg:text-2xl font-semibold';
                 line1.style.color = 'var(--accent)';
-                line1.innerHTML = `You chose <span class="text-5xl align-middle">${symbol}</span>`;
+                line1.innerHTML = `You chose <span class="text-5xl align-middle ${this.SYMBOL_COLORS[symbol] || 'text-gray-700'}">${symbol}</span>`;
 
                 const line2 = document.createElement('p');
                 line2.className = 'text-base lg:text-lg font-medium mt-2';
@@ -1715,13 +1374,14 @@
                 title.style.color = 'var(--accent)';
                 title.textContent = 'Game Over Alloha!';
 
-                const scoreDisplay = document.createElement('p');
+                const scoreDisplay = document.createElement('div');
+                scoreDisplay.id = 'end-game-score-display'; 
                 scoreDisplay.className = 'text-7xl font-bold my-2';
                 scoreDisplay.style.color = 'var(--accent)';
-                scoreDisplay.textContent = score;
-
+                
                 container.appendChild(title);
                 container.appendChild(scoreDisplay);
+                animateScoreUpdate('end-game-score-display', score, 3);
             }
 
             waitForCellClick(validCells) {
@@ -1760,11 +1420,19 @@
                 const chosenSymbol = await this.renderGoldenAllohaSelector();
                 this.renderGoldenAllohaPlacementPrompt(chosenSymbol);
                 
-                emptyCells.forEach(({ r, c }) => this.gridCells[r][c].classList.add('golden-placement-option'));
+                emptyCells.forEach(({ r, c }) => {
+                    if (this.gridCells[r] && this.gridCells[r][c]) {
+                        this.gridCells[r][c].classList.add('golden-placement-option');
+                    }
+                });
                 
                 const targetCell = await this.waitForCellClick(emptyCells);
                 
-                emptyCells.forEach(({ r, c }) => this.gridCells[r][c].classList.remove('golden-placement-option'));
+                emptyCells.forEach(({ r, c }) => {
+                    if (this.gridCells[r] && this.gridCells[r][c]) {
+                        this.gridCells[r][c].classList.remove('golden-placement-option');
+                    }
+                });
 
                 this.gridData[targetCell.r][targetCell.c] = chosenSymbol;
                 this.updateGridCell(targetCell.r, targetCell.c);
@@ -1789,6 +1457,7 @@
                 if (this.gameStateManager.is('GAME_OVER')) return;
                 this.stopTimer();
                 this.gameStateManager.setState('GAME_OVER');
+                this.lastMoveCoords = null;
                 this.updateAllScores();
 
                 if (reason === "Time's up!") {
@@ -1814,16 +1483,20 @@
                 }
 
                 this.DOMElements.game_over_reason.textContent = reason;
-                this.DOMElements.final_score_modal.textContent = finalScore;
-                this.DOMElements.high_score_modal.textContent = this.highScore;
-                this.DOMElements.final_rows_score.textContent = this.DOMElements.rows_total_score.textContent;
-                this.DOMElements.final_cols_score.textContent = this.DOMElements.cols_total_score.textContent;
-                this.DOMElements.final_cross_score.textContent = this.DOMElements.cross_total_score.textContent;
-                this.DOMElements.final_bonus_score.textContent = this.DOMElements.bonus_grid_score.textContent;
-                this.DOMElements.final_penalty_score.textContent = this.DOMElements.empty_block_penalty.textContent;
+                animateScoreUpdate('final-score-modal', finalScore, 3);
+                animateScoreUpdate('high-score-modal', this.highScore, 3);
                 
+                const formatNegative = (val, len = 2) => val < 0 ? `(${String(Math.abs(val)).padStart(len,'0')})` : String(val).padStart(len,'0');
+                this.DOMElements.final_rows_score.textContent = formatNegative(this.scores.rows);
+                this.DOMElements.final_cols_score.textContent = formatNegative(this.scores.cols);
+                this.DOMElements.final_cross_score.textContent = formatNegative(this.scores.cross);
+                this.DOMElements.final_bonus_score.textContent = formatNegative(this.scores.bonus);
+                this.DOMElements.final_hero_score.textContent = formatNegative(this.scores.hero);
+                this.DOMElements.final_penalty_score.textContent = formatNegative(this.scores.penalty);
+
                 setTimeout(() => {
                     this.DOMElements.game_over_modal.classList.add('is-open');
+                    document.body.classList.add('modal-open');
                     const shareBtn = document.getElementById('share-score-btn');
                     if (shareBtn) {
                         shareBtn.onclick = () => this.handleShareScore(finalScore, this.highScore);
@@ -1832,6 +1505,7 @@
                     if (changeEditionBtn) {
                         changeEditionBtn.onclick = () => {
                             this.DOMElements.game_over_modal.classList.remove('is-open');
+                            document.body.classList.remove('modal-open');
                             document.getElementById('select-edition-btn').click();
                         };
                     }
@@ -1852,6 +1526,15 @@
                     const scoreBreakdown = document.getElementById('score-breakdown');
                     const buttonContainer = document.getElementById('game-over-buttons');
                     const modalContent = document.querySelector('#game-over-modal .modal-content');
+                    
+                    const editionName = this.config.name;
+                    const shareHeader = document.createElement('div');
+                    shareHeader.innerHTML = `<p style="margin-bottom: 0.5rem; font-family: 'Quicksand', sans-serif; font-weight: 600; color: var(--text-secondary);">${editionName}</p>`;
+                    const shareFooter = document.createElement('div');
+                    shareFooter.innerHTML = `<p style="margin-top: 1rem; font-family: 'Quicksand', sans-serif; font-weight: 700; color: var(--accent);">Play Alloha!</p>`;
+
+                    modalContent.prepend(shareHeader);
+                    modalContent.appendChild(shareFooter);
 
                     if (scoreBreakdown) scoreBreakdown.style.display = 'none';
                     if (buttonContainer) buttonContainer.style.display = 'none';
@@ -1864,6 +1547,9 @@
                         backgroundColor: null,
                         ignoreElements: (element) => element.classList.contains('no-screenshot')
                     });
+
+                    shareHeader.remove();
+                    shareFooter.remove();
 
                     if (scoreBreakdown) scoreBreakdown.style.display = 'grid';
                     if (buttonContainer) buttonContainer.style.display = 'flex';
@@ -1890,10 +1576,8 @@
                         URL.revokeObjectURL(link.href);
                     }
                 } catch (error) {
-                    console.error('Sharing/downloading failed:', error);
+                    console.error('Sharing failed:', error);
                     shareBtnSpan.textContent = 'Error!';
-                    if (document.getElementById('score-breakdown')) document.getElementById('score-breakdown').style.display = 'grid';
-                    if (document.getElementById('game-over-buttons')) document.getElementById('game-over-buttons').style.display = 'flex';
                 } finally {
                     setTimeout(() => {
                         shareBtn.innerHTML = originalBtnContent;
@@ -1920,19 +1604,76 @@
             hasValidMoves() { for (let r = 0; r < this.GRID_SIZE; r++) for (let c = 0; c < this.GRID_SIZE; c++) if (!this.gridData[r][c]) { const n = [[-1, 0], [1, 0], [0, -1], [0, 1]]; for (const [dr, dc] of n) { const nr = r + dr, nc = c + dc; if (nr >= 0 && nr < this.GRID_SIZE && nc >= 0 && nc < this.GRID_SIZE && !this.gridData[nr][nc]) return true; } } return false; }
             detectStuckBlocks() { this.stuckBlocks.clear(); for (let r = 0; r < this.GRID_SIZE; r++) for (let c = 0; c < this.GRID_SIZE; c++) if (!this.gridData[r][c]) { const n = [[-1, 0], [1, 0], [0, -1], [0, 1]]; if (n.every(([dr, dc]) => { const nr = r + dr, nc = c + dc; return nr < 0 || nr >= this.GRID_SIZE || nc < 0 || nc >= this.GRID_SIZE || this.gridData[nr][nc] })) this.stuckBlocks.add(`${r},${c}`); } this.updateFullGrid(); }
             updateAllScores() {
-                const rS = this.calculateRowScores(), cS = this.calculateColumnScores(), crS = this.calculateCrossScore(), bS = this.calculateBonusGrids();
-                this.currentTotalScore = rS.total + cS.total + crS + bS - this.stuckBlocks.size;
-                this.updateScoreDisplays(rS.total, cS.total, crS, bS, -this.stuckBlocks.size);
+                const rS = this.calculateRowScores(), cS = this.calculateColumnScores(), crS = this.calculateCrossScore(), bS = this.calculateBonusGrids(), hS = this.calculateHeroBonus();
+                
+                this.triggerBoardAndFloatAnimations(rS.lines, this.lastMoveCoords);
+                this.triggerBoardAndFloatAnimations(cS.lines, this.lastMoveCoords);
+                
+                this.scores = { rows: rS.total, cols: cS.total, cross: crS, bonus: bS, hero: hS, penalty: -this.stuckBlocks.size };
+                this.currentTotalScore = rS.total + cS.total + crS + bS + hS - this.stuckBlocks.size;
+
+                this.updateScoreDisplays(this.scores.rows, this.scores.cols, this.scores.cross, this.scores.bonus, this.scores.hero, this.scores.penalty);
                 this.updateIndividualScores(rS.individual, cS.individual);
             }
-            calculateRowScores() { let t = 0, ind = []; for (let i = 0; i < this.GRID_SIZE; i++) { const s = this.calculateLineScore(this.gridData[i]); ind.push(s); t += s; } return { total: t, individual: ind }; }
-            calculateColumnScores() { let t = 0, ind = []; for (let i = 0; i < this.GRID_SIZE; i++) { const col = this.gridData.map(row => row[i]); const s = this.calculateLineScore(col); ind.push(s); t += s; } return { total: t, individual: ind }; }
+
+            calculateHeroBonus() {
+                let heroScore = 0;
+                if(this.lastMoveCoords) {
+                    this.lastMoveCoords.forEach(coord => {
+                        if (this.heroBlocks.has(`${coord.r},${coord.c}`) && this.gridData[coord.r][coord.c] === this.heroSymbol) {
+                            heroScore += 2;
+                            this.heroBlocks.delete(`${coord.r},${coord.c}`); // Remove to prevent re-scoring
+                            showFloatingScore('+2', this.gridCells[coord.r][coord.c]);
+                        }
+                    });
+                }
+                return this.scores.hero + heroScore;
+            }
+
+            calculateRowScores() { 
+                let total = 0, individual = [], allScoredLines = [];
+                for (let i = 0; i < this.GRID_SIZE; i++) {
+                    const result = this.calculateLineScore(this.gridData[i], 'row', i);
+                    individual.push(result.total);
+                    total += result.total;
+                    allScoredLines.push(...result.lines);
+                }
+                return { total, individual, lines: allScoredLines };
+            }
+            calculateColumnScores() {
+                let total = 0, individual = [], allScoredLines = [];
+                for (let i = 0; i < this.GRID_SIZE; i++) {
+                    const col = this.gridData.map(row => row[i]);
+                    const result = this.calculateLineScore(col, 'col', i);
+                    individual.push(result.total);
+                    total += result.total;
+                    allScoredLines.push(...result.lines);
+                }
+                return { total, individual, lines: allScoredLines };
+            }
+
+            triggerBoardAndFloatAnimations(scoredLines, lastMoveCoords) {
+                if (!scoredLines || !lastMoveCoords) return;
+                const lastMoveSet = new Set(lastMoveCoords.map(c => `${c.r},${c.c}`));
+
+                scoredLines.forEach(line => {
+                    const isNewlyFormed = line.cells.some(cell => lastMoveSet.has(`${cell.r},${cell.c}`));
+                    if (line.score > 0 && isNewlyFormed) {
+                        const sourceCell = this.gridCells[line.cells[Math.floor(line.cells.length / 2)].r][line.cells[Math.floor(line.cells.length / 2)].c];
+                        showFloatingScore(`+${line.score}`, sourceCell);
+                        line.cells.forEach(coord => {
+                            const cellEl = this.gridCells[coord.r][coord.c];
+                            cellEl.classList.add('score-pulse-animation');
+                            cellEl.addEventListener('animationend', () => cellEl.classList.remove('score-pulse-animation'), { once: true });
+                        });
+                    }
+                });
+            }
+
             calculateCrossScore() {
                 let bonusScore = 0;
                 const getScoreForSegment = (segmentSymbols) => {
-                    if (segmentSymbols.length < this.MIN_SEQUENCE_LENGTH) {
-                        return 0;
-                    }
+                    if (segmentSymbols.length < this.MIN_SEQUENCE_LENGTH) return 0;
                     let score = 0; const usedIndices = new Set();
                     for (let len = segmentSymbols.length; len >= this.MIN_SEQUENCE_LENGTH; len--) {
                          for (let i = 0; i <= segmentSymbols.length - len; i++) {
@@ -1967,24 +1708,23 @@
 
                 return bonusScore;
             }
-            updateScoreDisplays(r, c, cross, b, p) { this.animateScoreUpdate(this.DOMElements.total_score, r + c + cross + b + p); this.animateScoreUpdate(this.DOMElements.rows_total_score, r); this.animateScoreUpdate(this.DOMElements.cols_total_score, c); this.animateScoreUpdate(this.DOMElements.cross_total_score, cross); this.animateScoreUpdate(this.DOMElements.bonus_grid_score, b); this.animateScoreUpdate(this.DOMElements.empty_block_penalty, p); }
-            animateScoreUpdate(el, val) { 
-                if (!el) return; 
-                const startVal = parseInt(el.textContent) || 0; 
-                if (startVal === val) return; 
-                el.classList.add('score-update-animation');
-                setTimeout(() => el.classList.remove('score-update-animation'), 300);
-                const duration = 300; let start = null; 
-                function step(timestamp) { 
-                    if (!start) start = timestamp; 
-                    const progress = Math.min((timestamp - start) / duration, 1); 
-                    el.textContent = Math.round(startVal + progress * (val - startVal)); 
-                    if (progress < 1) window.requestAnimationFrame(step);
-                } 
-                window.requestAnimationFrame(step); 
+
+            updateScoreDisplays(r, c, cross, b, h, p) { 
+                animateScoreUpdate('total-score', r + c + cross + b + h + p, 3); 
+                animateScoreUpdate('rows-total-score', r, 2); 
+                animateScoreUpdate('cols-total-score', c, 2); 
+                animateScoreUpdate('cross-total-score', cross, 2); 
+                animateScoreUpdate('bonus-grid-score', b, 2);
+                animateScoreUpdate('hero-bonus-score', h, 2);
+                animateScoreUpdate('empty-block-penalty', p, 2); 
             }
-            updateIndividualScores(rS, cS) { rS.forEach((s, i) => this.updateScoreElement(`row-score-${i}`, s)); cS.forEach((s, i) => this.updateScoreElement(`col-score-${i}`, s)); }
+            
+            updateIndividualScores(rS, cS) { 
+                rS.forEach((s, i) => this.updateScoreElement(`row-score-${i}`, s)); 
+                cS.forEach((s, i) => this.updateScoreElement(`col-score-${i}`, s)); 
+            }
             updateScoreElement(id, score) { const el = document.getElementById(id); if (el) { el.textContent = score; el.classList.toggle('text-red-500', score < 0); } }
+            
             updateSuperpowerButtonsUI() {
                 const ids = ['past-lives', 'no-return', 'bomb-bae', 'swap-them'];
                 ids.forEach(id => {
@@ -2047,15 +1787,22 @@
                  this.cellToExchange = {r, c}; this.DOMElements.exchange_options.innerHTML = '';
                  this.SYMBOLS.filter(s => s !== this.gridData[r][c]).forEach(symbol => {
                     const btn = document.createElement('button');
-                    btn.className = `w-20 h-20 text-4xl rounded-lg hover:bg-orange-100/50 ${this.SYMBOL_COLORS[symbol] || ''} flex items-center justify-center`;
-                    btn.textContent = symbol; btn.onclick = () => this.handleSymbolExchange(symbol); this.DOMElements.exchange_options.appendChild(btn);
+                    btn.className = `w-20 h-20 text-4xl rounded-lg hover:bg-orange-100/50 flex items-center justify-center`;
+                    const symbolSpan = document.createElement('span');
+                    symbolSpan.className = this.SYMBOL_COLORS[symbol] || '';
+                    symbolSpan.textContent = symbol;
+                    btn.appendChild(symbolSpan);
+                    btn.onclick = () => this.handleSymbolExchange(symbol); this.DOMElements.exchange_options.appendChild(btn);
                  });
                  this.DOMElements.exchange_modal.classList.add('is-open');
+                 document.body.classList.add('modal-open');
             }
             handleSymbolExchange(newSymbol) {
                 if (!this.cellToExchange) return;
                 const {r, c} = this.cellToExchange; this.gridData[r][c] = newSymbol;
-                this.DOMElements.exchange_modal.classList.remove('is-open'); this.cellToExchange = null;
+                this.DOMElements.exchange_modal.classList.remove('is-open'); 
+                document.body.classList.remove('modal-open');
+                this.cellToExchange = null;
                 this.consumeSuperpower('noReturn'); this.gameStateManager.setState('AWAITING_ROLL'); this.renderControls();
             }
             consumeSuperpower(powerName) {
@@ -2089,11 +1836,10 @@
                 for (const [power, id] of Object.entries(powerBtns)) { document.getElementById(id)?.addEventListener('click', () => { if (document.getElementById(id).disabled) return; this.activeSuperpower = power; this.gameStateManager.setState('SUPERPOWER_ACTIVE'); this.audioPlay('power-activate'); this.triggerVibration(30); this.updateSuperpowerButtonsUI(); }); }
             }
             setupEventListeners() {
-                this.DOMElements.close_rules_btn.addEventListener('click', () => this.DOMElements.rules_modal.classList.remove('is-open'));
-                this.DOMElements.close_game_over_btn.addEventListener('click', () => this.DOMElements.game_over_modal.classList.remove('is-open'));
-                this.DOMElements.play_again_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); gameManager.resetCurrentVariant(); });
+                this.DOMElements.close_rules_btn.addEventListener('click', () => { this.DOMElements.rules_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
+                this.DOMElements.close_game_over_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
+                this.DOMElements.play_again_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); gameManager.resetCurrentVariant(); });
                 
-                // Tutorial event listeners
                 this.DOMElements.close_tutorial_btn.addEventListener('click', () => {
                     this.completeTutorial();
                 });
@@ -2123,7 +1869,6 @@
 
             populateEditionModal() {
                 const container = document.getElementById('edition-options');
-                
                 container.innerHTML = '';
                 Object.values(variantConfigs).forEach(config => {
                     const button = document.createElement('button');
@@ -2135,11 +1880,13 @@
                         const isGameInProgress = game && game.turnCount > 0 && !game.gameStateManager.is('GAME_OVER');
                         
                         document.getElementById('edition-select-modal').classList.remove('is-open');
+                        document.body.classList.remove('modal-open');
                         const isTimeBurst = this.activeMode === 'timeburst';
 
                         if (isGameInProgress) {
                             this.pendingAction = () => this.switchVariant(config.id, isTimeBurst, true);
                             document.getElementById('confirm-restart-modal').classList.add('is-open');
+                            document.body.classList.add('modal-open');
                         } else {
                             this.switchVariant(config.id, isTimeBurst);
                         }
@@ -2152,8 +1899,8 @@
                 if (this.currentGameInstance) {
                     this.currentGameInstance.stopTimer();
                 }
-
                 const gameContainer = document.getElementById('game-container');
+                gameContainer.style.transition = 'opacity 0.25s ease-in-out';
                 gameContainer.style.opacity = '0';
 
                 if (this.currentGameInstance && !isNewGame) {
@@ -2164,7 +1911,6 @@
                     this.activeVariantId = variantId;
                     const variantConfig = variantConfigs[variantId];
                     const themeConfig = themeConfigs[variantConfig.themeId];
-                    
                     applyTheme(variantConfig.themeId);
 
                     const gameStateKey = variantId + (isTimeBurst ? '_timeburst' : '_classic');
@@ -2222,6 +1968,7 @@
                     });
 
                     editionModal.classList.add('is-open');
+                    document.body.classList.add('modal-open');
                 });
 
                 toggleSwitch.addEventListener('click', () => {
@@ -2236,9 +1983,9 @@
                     }
                 });
                 
-                document.getElementById('close-edition-select-btn').addEventListener('click', () => editionModal.classList.remove('is-open'));
+                document.getElementById('close-edition-select-btn').addEventListener('click', () => { editionModal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
 
-                document.getElementById('rules-btn').addEventListener('click', () => this.currentGameInstance.DOMElements.rules_modal.classList.add('is-open'));
+                document.getElementById('rules-btn').addEventListener('click', () => { this.currentGameInstance.DOMElements.rules_modal.classList.add('is-open'); document.body.classList.add('modal-open'); });
 
                 document.getElementById('new-game-btn').addEventListener('click', () => {
                     const game = this.currentGameInstance;
@@ -2251,6 +1998,7 @@
                     if (isGameInProgress) {
                         this.pendingAction = () => this.resetCurrentVariant();
                         confirmModal.classList.add('is-open');
+                        document.body.classList.add('modal-open');
                     } else {
                         this.resetCurrentVariant();
                     }
@@ -2259,6 +2007,7 @@
                 document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
                     this.pendingAction = null;
                     confirmModal.classList.remove('is-open');
+                    document.body.classList.remove('modal-open');
                 });
                 
                 document.getElementById('confirm-restart-btn').addEventListener('click', () => {
@@ -2267,30 +2016,12 @@
                     }
                     this.pendingAction = null;
                     confirmModal.classList.remove('is-open');
+                    document.body.classList.remove('modal-open');
                 });
 
                 document.addEventListener('keydown', (e) => {
                     const game = this.currentGameInstance;
                     if (!game) return;
-
-                    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-                        e.preventDefault();
-                        if (e.key === 'ArrowUp') game.moveFocus(-1, 0);
-                        if (e.key === 'ArrowDown') game.moveFocus(1, 0);
-                        if (e.key === 'ArrowLeft') game.moveFocus(0, -1);
-                        if (e.key === 'ArrowRight') game.moveFocus(0, 1);
-                        return;
-                    }
-                    
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (game.gameStateManager.is('AWAITING_ROLL')) {
-                            game.handleRollDice();
-                        } else if (game.gameStateManager.is('AWAITING_PLACEMENT')) {
-                            game.placeWithKeyboard();
-                        }
-                        return;
-                    }
 
                     if (e.key === 'Escape') {
                         if (game.activeSuperpower) {
@@ -2302,7 +2033,13 @@
                             game.updateSuperpowerButtonsUI();
                             game.gameStateManager.setState(game.firstPlacementCell ? 'AWAITING_PLACEMENT' : 'AWAITING_ROLL');
                         } else {
-                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
+                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal'].forEach(id => {
+                                const modal = document.getElementById(id);
+                                if (modal?.classList.contains('is-open')) {
+                                   modal.classList.remove('is-open');
+                                   document.body.classList.remove('modal-open');
+                                }
+                           });
                         }
                     }
                     if (e.key === ' ' && game.gameStateManager.is('AWAITING_ROLL')) {
