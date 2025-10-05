@@ -25,6 +25,7 @@
             --toggle-bg-inactive: #E0E0E0;
             --stuck-block: linear-gradient(135deg, #757575 0%, #616161 100%);
             --glass-border: rgba(255, 255, 255, 0.2);
+            --faint-border: rgba(0, 0, 0, 0.08);
             --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.05);
             --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.07);
             --shadow-strong: 0 15px 50px rgba(0, 0, 0, 0.09);
@@ -80,7 +81,7 @@
         }
         .themed-modal { border-radius: 20px; background: var(--card); box-shadow: var(--shadow-strong); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
         
-        #new-game-btn, #confirm-restart-btn, #play-again-btn { background: var(--accent-gradient); }
+        #new-game-btn, #confirm-restart-btn, #play-again-btn, #close-warning-btn { background: var(--accent-gradient); }
         #select-edition-btn { background: var(--accent-gradient-shaded); }
 
         .progress-bar-container { position: relative; overflow: hidden; background: var(--accent-light); border-radius: 9999px; }
@@ -312,39 +313,34 @@
             </div>
         </div>
         <div class="w-full lg:w-1/3">
-            <!-- START: UI REDESIGN FOR SCORING PANEL -->
             <div id="scoring-panel" class="relative flex-1 flex flex-col gap-y-4 p-4 lg:p-6 glass-card rounded-2xl">
                 
-                <!-- Card 1: In-game Controls -->
-                <div class="glass-card enhanced-shadow rounded-2xl p-4">
-                    <div id="controls-container">
+                <div class="glass-card enhanced-shadow rounded-2xl p-4 flex flex-col flex-1 min-h-0">
+                    <div id="in-game-content-wrapper" class="flex-1 min-h-0">
                         <div id="pre-game-content"></div>
                         <div id="in-game-content"></div>
                     </div>
-                    <div class="relative w-full h-2.5 progress-bar-container mt-4">
+                </div>
+
+                <div class="glass-card enhanced-shadow rounded-xl p-3">
+                    <div class="relative w-full h-2.5 progress-bar-container">
                         <div id="progress-bar-fill" class="progress-bar-fill"></div>
                     </div>
                 </div>
 
-                <!-- Card 2: Game Actions -->
                 <div class="glass-card enhanced-shadow rounded-2xl p-4">
                     <div class="flex justify-center items-center gap-3">
                         <button id="rules-btn" class="flex-1 py-2 px-4 themed-button text-sm" style="color: var(--accent); background: var(--accent-light);">How to Play</button>
                         <button id="new-game-btn" class="flex-1 py-2 px-4 themed-button text-white text-sm">New Game</button>
                     </div>
-
                     <div class="text-center mt-3">
                         <button id="select-edition-btn" class="w-full py-2 px-4 themed-button text-white text-sm flex items-center justify-center gap-2">
                             Select Game Edition
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
-                        <div class="mt-2">
-                            <p id="current-edition-display" class="inline-block px-4 py-1.5 text-xs font-bold rounded-lg" style="background-color: var(--accent-light); color: var(--accent);"></p>
-                        </div>
                     </div>
                 </div>
                 
-                <!-- Card 3: Unified Scoring -->
                 <div class="glass-card enhanced-shadow rounded-2xl p-4 mt-auto">
                     <div class="grid grid-cols-2 gap-4 text-center">
                         <div>
@@ -357,14 +353,14 @@
                         </div>
                     </div>
                     
-                    <hr class="border-t-2 my-3" style="border-color: rgba(255, 255, 255, 0.3);">
+                    <hr class="border-t my-4" style="border-color: var(--faint-border);">
 
-                    <div class="grid grid-cols-3 gap-x-2 gap-y-4 text-center">
-                        <div>
+                    <div class="grid grid-cols-3 gap-y-3 text-center">
+                        <div class="border-r" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Rows</h3>
                             <div id="rows-total-score" class="text-lg font-bold"></div>
                         </div>
-                        <div>
+                        <div class="border-r" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Columns</h3>
                             <div id="cols-total-score" class="text-lg font-bold"></div>
                         </div>
@@ -372,15 +368,15 @@
                             <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Twinning</h3>
                             <div id="cross-total-score" class="text-lg font-bold" style="color: #FFC107;"></div>
                         </div>
-                        <div>
+                        <div class="border-r pt-3 border-t" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider leading-tight" style="color: var(--text-secondary);">Grid<br>Bonus</h3>
                             <div id="bonus-grid-score" class="text-lg font-bold" style="color: #FFC107;"></div>
                         </div>
-                        <div>
+                        <div class="border-r pt-3 border-t" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider leading-tight" style="color: var(--text-secondary);">Hero<br>Bonus</h3>
                             <div id="hero-bonus-score" class="text-lg font-bold" style="color: #FFC107;"></div>
                         </div>
-                        <div>
+                        <div class="pt-3 border-t" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider leading-tight" style="color: var(--text-secondary);">Empty<br>Block</h3>
                             <div id="empty-block-penalty" class="text-lg font-bold" style="color: var(--text);"></div>
                         </div>
@@ -388,8 +384,7 @@
                 </div>
 
             </div>
-            <!-- END: UI REDESIGN FOR SCORING PANEL -->
-        </div>
+            </div>
     </main>
 
     <div id="rules-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
@@ -548,8 +543,18 @@
         </div>
     </div>
 
+    <div id="warning-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
+        <div class="modal-content w-full max-w-sm themed-modal p-8 text-center transform scale-95 -translate-y-4">
+            <h2 class="text-2xl font-bold mb-4" style="color: var(--accent);">Action Needed!</h2>
+            <p class="mb-6" style="color: var(--text-secondary);">Please place your current Allohas on the board before rolling the dice again.</p>
+            <div class="flex justify-center items-center">
+                <button id="close-warning-btn" class="py-2 px-8 themed-button text-white text-sm">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-    (function() { // <-- FIX 1: Start of IIFE wrapper
+    (function() {
         // --- NEW: Helper functions for animations ---
         function createSparkles(element) {
             const rect = element.getBoundingClientRect();
@@ -591,7 +596,6 @@
             const isNegative = newValue < 0;
             const absValueStr = String(Math.abs(newValue)).padStart(minLength, '0');
 
-            // Handle Parentheses
             const openParenId = `paren-open-${containerId}`;
             const closeParenId = `paren-close-${containerId}`;
             let openParen = document.getElementById(openParenId);
@@ -617,7 +621,6 @@
                 if (closeParen) closeParen.remove();
             }
 
-            // Handle Digits
             const numDigits = absValueStr.length;
             let existingDigitContainers = container.querySelectorAll('.digit-container');
             while (existingDigitContainers.length < numDigits) {
@@ -814,10 +817,11 @@
                     new_game_btn: 'new-game-btn', game_board_container: 'game-board-container', scoring_panel: 'scoring-panel',
                     effects_container: 'effects-container', rules_title: 'rules-title', 
                     in_game_content: 'in-game-content', pre_game_content: 'pre-game-content',
-                    controls_container: 'controls-container',
-                    tutorial_modal: 'tutorial-modal', tutorial_content: 'tutorial-content', tutorial_next_btn: 'tutorial-next-btn', close_tutorial_btn: 'close-tutorial-btn'
+                    'in_game_content_wrapper': 'in_game_content_wrapper',
+                    tutorial_modal: 'tutorial-modal', tutorial_content: 'tutorial-content', tutorial_next_btn: 'tutorial-next-btn', close_tutorial_btn: 'close-tutorial-btn',
+                    warning_modal: 'warning-modal', close_warning_btn: 'close-warning-btn'
                 };
-                // -- FIX 2: Defensive Programming --
+                
                 for (const key in idMap) {
                     const element = document.getElementById(idMap[key]);
                     if (!element) {
@@ -877,7 +881,7 @@
                 this.highScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
                 animateScoreUpdate('high-score', this.highScore, 3);
 
-                ['game-over-modal', 'exchange-modal', 'rules-modal', 'tutorial-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
+                ['game-over-modal', 'exchange-modal', 'rules-modal', 'tutorial-modal', 'warning-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
                 
                 this.audioInit();
                 this.renderGrid().then(() => {
@@ -1158,44 +1162,50 @@
                 }
             }
             renderControls() {
+                const inGameContent = this.DOMElements.in_game_content;
+                const preGameContent = this.DOMElements.pre_game_content;
+                
+                if(inGameContent) inGameContent.className = '';
+
                 if (this.gameStateManager.is('PRE_GAME')) {
-                    this.DOMElements.pre_game_content.style.display = 'block';
-                    this.DOMElements.in_game_content.style.display = 'none';
+                    if(preGameContent) preGameContent.style.display = 'block';
+                    if(inGameContent) inGameContent.style.display = 'none';
                 } else {
-                    this.DOMElements.pre_game_content.style.display = 'none';
-                    this.DOMElements.in_game_content.style.display = 'block';
+                    if(preGameContent) preGameContent.style.display = 'none';
+                    if(inGameContent) inGameContent.style.display = 'block';
                     this.renderDiceAndPowers();
                 }
             }
             renderDiceAndPowers() {
+                const container = this.DOMElements.in_game_content;
+                container.className = '';
+                container.innerHTML = '';
+
                 const wrapper = document.createElement('div');
-                wrapper.className = 'w-full flex flex-col justify-center gap-3 lg:gap-4';
+                wrapper.className = 'w-full flex flex-col justify-start gap-3 lg:gap-4';
                 let timerHTML = '';
                 if(this.isTimeBurst) {
-                    timerHTML = `<div id="timer-display" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-2xl lg:text-3xl font-bold" style="color: var(--accent);">${this.timeLeft}</div>`;
+                    timerHTML = `<div id="timer-display" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-2xl lg:text-3xl font-bold" style="color: var(--accent);">${this.timeLeft}</div>`;
                 }
 
                 wrapper.innerHTML = `<div class="flex justify-center items-center gap-2 lg:gap-4">
                     <button id="roll-dice-btn" aria-label="Roll Dice" class="w-14 h-14 lg:w-16 lg:h-16 text-4xl lg:text-5xl flex items-center justify-center" style="color: var(--accent);">🎲</button>
-                    <div id="dice-1" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
-                    <div id="dice-2" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
+                    <div id="dice-1" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
+                    <div id="dice-2" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
                     ${timerHTML}
                 </div>
-                <div class="glass-card rounded-xl px-3 py-4 text-center"><h2 class="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center justify-center gap-2" style="color: var(--text-secondary);">Alloha Superpowers <span id="sp-charges" class="text-base">✨✨</span></h2><div class="grid grid-cols-4 gap-1 text-center">
+                <div class="glass-card enhanced-shadow rounded-xl px-3 py-2 text-center"><h2 class="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center justify-center gap-2" style="color: var(--text-secondary);">Alloha Superpowers <span id="sp-charges" class="text-base">✨✨</span></h2><div class="grid grid-cols-4 gap-1 text-center">
                     <button id="past-lives-btn" class="superpower-btn"><div>Past</div><div>Lives</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
                     <button id="no-return-btn" class="superpower-btn"><div>No</div><div>Return</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
                     <button id="bomb-bae-btn" class="superpower-btn"><div>Bomb</div><div>Bae</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
                     <button id="swap-them-btn" class="superpower-btn"><div>Swap</div><div>Them</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
                 </div></div>`;
                 
-                const rollBtn = wrapper.querySelector('#roll-dice-btn');
-                rollBtn.onclick = this.handleRollDice.bind(this);
-                if(this.gameStateManager.is('AWAITING_ROLL')) {
-                    rollBtn.classList.add('bob-animation');
-                }
+                container.appendChild(wrapper);
 
-                this.DOMElements.in_game_content.innerHTML = '';
-                this.DOMElements.in_game_content.appendChild(wrapper);
+                const rollBtn = wrapper.querySelector('#roll-dice-btn');
+                if(rollBtn) rollBtn.onclick = this.handleRollDice.bind(this);
+                
                 this.updateControlsState();
                 this.setupSuperpowerEventListeners(); 
                 this.updateSuperpowerButtonsUI();
@@ -1205,7 +1215,6 @@
                 if (this.gameStateManager.is('PRE_GAME')) return;
                 const rollBtn = document.getElementById('roll-dice-btn');
                 if (rollBtn) {
-                    rollBtn.disabled = !this.gameStateManager.is('AWAITING_ROLL');
                     rollBtn.classList.toggle('bob-animation', this.gameStateManager.is('AWAITING_ROLL'));
                 }
                 const dice1 = document.getElementById('dice-1'), dice2 = document.getElementById('dice-2');
@@ -1229,7 +1238,13 @@
                 }
             }
             async handleRollDice() {
+                if (this.gameStateManager.is('AWAITING_PLACEMENT')) {
+                    this.DOMElements.warning_modal.classList.add('is-open');
+                    document.body.classList.add('modal-open');
+                    return;
+                }
                 if (!this.gameStateManager.is('AWAITING_ROLL')) return;
+                
                 this.triggerVibration(50);
 
                 if (this.turnCount >= this.MAX_TURNS || !this.hasValidMoves()) {
@@ -1341,18 +1356,61 @@
                 });
             }
 
-            async renderGoldenAllohaSelector() {
-                return new Promise(resolve => {
-                    const container = this.DOMElements.in_game_content;
-                    container.innerHTML = '';
+            renderGoldenAllohaPlacementPrompt(symbol) {
+                const container = this.DOMElements.in_game_content;
+                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
+                container.innerHTML = '';
 
+                const line1 = document.createElement('h2');
+                line1.className = 'text-xl lg:text-2xl font-semibold';
+                line1.style.color = 'var(--accent)';
+                line1.innerHTML = `You chose <span class="text-5xl align-middle ${this.SYMBOL_COLORS[symbol] || 'text-gray-700'}">${symbol}</span>`;
+
+                const line2 = document.createElement('p');
+                line2.className = 'text-base lg:text-lg font-medium mt-2';
+                line2.style.color = 'var(--text-secondary)';
+                line2.textContent = 'Place it on any highlighted Allohome!';
+
+                container.appendChild(line1);
+                container.appendChild(line2);
+            }
+
+            renderEndGamePanel(score) {
+                const container = this.DOMElements.in_game_content;
+                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
+                container.innerHTML = '';
+
+                const title = document.createElement('h2');
+                title.className = 'text-3xl font-bold';
+                title.style.fontFamily = "'Pacifico', cursive";
+                title.style.color = 'var(--accent)';
+                title.textContent = 'Game Over Alloha!';
+
+                const scoreDisplay = document.createElement('div');
+                scoreDisplay.id = 'end-game-score-display';
+                scoreDisplay.className = 'text-7xl font-bold my-2';
+                scoreDisplay.style.color = 'var(--accent)';
+                
+                container.appendChild(title);
+                container.appendChild(scoreDisplay);
+                animateScoreUpdate('end-game-score-display', score, 3);
+            }
+
+            async renderGoldenAllohaSelector() {
+                const container = this.DOMElements.in_game_content;
+                container.className = '';
+                container.innerHTML = '';
+
+                return new Promise(resolve => {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'w-full flex flex-col items-center justify-center h-full gap-4 pt-2';
                     
                     const title = document.createElement('h2');
+                    // Restored original font size as the new text is shorter
                     title.className = 'text-base lg:text-lg font-semibold text-center uppercase tracking-wider';
                     title.style.color = 'var(--accent)';
-                    title.textContent = 'Choose One Last Alloha';
+                    // UPDATED TEXT as per your request
+                    title.textContent = 'Choose Last Alloha';
 
                     const selector = document.createElement('div');
                     selector.className = 'grid grid-cols-3 gap-2 lg:gap-4';
@@ -1373,48 +1431,7 @@
                     container.appendChild(wrapper);
                 });
             }
-
-            renderGoldenAllohaPlacementPrompt(symbol) {
-                const container = this.DOMElements.in_game_content;
-                container.innerHTML = '';
-                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
-
-                const line1 = document.createElement('h2');
-                line1.className = 'text-xl lg:text-2xl font-semibold';
-                line1.style.color = 'var(--accent)';
-                line1.innerHTML = `You chose <span class="text-5xl align-middle ${this.SYMBOL_COLORS[symbol] || 'text-gray-700'}">${symbol}</span>`;
-
-                const line2 = document.createElement('p');
-                line2.className = 'text-base lg:text-lg font-medium mt-2';
-                line2.style.color = 'var(--text-secondary)';
-                line2.textContent = 'Place it on any highlighted Allohome!';
-
-                container.appendChild(line1);
-                container.appendChild(line2);
-            }
-
-            renderEndGamePanel(score) {
-                const container = this.DOMElements.in_game_content;
-                container.innerHTML = '';
-                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
-
-                const title = document.createElement('h2');
-                title.className = 'text-3xl font-bold';
-                title.style.fontFamily = "'Pacifico', cursive";
-                title.style.color = 'var(--accent)';
-                title.textContent = 'Game Over Alloha!';
-
-                const scoreDisplay = document.createElement('div');
-                scoreDisplay.id = 'end-game-score-display'; 
-                scoreDisplay.className = 'text-7xl font-bold my-2';
-                scoreDisplay.style.color = 'var(--accent)';
-                
-                container.appendChild(title);
-                container.appendChild(scoreDisplay);
-                animateScoreUpdate('end-game-score-display', score, 3);
-            }
-
-            // -- FIX 3: Robust Event Listener handling --
+            
             async waitForCellClick(validCells) {
                 const board = this.DOMElements.game_board;
                 let clickHandler;
@@ -1433,7 +1450,6 @@
                         board.addEventListener('click', clickHandler);
                     });
                 } finally {
-                    // This block ensures the listener is always removed once the promise resolves.
                     if (clickHandler) {
                         board.removeEventListener('click', clickHandler);
                     }
@@ -1557,9 +1573,19 @@
 
                 const originalBtnContent = shareBtn.innerHTML;
 
+                const finalScoreEl = document.getElementById('final-score-modal');
+                const highScoreEl = document.getElementById('high-score-modal');
+                const originalFinalScoreHTML = finalScoreEl.innerHTML;
+                const originalHighScoreHTML = highScoreEl.innerHTML;
+
                 try {
                     shareBtnSpan.textContent = 'Generating...';
                     shareBtn.disabled = true;
+
+                    finalScoreEl.classList.remove('digit-score-container');
+                    finalScoreEl.innerHTML = `${score}`;
+                    highScoreEl.classList.remove('digit-score-container');
+                    highScoreEl.innerHTML = `${highScore}`;
 
                     const scoreBreakdown = document.getElementById('score-breakdown');
                     const buttonContainer = document.getElementById('game-over-buttons');
@@ -1617,6 +1643,9 @@
                     console.error('Sharing failed:', error);
                     shareBtnSpan.textContent = 'Error!';
                 } finally {
+                    finalScoreEl.innerHTML = originalFinalScoreHTML;
+                    highScoreEl.innerHTML = originalHighScoreHTML;
+
                     setTimeout(() => {
                         shareBtn.innerHTML = originalBtnContent;
                         shareBtn.disabled = false;
@@ -1660,7 +1689,7 @@
                     this.lastMoveCoords.forEach(coord => {
                         if (this.heroBlocks.has(`${coord.r},${coord.c}`) && this.gridData[coord.r][coord.c] === this.heroSymbol) {
                             heroScore += 2;
-                            this.heroBlocks.delete(`${coord.r},${coord.c}`); // Remove to prevent re-scoring
+                            this.heroBlocks.delete(`${coord.r},${coord.c}`);
                             showFloatingScore('+2', this.gridCells[coord.r][coord.c]);
                         }
                     });
@@ -1877,7 +1906,8 @@
                 this.DOMElements.close_rules_btn.addEventListener('click', () => { this.DOMElements.rules_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
                 this.DOMElements.close_game_over_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
                 this.DOMElements.play_again_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); gameManager.resetCurrentVariant(); });
-                
+                this.DOMElements.close_warning_btn.addEventListener('click', () => { this.DOMElements.warning_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
+
                 this.DOMElements.close_tutorial_btn.addEventListener('click', () => {
                     this.completeTutorial();
                 });
@@ -1959,11 +1989,7 @@
                     }
 
                     this.currentGameInstance = new Game(variantConfig, themeConfig, isTimeBurst, savedState);
-                    
-                    const editionDisplay = document.getElementById('current-edition-display');
-                    let timeBurstText = isTimeBurst ? ' - <span style="color: var(--accent);">Time Burst</span>' : '';
-                    editionDisplay.innerHTML = 'Now Playing: ' + variantConfig.name + timeBurstText;
-                    
+                                        
                     gameContainer.style.opacity = '1';
                 }, 250);
             },
@@ -2071,7 +2097,7 @@
                             game.updateSuperpowerButtonsUI();
                             game.gameStateManager.setState(game.firstPlacementCell ? 'AWAITING_PLACEMENT' : 'AWAITING_ROLL');
                         } else {
-                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal'].forEach(id => {
+                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal', 'warning-modal'].forEach(id => {
                                 const modal = document.getElementById(id);
                                 if (modal?.classList.contains('is-open')) {
                                    modal.classList.remove('is-open');
@@ -2082,7 +2108,8 @@
                     }
                     if (e.key === ' ' && game.gameStateManager.is('AWAITING_ROLL')) {
                         e.preventDefault();
-                        game.handleRollDice();
+                        const rollBtn = document.getElementById('roll-dice-btn');
+                        if (rollBtn) rollBtn.click();
                     }
                 });
             }
@@ -2091,8 +2118,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             gameManager.init();
         });
-    })(); // <-- FIX 1: End of IIFE wrapper
+    })();
     </script>
 </body>
 </html>
-
