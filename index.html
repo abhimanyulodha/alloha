@@ -81,7 +81,7 @@
         }
         .themed-modal { border-radius: 20px; background: var(--card); box-shadow: var(--shadow-strong); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
         
-        #new-game-btn, #confirm-restart-btn, #play-again-btn, #close-warning-btn { background: var(--accent-gradient); }
+        #new-game-btn, #confirm-restart-btn, #play-again-btn, #close-warning-btn, #close-unlock-btn { background: var(--accent-gradient); }
         #select-edition-btn { background: var(--accent-gradient-shaded); }
 
         .progress-bar-container { position: relative; overflow: hidden; background: var(--accent-light); border-radius: 9999px; }
@@ -250,7 +250,6 @@
             100% { opacity: 0; transform: scale(1.5) translate(var(--sparkle-x), var(--sparkle-y)); }
         }
 
-        /* --- UPDATED: Smaller Hero Symbol Hint Style --- */
         .hero-block-hint::before {
             content: var(--hero-symbol);
             position: absolute;
@@ -264,7 +263,6 @@
             z-index: 0;
         }
         
-        /* --- NEW: Curse Block Overlay Style --- */
         .curse-overlay {
             position: fixed;
             font-size: 3rem;
@@ -279,9 +277,16 @@
             100% { transform: scale(1.5); opacity: 0; }
         }
         
-        /* --- NEW: Final fix for score truncation --- */
         #total-score, #high-score, #final-score-modal, #high-score-modal {
             line-height: 1.2;
+        }
+
+        .unlock-hint {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            opacity: 0.9;
+            margin-top: -2px;
         }
     </style>
     
@@ -404,7 +409,7 @@
                 <ol class="list-decimal list-inside space-y-1">
                     <li><b>Roll the Dice:</b> Click the '🎲' button to get your two Allohas for the turn.</li>
                     <li><b>Place Your Pair:</b> Place both Allohas in any two empty, adjacent (but not diagonal) squares on the grid.</li>
-                    <li><b>Explore Editions:</b> Use the "Select Game Edition" button to discover different versions of the game, each with a unique theme and a special "Twinning" scoring pattern!</li>
+                    <li><b>Explore Editions:</b> Use the "Select Game Edition" button to discover different versions of the game. Achieve score goals to unlock new editions, each with a unique theme and "Twinning" scoring pattern!</li>
                 </ol>
 
                 <h3 class="font-bold text-lg" style="color: var(--accent);">👑 The Hero Symbol</h3>
@@ -414,7 +419,7 @@
                 <p>You can use <b>two different superpowers</b> once per game to get out of a tight spot!</p>
                 <ul class="list-disc list-inside space-y-1">
                     <li><b>Past Lives:</b> Undoes your most recent move (placing a pair of Allohas).</li>
-                    <li><b>Bomb Bae:</b> Lets you clear a stuck block (💣) by filling it with a random Alloha.</li>
+                    <li><b>Bomb Bae:</b> Lets you clear any filled block (except Wild and Cursed blocks). Blocks above it will fall down to fill the space.</li>
                     <li><b>No Return:</b> Exchange any Alloha on the grid for a new one of your choice from the symbol set.</li>
                     <li><b>Swap Them:</b> Swap the positions of any two adjacent Allohas. This must be used <b>before</b> you roll the dice.</li>
                 </ul>
@@ -491,7 +496,7 @@
             <button id="close-game-over-btn" aria-label="Close Game Over" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
             <h2 class="text-4xl font-bold mb-2" style="font-family: 'Pacifico', cursive; color: var(--accent);">Game Over Alloha!</h2>
             <p id="game-over-reason" class="text-lg mt-2 mb-4" style="color: var(--accent);"></p>
-            <div id="final-score-modal" class="text-7xl font-bold my-8" style="color: var(--accent);"></div>
+            <div id="final-score-modal" class="text-7xl font-bold my-4" style="color: var(--accent);"></div>
             <div id="score-breakdown" class="mb-6 p-4 glass-card rounded-xl text-xs" style="display: grid;">
                 <div class="grid grid-cols-2 gap-2">
                     <div class="text-left">Rows: <span id="final-rows-score" class="float-right font-bold">0</span></div>
@@ -503,7 +508,7 @@
                 </div>
             </div>
             <p>High score: <span id="high-score-modal" class="font-bold" style="color: #FFC107;">0</span></p>
-            <div id="game-over-buttons" class="flex flex-col items-center gap-3 mt-6">
+            <div id="game-over-buttons" class="no-screenshot flex flex-col items-center gap-3 mt-6">
                 <div class="flex w-full items-center gap-3">
                     <button id="play-again-btn" class="flex-1 themed-button text-white font-bold py-3 px-4 rounded-xl text-lg">Play Again</button>
                     <button id="share-score-btn" class="flex-1 themed-button text-white font-bold py-3 px-4 rounded-xl text-lg flex items-center justify-center gap-2" style="background: var(--accent-gradient-shaded);">
@@ -553,9 +558,22 @@
         </div>
     </div>
 
+    <div id="unlock-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
+        <div class="modal-content w-full max-w-sm themed-modal p-8 text-center transform scale-95 -translate-y-4">
+            <h2 class="text-3xl font-bold mb-2" style="font-family: 'Pacifico', cursive; color: var(--accent);">Edition Unlocked!</h2>
+            <p class="text-lg mt-4 mb-6" style="color: var(--text-secondary);">Congratulations, you can now play:</p>
+            <p id="unlocked-edition-name" class="text-2xl font-bold mb-6" style="color: var(--text);"></p>
+            <button id="close-unlock-btn" class="py-2 px-8 themed-button text-white text-sm">Awesome!</button>
+        </div>
+    </div>
+
     <script>
     (function() {
-        // --- NEW: Helper functions for animations ---
+        // --- ADD THIS DEVELOPER FLAG ---
+        // Set to true to unlock all game editions for testing purposes.
+        const DEV_UNLOCK_ALL = false;
+
+        // --- Helper functions for animations ---
         function createSparkles(element) {
             const rect = element.getBoundingClientRect();
             const container = document.body;
@@ -584,14 +602,12 @@
             setTimeout(() => floater.remove(), 1200);
         }
 
-        // --- UPDATED: Simplified score display function ---
         function animateScoreUpdate(containerId, newValue, minLength = 1) {
             const container = document.getElementById(containerId);
             if (!container) return;
 
             const oldValue = parseInt(container.textContent || '0');
             if (newValue > oldValue) {
-                // Keep the sparkle effect on score increase
                 if(container.getBoundingClientRect().width > 0) createSparkles(container);
             }
 
@@ -703,6 +719,31 @@
             'monster': { id: 'monster', name: 'Monster Monster', themeId: 'monster_mash', timeLimit: 180, isTwinningCell: (r, c) => (r === 0 && c <= 2) || (r === 2 && c <= 4) || (r === 3 && c >= 4) || (r === 4 && c >= 2 && c <= 4) || (r === 6 && c <= 3) || (c === 0 && r <= 2) || (c === 2 && r <= 4) || (c === 3 && r >= 4) || (c === 4 && r >= 2 && r <= 4), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } }
         };
 
+        const unlockProgression = {
+          // Each key is the ID of the game that must be PLAYED,
+          // and its value is the game it UNLOCKS and the SCORE required.
+          'plain_jean':      { unlocks: 'one_won',           score: 50 },
+          'one_won':         { unlocks: 'plus_minus',        score: 50 },
+          'plus_minus':      { unlocks: 'hat_trick',         score: 55 },
+          'hat_trick':       { unlocks: 'sugar_cube',        score: 55 },
+          'sugar_cube':      { unlocks: 'spoil_sport',       score: 60 },
+          'spoil_sport':     { unlocks: 'marry_harry',       score: 60 },
+          'marry_harry':     { unlocks: 'cosy_emoji',        score: 65 },
+          'cosy_emoji':      { unlocks: 'wonder_wander',     score: 65 },
+          'wonder_wander':   { unlocks: 'road_block',        score: 70 },
+          'road_block':      { unlocks: 'box_vox',           score: 70 },
+          'box_vox':         { unlocks: 'hash_hush',         score: 75 },
+          'hash_hush':       { unlocks: 'zedi_zodi',         score: 75 },
+          'zedi_zodi':       { unlocks: 'core',              score: 80 }, // 'core' is Cacti Facti
+          'core':            { unlocks: 'eight_and_watch',   score: 80 },
+          'eight_and_watch': { unlocks: 'fake_snake',        score: 85 },
+          'fake_snake':      { unlocks: 'rune_dune',         score: 85 },
+          'rune_dune':       { unlocks: 'space_race',        score: 90 },
+          'space_race':      { unlocks: 'flower_power',      score: 90 },
+          'flower_power':    { unlocks: 'monster',           score: 95 },
+          'monster':         null // The last game, unlocks nothing
+        };
+
         class GameState {
             constructor() {
                 this.states = {
@@ -736,60 +777,23 @@
                 this.config = variantConfig;
                 this.theme = themeConfig;
                 this.isTimeBurst = isTimeBurst;
-                this.timerId = null;
-                this.timeLeft = this.config.timeLimit;
-                
-                this.tutorialMode = false;
-                this.tutorialStep = 0;
-                this.tutorialModal = null;
                 
                 this.SYMBOLS = this.theme.symbols;
                 this.SYMBOL_COLORS = this.theme.symbolColors;
                 this.SPECIAL_SYMBOLS = { 'WILD': '💎', 'CURSED': '☠️' };
-
                 this.SCORING_RULES = { 7: 20, 6: 12, 5: 8, 4: 5, 3: 3 };
                 this.GRID_SIZE = 7; this.MAX_TURNS = 24; this.CROSS_MULTIPLIER = 2; this.LINE_DEATH_PENALTY = -5; this.CROSS_DEATH_PENALTY = -5; this.MIN_SEQUENCE_LENGTH = 3;
-                
+
                 this.gridCells = [];
+                this.DOMElements = this._getDOMElements();
                 this.audio = { unlocked: false, context: null, sounds: new Map() };
-                this.DOMElements = this.getDOMElements();
                 
-                this.init(savedState);
-                this.setupEventListeners();
+                this._initializeState(savedState);
+                this._setupUI();
+                this._attachEventListeners();
             }
 
-            getDOMElements() {
-                const elements = {};
-                const idMap = {
-                    game_board: 'game-board', row_scores_display: 'row-scores-display',
-                    col_scores_display: 'col-scores-display', total_score: 'total-score', high_score: 'high-score',
-                    rows_total_score: 'rows-total-score', cols_total_score: 'cols-total-score', cross_total_score: 'cross-total-score',
-                    bonus_grid_score: 'bonus-grid-score', empty_block_penalty: 'empty-block-penalty', hero_bonus_score: 'hero-bonus-score',
-                    rules_btn: 'rules-btn', rules_modal: 'rules-modal', close_rules_btn: 'close-rules-btn', 
-                    game_over_modal: 'game-over-modal', game_over_reason: 'game-over-reason', close_game_over_btn: 'close-game-over-btn',
-                    final_score_modal: 'final-score-modal', high_score_modal: 'high-score-modal', play_again_btn: 'play-again-btn',
-                    final_rows_score: 'final-rows-score', final_cols_score: 'final-cols-score', final_cross_score: 'final-cross-score',
-                    final_bonus_score: 'final-bonus-score', final_hero_score: 'final-hero-score', final_penalty_score: 'final-penalty-score',
-                    exchange_modal: 'exchange-modal', exchange_options: 'exchange-options', progress_bar_fill: 'progress-bar-fill',
-                    new_game_btn: 'new-game-btn', game_board_container: 'game-board-container', scoring_panel: 'scoring-panel',
-                    effects_container: 'effects-container', rules_title: 'rules-title', 
-                    in_game_content: 'in-game-content', pre_game_content: 'pre-game-content',
-                    'in_game_content_wrapper': 'in_game_content_wrapper',
-                    tutorial_modal: 'tutorial-modal', tutorial_content: 'tutorial-content', tutorial_next_btn: 'tutorial-next-btn', close_tutorial_btn: 'close-tutorial-btn',
-                    warning_modal: 'warning-modal', close_warning_btn: 'close-warning-btn'
-                };
-                
-                for (const key in idMap) {
-                    const element = document.getElementById(idMap[key]);
-                    if (!element) {
-                        console.warn(`[Alloha Dev Warning] DOM element not found for key: "${key}" with ID: "${idMap[key]}"`);
-                    }
-                    elements[key] = element;
-                }
-                return elements;
-            }
-
-            init(savedState = null) {
+            _initializeState(savedState = null) {
                 this.stopTimer();
                 this.gridData = Array(this.GRID_SIZE).fill(null).map(() => Array(this.GRID_SIZE).fill(null));
                 this.currentRoll = [];
@@ -804,6 +808,11 @@
                 this.scores = { rows: 0, cols: 0, cross: 0, bonus: 0, hero: 0, penalty: 0 };
                 this.gameStateManager = new GameState();
                 this.vibratedForScoreThisTurn = false;
+                this.cellToExchange = null;
+                this.swapFirstCell = null;
+                
+                this.tutorialMode = false;
+                this.tutorialStep = 0;
 
                 if (savedState) {
                     this.gridData = JSON.parse(savedState.gridData);
@@ -822,28 +831,98 @@
                     this.gameStateManager.currentState = savedState.currentState;
                     this.timeLeft = savedState.timeLeft;
                     if(this.isTimeBurst && this.turnCount > 0 && !this.gameStateManager.is('GAME_OVER')) this.startTimer();
-
                 } else {
                     this.gameStateManager.setState('AWAITING_ROLL');
                     this.timeLeft = this.config.timeLimit;
                     this.cursedBlockTurn = Math.floor(Math.random() * 8) + 5;
                     this.wildcardTurn = Math.floor(Math.random() * 8) + 15;
                     if (this.wildcardTurn === this.cursedBlockTurn) this.wildcardTurn++;
-                    this.initializeHeroFeature();
-                    this.initTutorial();
+                    this._initializeHeroFeature();
+                    this._initTutorial();
                 }
 
-                this.cellToExchange = null; this.swapFirstCell = null;
-                
                 const highScoreKey = `cactiFactiHighScore_${this.config.id}_${this.isTimeBurst ? 'timeburst' : 'classic'}`;
                 this.highScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
-                animateScoreUpdate('high-score', this.highScore, 3);
-
-                ['game-over-modal', 'exchange-modal', 'rules-modal', 'tutorial-modal', 'warning-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
                 
                 this.audioInit();
+
+                this._superpowerStrategies = {
+                    swapThem: (r, c, cell) => {
+                        if (!this.gridData[r][c] || this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED) { this.audioPlay('invalid'); return; }
+                        if (!this.swapFirstCell) {
+                            this.swapFirstCell = { r, c };
+                            cell.classList.add('pulse-animation');
+                        } else {
+                            const { r: r1, c: c1 } = this.swapFirstCell;
+                            if (r1 === r && c1 === c) { this.swapFirstCell = null; cell.classList.remove('pulse-animation'); return; }
+                            if (Math.abs(r1 - r) + Math.abs(c1 - c) === 1) {
+                                [this.gridData[r1][c1], this.gridData[r][c]] = [this.gridData[r][c], this.gridData[r1][c1]];
+                                this.gridCells[r1][c1].classList.remove('pulse-animation');
+                                this.swapFirstCell = null;
+                                this.consumeSuperpower('swapThem');
+                                this.gameStateManager.setState('AWAITING_ROLL');
+                                this.renderControls();
+                            } else {
+                                this.audioPlay('invalid');
+                                cell.classList.add('shake-animation');
+                                setTimeout(() => cell.classList.remove('shake-animation'), 400);
+                                this.gridCells[r1][c1].classList.remove('pulse-animation');
+                                this.swapFirstCell = null;
+                            }
+                        }
+                    },
+                    bombBae: (r, c, cell) => {
+                        const targetSymbol = this.gridData[r][c];
+                        if (!targetSymbol || targetSymbol === this.SPECIAL_SYMBOLS.WILD) {
+                            this.audioPlay('invalid');
+                            cell.classList.add('shake-animation');
+                            setTimeout(() => cell.classList.remove('shake-animation'), 400);
+                            return;
+                        }
+
+                        // Set the bombed cell to null
+                        this.gridData[r][c] = null;
+
+                        // Create a temporary column with remaining symbols
+                        const remainingSymbols = [];
+                        for(let i = 0; i < this.GRID_SIZE; i++) {
+                            if (this.gridData[i][c] !== null) {
+                                remainingSymbols.push(this.gridData[i][c]);
+                            }
+                        }
+                        
+                        // Clear the original column
+                        for(let i = 0; i < this.GRID_SIZE; i++) {
+                            this.gridData[i][c] = null;
+                        }
+
+                        // Repopulate the column from the bottom up
+                        let newRow = this.GRID_SIZE - 1;
+                        for(let i = remainingSymbols.length - 1; i >= 0; i--) {
+                            this.gridData[newRow][c] = remainingSymbols[i];
+                            newRow--;
+                        }
+
+                        this.consumeSuperpower('bombBae');
+                        this.gameStateManager.setState('AWAITING_ROLL');
+                        this.renderControls();
+                    },
+                    noReturn: (r, c, cell) => {
+                        if (this.gridData[r][c]) {
+                            this.showSymbolSelectorForExchange(r, c);
+                        } else {
+                            this.audioPlay('invalid');
+                        }
+                    }
+                };
+            }
+
+            _setupUI() {
+                animateScoreUpdate('high-score', this.highScore, 3);
+                ['game-over-modal', 'exchange-modal', 'rules-modal', 'tutorial-modal', 'warning-modal', 'unlock-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
+                
                 this.renderGrid().then(() => {
-                    if (!savedState) {
+                    if (!this.lastGameState && this.turnCount === 0) {
                         this.flashTwinningPattern();
                     }
                 });
@@ -854,7 +933,39 @@
                 this.syncPanelHeights();
             }
 
-            initializeHeroFeature() {
+            _getDOMElements() {
+                const elements = {};
+                const idMap = {
+                    game_board: 'game-board', row_scores_display: 'row-scores-display',
+                    col_scores_display: 'col-scores-display', total_score: 'total-score', high_score: 'high-score',
+                    rows_total_score: 'rows-total-score', cols_total_score: 'cols-total-score', cross_total_score: 'cross-total-score',
+                    bonus_grid_score: 'bonus-grid-score', empty_block_penalty: 'empty-block-penalty', hero_bonus_score: 'hero-bonus-score',
+                    rules_btn: 'rules-btn', rules_modal: 'rules-modal', close_rules_btn: 'close-rules-btn', 
+                    game_over_modal: 'game-over-modal', game_over_reason: 'game-over-reason', close_game_over_btn: 'close-game-over-btn',
+                    final_score_modal: 'final-score-modal', high_score_modal: 'high-score-modal', play_again_btn: 'play-again-btn',
+                    final_rows_score: 'final-rows-score', final_cols_score: 'final-cols-score', final_cross_score: 'final-cross-score',
+                    final_bonus_score: 'final-bonus-score', final_hero_score: 'final-hero-score', final_penalty_score: 'final-penalty-score',
+                    exchange_modal: 'exchange-modal', exchange_options: 'exchange-options', progress_bar_fill: 'progress-bar-fill',
+                    new_game_btn: 'new-game-btn', game_board_container: 'game-board-container', scoring_panel: 'scoring-panel',
+                    effects_container: 'effects-container', rules_title: 'rules-title', 
+                    in_game_content: 'in-game-content', pre_game_content: 'pre-game-content',
+                    'in_game_content_wrapper': 'in_game_content_wrapper',
+                    tutorial_modal: 'tutorial-modal', tutorial_content: 'tutorial-content', tutorial_next_btn: 'tutorial-next-btn', close_tutorial_btn: 'close-tutorial-btn',
+                    warning_modal: 'warning-modal', close_warning_btn: 'close-warning-btn',
+                    unlock_modal: 'unlock-modal', unlocked_edition_name: 'unlocked-edition-name', close_unlock_btn: 'close-unlock-btn'
+                };
+                
+                for (const key in idMap) {
+                    const element = document.getElementById(idMap[key]);
+                    if (!element) {
+                        console.warn(`[Alloha Dev Warning] DOM element not found for key: "${key}" with ID: "${idMap[key]}"`);
+                    }
+                    elements[key] = element;
+                }
+                return elements;
+            }
+
+            _initializeHeroFeature() {
                 this.heroSymbol = this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)];
                 this.heroBlocks = new Set();
                 while (this.heroBlocks.size < 7) {
@@ -864,7 +975,7 @@
                 }
             }
 
-            initTutorial() {
+            _initTutorial() {
                 if (localStorage.getItem('allohaTutorialCompleted')) return;
                 
                 this.tutorialMode = true;
@@ -1162,10 +1273,10 @@
                 container.appendChild(wrapper);
 
                 const rollBtn = wrapper.querySelector('#roll-dice-btn');
-                if(rollBtn) rollBtn.onclick = this.handleRollDice.bind(this);
+                if(rollBtn) rollBtn.addEventListener('click', this.handleRollDice.bind(this));
                 
                 this.updateControlsState();
-                this.setupSuperpowerEventListeners(); 
+                this._attachSuperpowerEventListeners(); 
                 this.updateSuperpowerButtonsUI();
                 if(this.isTimeBurst) this.updateTimerDisplay();
             }
@@ -1307,7 +1418,6 @@
 
                 this.vibratedForScoreThisTurn = false;
 
-                // --- NEW: Check for special symbol placements for effects ---
                 const placedSymbols = [this.gridData[r][c], this.gridData[firstCellCoords.r][firstCellCoords.c]];
                 if (placedSymbols.includes(this.SPECIAL_SYMBOLS.WILD)) {
                     createSparkles(this.gridCells[r][c]);
@@ -1401,10 +1511,8 @@
                     wrapper.className = 'w-full flex flex-col items-center justify-center h-full gap-4 pt-2';
                     
                     const title = document.createElement('h2');
-                    // Restored original font size as the new text is shorter
                     title.className = 'text-base lg:text-lg font-semibold text-center uppercase tracking-wider';
                     title.style.color = 'var(--accent)';
-                    // UPDATED TEXT as per your request
                     title.textContent = 'Choose Last Alloha';
 
                     const selector = document.createElement('div');
@@ -1417,7 +1525,7 @@
                         symbolSpan.className = this.SYMBOL_COLORS[symbol] || '';
                         symbolSpan.textContent = symbol;
                         btn.appendChild(symbolSpan);
-                        btn.onclick = () => resolve(symbol);
+                        btn.addEventListener('click', () => resolve(symbol));
                         selector.appendChild(btn);
                     });
 
@@ -1485,7 +1593,7 @@
 
                 this.gridData[targetCell.r][targetCell.c] = chosenSymbol;
                 this.updateGridCell(targetCell.r, targetCell.c);
-                createSparkles(this.gridCells[targetCell.r][targetCell.c]); // --- NEW: Sparkle on Golden Alloha placement
+                createSparkles(this.gridCells[targetCell.r][targetCell.c]);
                 this.audioPlay('chime');
                 this.triggerVibration(50);
 
@@ -1516,6 +1624,13 @@
                 }
                 
                 let finalScore = this.currentTotalScore;
+                
+                const currentEditionId = this.config.id;
+                const unlockRule = unlockProgression[currentEditionId];
+
+                if (unlockRule && finalScore >= unlockRule.score) {
+                    gameManager.unlockEdition(unlockRule.unlocks);
+                }
                 
                 const isGridIncomplete = this.gridData.flat().includes(null);
                 if (reason === "Time's up!" && isGridIncomplete) {
@@ -1552,16 +1667,17 @@
                     this.DOMElements.game_over_modal.classList.add('is-open');
                     document.body.classList.add('modal-open');
                     const shareBtn = document.getElementById('share-score-btn');
-                    if (shareBtn) {
-                        shareBtn.onclick = () => this.handleShareScore(finalScore, this.highScore);
-                    }
                     const changeEditionBtn = document.getElementById('change-edition-btn-modal');
+                    
+                    if (shareBtn) {
+                        shareBtn.addEventListener('click', () => this.handleShareScore(finalScore, this.highScore));
+                    }
                     if (changeEditionBtn) {
-                        changeEditionBtn.onclick = () => {
+                        changeEditionBtn.addEventListener('click', () => {
                             this.DOMElements.game_over_modal.classList.remove('is-open');
                             document.body.classList.remove('modal-open');
                             document.getElementById('select-edition-btn').click();
-                        };
+                        });
                     }
                 }, 500);
             }
@@ -1572,21 +1688,19 @@
                 if (!shareBtn || !shareBtnSpan) return;
 
                 const originalBtnText = shareBtnSpan.textContent;
-                const buttonContainer = document.getElementById('game-over-buttons');
                 const modalContent = document.querySelector('#game-over-modal .modal-content');
 
                 try {
                     shareBtnSpan.textContent = 'Generating...';
                     shareBtn.disabled = true;
 
-                    if (buttonContainer) buttonContainer.style.display = 'none';
-
                     await new Promise(resolve => setTimeout(resolve, 50));
 
                     const canvas = await html2canvas(modalContent, {
                         allowTaint: true,
                         useCORS: true,
-                        backgroundColor: null
+                        backgroundColor: null,
+                        ignoreElements: (element) => element.classList.contains('no-screenshot')
                     });
 
                     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
@@ -1614,7 +1728,6 @@
                     console.error('Sharing failed:', error);
                     shareBtnSpan.textContent = 'Error!';
                 } finally {
-                    if (buttonContainer) buttonContainer.style.display = 'flex';
                     setTimeout(() => {
                         shareBtnSpan.textContent = originalBtnText;
                         shareBtn.disabled = false;
@@ -1660,7 +1773,7 @@
                             heroScore += 2;
                             this.heroBlocks.delete(`${coord.r},${coord.c}`);
                             showFloatingScore('+2', this.gridCells[coord.r][coord.c]);
-                            createSparkles(this.gridCells[coord.r][coord.c]); // --- NEW: Sparkle on Hero placement
+                            createSparkles(this.gridCells[coord.r][coord.c]);
                         }
                     });
                 }
@@ -1696,7 +1809,6 @@
                 scoredLines.forEach(line => {
                     const isNewlyFormed = line.cells.some(cell => lastMoveSet.has(`${cell.r},${cell.c}`));
                     if (line.score > 0 && isNewlyFormed) {
-                        // --- NEW: Vibrate on score ---
                         if (!this.vibratedForScoreThisTurn) {
                             this.triggerVibration(40);
                             this.vibratedForScoreThisTurn = true;
@@ -1771,7 +1883,6 @@
                     const oldScore = parseInt(el.textContent);
                     el.textContent = score; 
                     el.classList.toggle('text-red-500', score < 0); 
-                    // --- NEW: Vibrate on penalty ---
                     if (score < 0 && oldScore >= 0) {
                         this.triggerVibration([70, 40, 70]);
                     }
@@ -1796,7 +1907,8 @@
                 const btns = { pastLives: document.getElementById('past-lives-btn'), bombBae: document.getElementById('bomb-bae-btn'), noReturn: document.getElementById('no-return-btn'), swapThem: document.getElementById('swap-them-btn') };
                 
                 if (btns.pastLives) btns.pastLives.disabled = totalUsed >= 2 || this.usedSuperpowers.has('pastLives') || !this.lastGameState || isMidMove || isPowerActive || !isAwaitingRoll;
-                if (btns.bombBae) btns.bombBae.disabled = totalUsed >= 2 || this.usedSuperpowers.has('bombBae') || this.stuckBlocks.size === 0 || isMidMove || isPowerActive;
+                // Bomb Bae can now be used as long as a block is filled.
+                if (btns.bombBae) btns.bombBae.disabled = totalUsed >= 2 || this.usedSuperpowers.has('bombBae') || this.gridData.flat().every(s => s === null) || isMidMove || isPowerActive;
                 if (btns.noReturn) btns.noReturn.disabled = this.turnCount < 1 || totalUsed >= 2 || this.usedSuperpowers.has('noReturn') || isMidMove || isPowerActive;
                 if (btns.swapThem) btns.swapThem.disabled = this.turnCount < 1 || totalUsed >= 2 || this.usedSuperpowers.has('swapThem') || !isAwaitingRoll || isMidMove || isPowerActive;
                 
@@ -1817,25 +1929,23 @@
                     }
                 }
             }
+            
             handleSuperpowerCellClick(r, c, cell) {
-                if (this.activeSuperpower === 'swapThem') {
-                    if (!this.gridData[r][c] || this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED) { this.audioPlay('invalid'); return; }
-                    if (!this.swapFirstCell) { this.swapFirstCell = { r, c }; cell.classList.add('pulse-animation'); }
-                    else {
-                        const { r: r1, c: c1 } = this.swapFirstCell;
-                        if (r1 === r && c1 === c) { this.swapFirstCell = null; cell.classList.remove('pulse-animation'); return; }
-                        if (Math.abs(r1 - r) + Math.abs(c1 - c) === 1) {
-                            [this.gridData[r1][c1], this.gridData[r][c]] = [this.gridData[r][c], this.gridData[r1][c1]];
-                            this.gridCells[r1][c1].classList.remove('pulse-animation'); this.swapFirstCell = null;
-                            this.consumeSuperpower('swapThem'); this.gameStateManager.setState('AWAITING_ROLL'); this.renderControls();
-                        } else { this.audioPlay('invalid'); cell.classList.add('shake-animation'); setTimeout(() => cell.classList.remove('shake-animation'), 400); this.gridCells[r1][c1].classList.remove('pulse-animation'); this.swapFirstCell = null; }
-                    } return;
+                if (this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED) {
+                    this.audioPlay('invalid');
+                    cell.classList.add('shake-animation');
+                    setTimeout(() => cell.classList.remove('shake-animation'), 400);
+                    return;
                 }
-                if (this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED) { this.audioPlay('invalid'); cell.classList.add('shake-animation'); setTimeout(() => cell.classList.remove('shake-animation'), 400); return; }
-                if (this.activeSuperpower === 'bombBae' && this.stuckBlocks.has(`${r},${c}`)) { this.stuckBlocks.delete(`${r},${c}`); this.gridData[r][c] = this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)]; this.consumeSuperpower('bombBae'); this.gameStateManager.setState('AWAITING_ROLL'); this.renderControls(); }
-                else if (this.activeSuperpower === 'noReturn' && this.gridData[r][c]) { this.showSymbolSelectorForExchange(r, c); }
-                else { this.audioPlay('invalid'); }
+
+                const strategy = this._superpowerStrategies[this.activeSuperpower];
+                if (strategy) {
+                    strategy(r, c, cell);
+                } else {
+                    this.audioPlay('invalid');
+                }
             }
+
             showSymbolSelectorForExchange(r, c) {
                  this.cellToExchange = {r, c}; this.DOMElements.exchange_options.innerHTML = '';
                  this.SYMBOLS.filter(s => s !== this.gridData[r][c]).forEach(symbol => {
@@ -1845,7 +1955,8 @@
                     symbolSpan.className = this.SYMBOL_COLORS[symbol] || '';
                     symbolSpan.textContent = symbol;
                     btn.appendChild(symbolSpan);
-                    btn.onclick = () => this.handleSymbolExchange(symbol); this.DOMElements.exchange_options.appendChild(btn);
+                    btn.addEventListener('click', () => this.handleSymbolExchange(symbol));
+                    this.DOMElements.exchange_options.appendChild(btn);
                  });
                  this.DOMElements.exchange_modal.classList.add('is-open');
                  document.body.classList.add('modal-open');
@@ -1863,7 +1974,7 @@
                 this.audioPlay('power-use'); this.usedSuperpowers.add(powerName); this.activeSuperpower = null;
                 this.updateFullGrid(); this.updateAllScores(); this.updateSuperpowerButtonsUI();
             }
-            setupSuperpowerEventListeners() {
+            _attachSuperpowerEventListeners() {
                 document.getElementById('past-lives-btn')?.addEventListener('click', () => {
                     if (document.getElementById('past-lives-btn').disabled) return;
                     this.audioPlay('power-activate');
@@ -1886,18 +1997,27 @@
                     this.consumeSuperpower('pastLives');
                 });
                 const powerBtns = { bombBae: 'bomb-bae-btn', noReturn: 'no-return-btn', swapThem: 'swap-them-btn' };
-                for (const [power, id] of Object.entries(powerBtns)) { document.getElementById(id)?.addEventListener('click', () => { if (document.getElementById(id).disabled) return; this.activeSuperpower = power; this.gameStateManager.setState('SUPERPOWER_ACTIVE'); this.audioPlay('power-activate'); this.triggerVibration(30); this.updateSuperpowerButtonsUI(); }); }
+                for (const [power, id] of Object.entries(powerBtns)) { 
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        btn.addEventListener('click', () => {
+                            if (btn.disabled) return;
+                            this.activeSuperpower = power;
+                            this.gameStateManager.setState('SUPERPOWER_ACTIVE');
+                            this.audioPlay('power-activate');
+                            this.triggerVibration(30);
+                            this.updateSuperpowerButtonsUI();
+                        });
+                    }
+                }
             }
-            setupEventListeners() {
+            _attachEventListeners() {
                 this.DOMElements.close_rules_btn.addEventListener('click', () => { this.DOMElements.rules_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
                 this.DOMElements.close_game_over_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
                 this.DOMElements.play_again_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); gameManager.resetCurrentVariant(); });
                 this.DOMElements.close_warning_btn.addEventListener('click', () => { this.DOMElements.warning_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
-
-                this.DOMElements.close_tutorial_btn.addEventListener('click', () => {
-                    this.completeTutorial();
-                });
-                
+                this.DOMElements.close_unlock_btn.addEventListener('click', () => { this.DOMElements.unlock_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
+                this.DOMElements.close_tutorial_btn.addEventListener('click', () => this.completeTutorial());
                 this.DOMElements.tutorial_next_btn.addEventListener('click', () => {
                     this.tutorialStep++;
                     this.showTutorialStep();
@@ -1915,8 +2035,38 @@
             pendingAction: null,
             activeMode: 'classic',
 
+            getUnlockedEditions: function() {
+                const saved = localStorage.getItem('allohaUnlockedEditions');
+                if (saved) {
+                    return JSON.parse(saved);
+                } else {
+                    return ['plain_jean'];
+                }
+            },
+
+            saveUnlockedEditions: function(unlockedArray) {
+                localStorage.setItem('allohaUnlockedEditions', JSON.stringify(unlockedArray));
+            },
+
+            unlockEdition: function(editionId) {
+                const unlocked = this.getUnlockedEditions();
+                if (!unlocked.includes(editionId)) {
+                    unlocked.push(editionId);
+                    this.saveUnlockedEditions(unlocked);
+                    
+                    const newEditionName = variantConfigs[editionId]?.name || 'a new edition';
+                    const modal = document.getElementById('unlock-modal');
+                    const nameEl = document.getElementById('unlocked-edition-name');
+                    if (modal && nameEl) {
+                        nameEl.textContent = newEditionName;
+                        modal.classList.add('is-open');
+                        document.body.classList.add('modal-open');
+                        this.currentGameInstance.triggerConfetti();
+                    }
+                }
+            },
+
             init() {
-                this.populateEditionModal();
                 this.setupGlobalEventListeners();
                 this.switchVariant('plain_jean', false);
             },
@@ -1924,29 +2074,107 @@
             populateEditionModal() {
                 const container = document.getElementById('edition-options');
                 container.innerHTML = '';
+                
+                if (DEV_UNLOCK_ALL) {
+                    Object.values(variantConfigs).forEach(config => {
+                        const button = document.createElement('button');
+                        button.className = 'w-full text-left p-3 rounded-lg hover:bg-gray-200/50';
+                        button.dataset.editionId = config.id;
+                        
+                        const contentWrapper = document.createElement('div');
+                        contentWrapper.className = 'flex justify-between items-center';
+                        
+                        const nameSpan = document.createElement('span');
+                        nameSpan.className = 'font-semibold';
+                        nameSpan.textContent = config.name;
+                        contentWrapper.appendChild(nameSpan);
+                        
+                        const emojiSpan = document.createElement('span');
+                        emojiSpan.textContent = '🔓';
+                        contentWrapper.appendChild(emojiSpan);
+                        
+                        button.appendChild(contentWrapper);
+                        button.addEventListener('click', () => this.handleEditionSelection(config.id));
+                        container.appendChild(button);
+                    });
+                    return;
+                }
+
+                const unlockedEditions = this.getUnlockedEditions();
+                let nextToUnlock = null;
+                let previousEditionId = null;
+
+                for (const config of Object.values(variantConfigs)) {
+                    if (!unlockedEditions.includes(config.id)) {
+                        nextToUnlock = config.id;
+                        break;
+                    }
+                }
+
                 Object.values(variantConfigs).forEach(config => {
                     const button = document.createElement('button');
-                    button.className = 'w-full text-left p-3 rounded-lg hover:bg-gray-200/50 font-semibold transition-colors';
-                    button.textContent = config.name;
-                    button.dataset.editionId = config.id; 
-                    button.onclick = () => {
-                        const game = this.currentGameInstance;
-                        const isGameInProgress = game && game.turnCount > 0 && !game.gameStateManager.is('GAME_OVER');
-                        
-                        document.getElementById('edition-select-modal').classList.remove('is-open');
-                        document.body.classList.remove('modal-open');
-                        const isTimeBurst = this.activeMode === 'timeburst';
+                    button.className = 'w-full text-left p-3 rounded-lg hover:bg-gray-200/50';
+                    button.dataset.editionId = config.id;
+                    
+                    const contentWrapper = document.createElement('div');
+                    const detailsWrapper = document.createElement('div');
 
-                        if (isGameInProgress) {
-                            this.pendingAction = () => this.switchVariant(config.id, isTimeBurst, true);
-                            document.getElementById('confirm-restart-modal').classList.add('is-open');
-                            document.body.classList.add('modal-open');
-                        } else {
-                            this.switchVariant(config.id, isTimeBurst);
+                    const mainInfo = document.createElement('div');
+                    mainInfo.className = 'flex justify-between items-center';
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'font-semibold';
+                    nameSpan.textContent = config.name;
+                    mainInfo.appendChild(nameSpan);
+
+                    const emojiSpan = document.createElement('span');
+                    mainInfo.appendChild(emojiSpan);
+                    
+                    detailsWrapper.appendChild(mainInfo);
+
+                    if (unlockedEditions.includes(config.id)) {
+                        emojiSpan.textContent = '🔓';
+                        button.addEventListener('click', () => this.handleEditionSelection(config.id));
+                    } else {
+                        emojiSpan.textContent = '🔒';
+                        emojiSpan.style.opacity = '0.4';
+                        nameSpan.style.opacity = '0.4';
+                        button.disabled = true;
+
+                        if (config.id === nextToUnlock) {
+                            const unlockRule = unlockProgression[previousEditionId];
+                            if (unlockRule) {
+                                const requiredEdition = variantConfigs[previousEditionId];
+                                const hintDiv = document.createElement('div');
+                                hintDiv.className = 'unlock-hint';
+                                hintDiv.textContent = `Score ${unlockRule.score} in "${requiredEdition.name}" to unlock.`;
+                                detailsWrapper.appendChild(hintDiv);
+                            }
                         }
-                    };
+                    }
+
+                    contentWrapper.appendChild(detailsWrapper);
+                    button.appendChild(contentWrapper);
                     container.appendChild(button);
+                    previousEditionId = config.id;
                 });
+            },
+
+            handleEditionSelection(configId) {
+                const game = this.currentGameInstance;
+                const isGameInProgress = game && game.turnCount > 0 && !game.gameStateManager.is('GAME_OVER');
+
+                document.getElementById('edition-select-modal').classList.remove('is-open');
+                document.body.classList.remove('modal-open');
+                const isTimeBurst = this.activeMode === 'timeburst';
+
+                if (isGameInProgress && configId !== this.activeVariantId) {
+                    this.pendingAction = () => this.switchVariant(configId, isTimeBurst, true);
+                    document.getElementById('confirm-restart-modal').classList.add('is-open');
+                    document.body.classList.add('modal-open');
+                } else if (!game || configId !== this.activeVariantId || isTimeBurst !== game.isTimeBurst) {
+                    this.switchVariant(configId, isTimeBurst);
+                }
             },
 
             switchVariant(variantId, isTimeBurst, isNewGame = false) {
@@ -1995,6 +2223,8 @@
                 const timeBurstText = document.getElementById('time-burst-text');
 
                 document.getElementById('select-edition-btn').addEventListener('click', () => {
+                    this.populateEditionModal();
+
                     const isTimeBurst = this.currentGameInstance.isTimeBurst;
                     this.activeMode = isTimeBurst ? 'timeburst' : 'classic';
                     
@@ -2083,7 +2313,7 @@
                             game.updateSuperpowerButtonsUI();
                             game.gameStateManager.setState(game.firstPlacementCell ? 'AWAITING_PLACEMENT' : 'AWAITING_ROLL');
                         } else {
-                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal', 'warning-modal'].forEach(id => {
+                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal', 'warning-modal', 'unlock-modal'].forEach(id => {
                                 const modal = document.getElementById(id);
                                 if (modal?.classList.contains('is-open')) {
                                    modal.classList.remove('is-open');
