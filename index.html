@@ -232,26 +232,6 @@
             0% { opacity: 1; transform: translateY(0) scale(1); }
             100% { opacity: 0; transform: translateY(-80px) scale(0.5); }
         }
-        
-        .digit-score-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .digit-container {
-            height: 1em; 
-            overflow: hidden;
-            line-height: 1em;
-        }
-        .digit-strip {
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
-        }
-        .score-parenthesis {
-            display: inline-block;
-            font-weight: bold;
-        }
 
         .sparkle {
             position: fixed;
@@ -282,6 +262,26 @@
             color: var(--text);
             opacity: 0.1;
             z-index: 0;
+        }
+        
+        /* --- NEW: Curse Block Overlay Style --- */
+        .curse-overlay {
+            position: fixed;
+            font-size: 3rem;
+            pointer-events: none;
+            z-index: 1000;
+            animation: curse-overlay-anim 0.7s ease-out forwards;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        @keyframes curse-overlay-anim {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        /* --- NEW: Final fix for score truncation --- */
+        #total-score, #high-score, #final-score-modal, #high-score-modal {
+            line-height: 1.2;
         }
     </style>
     
@@ -510,7 +510,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
                             <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
                         </svg>
-                        <span>Share Score</span>
+                        <span>Share Now</span>
                     </button>
                 </div>
                 <button id="change-edition-btn-modal" class="no-screenshot themed-button w-full py-2.5 px-4 text-sm font-semibold rounded-lg mt-2" style="color: var(--accent); background-color: var(--accent-light);">
@@ -584,69 +584,26 @@
             setTimeout(() => floater.remove(), 1200);
         }
 
+        // --- UPDATED: Simplified score display function ---
         function animateScoreUpdate(containerId, newValue, minLength = 1) {
             const container = document.getElementById(containerId);
             if (!container) return;
-            
-            container.classList.add('digit-score-container');
-            const oldValue = parseInt(container.dataset.currentValue || '0');
-            if (newValue > oldValue) createSparkles(container);
-            container.dataset.currentValue = newValue;
 
-            const isNegative = newValue < 0;
-            const absValueStr = String(Math.abs(newValue)).padStart(minLength, '0');
+            const oldValue = parseInt(container.textContent || '0');
+            if (newValue > oldValue) {
+                // Keep the sparkle effect on score increase
+                if(container.getBoundingClientRect().width > 0) createSparkles(container);
+            }
 
-            const openParenId = `paren-open-${containerId}`;
-            const closeParenId = `paren-close-${containerId}`;
-            let openParen = document.getElementById(openParenId);
-            let closeParen = document.getElementById(closeParenId);
-
-            if (isNegative) {
-                if (!openParen) {
-                    openParen = document.createElement('span');
-                    openParen.id = openParenId;
-                    openParen.className = 'score-parenthesis';
-                    openParen.textContent = '(';
-                    container.prepend(openParen);
-                }
-                if (!closeParen) {
-                    closeParen = document.createElement('span');
-                    closeParen.id = closeParenId;
-                    closeParen.className = 'score-parenthesis';
-                    closeParen.textContent = ')';
-                    container.appendChild(closeParen);
-                }
+            let valueStr;
+            if (newValue < 0) {
+                valueStr = `(${String(Math.abs(newValue)).padStart(minLength, '0')})`;
             } else {
-                if (openParen) openParen.remove();
-                if (closeParen) closeParen.remove();
+                valueStr = String(newValue).padStart(minLength, '0');
             }
-
-            const numDigits = absValueStr.length;
-            let existingDigitContainers = container.querySelectorAll('.digit-container');
-            while (existingDigitContainers.length < numDigits) {
-                const digitContainer = document.createElement('div');
-                digitContainer.className = 'digit-container';
-                let stripHTML = '';
-                for(let i=0; i<10; i++) stripHTML += `<span>${i}</span>`;
-                digitContainer.innerHTML = `<div class="digit-strip">${stripHTML}</div>`;
-                if (closeParen) container.insertBefore(digitContainer, closeParen);
-                else container.appendChild(digitContainer);
-                existingDigitContainers = container.querySelectorAll('.digit-container');
-            }
-             while (existingDigitContainers.length > numDigits) {
-                container.querySelector('.digit-container').remove();
-                existingDigitContainers = container.querySelectorAll('.digit-container');
-            }
-            
-            for (let i = 0; i < numDigits; i++) {
-                const digit = parseInt(absValueStr[i]);
-                const digitStrip = container.querySelectorAll('.digit-strip')[i];
-                if (digitStrip) {
-                    const yOffset = -digit * 10;
-                    digitStrip.style.transform = `translateY(${yOffset}%)`;
-                }
-            }
+            container.textContent = valueStr;
         }
+        
         // --- THEME CONFIGURATIONS ---
         const themeConfigs = {
             pastel_pals: { name: "Pastel Pals", symbols: ['🐰', '🐶', '🐯', '🐼', '🦄', '🐸'], palette: { bg: 'linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)', card: 'rgba(255, 255, 255, 0.88)', text: '#4A148C', text_secondary: '#7B1FA2', accent: '#8E24AA', accent_gradient: 'linear-gradient(135deg, #8E24AA 0%, #AB47BC 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #BA68C8 0%, #CE93D8 100%)', highlighted_bg: 'rgba(142, 36, 170, 0.15)', highlighted_border: 'rgba(142, 36, 170, 0.3)', grid_cell_bg: '#F9F6FB', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🐰':'text-pink-400', '🐶':'text-amber-600', '🐯':'text-orange-500', '🐼':'text-gray-700', '🦄':'text-purple-500', '🐸':'text-green-500' } },
@@ -846,6 +803,7 @@
                 this.currentTotalScore = 0;
                 this.scores = { rows: 0, cols: 0, cross: 0, bonus: 0, hero: 0, penalty: 0 };
                 this.gameStateManager = new GameState();
+                this.vibratedForScoreThisTurn = false;
 
                 if (savedState) {
                     this.gridData = JSON.parse(savedState.gridData);
@@ -995,7 +953,7 @@
             audioPlayTone(freq, vol, dur) { if (!this.audio.unlocked || !this.audio.context) return; try { const o = this.audio.context.createOscillator(), g = this.audio.context.createGain(); o.connect(g); g.connect(this.audio.context.destination); o.frequency.value = freq; g.gain.setValueAtTime(0, this.audio.context.currentTime); g.gain.linearRampToValueAtTime(vol*.1, this.audio.context.currentTime+.01); g.gain.exponentialRampToValueAtTime(.001, this.audio.context.currentTime+dur); o.start(); o.stop(this.audio.context.currentTime+dur); } catch (e) {} }
             audioUnlock() { if (this.audio.unlocked) return; document.getElementById('audio-unlocker').play().finally(() => { this.audio.unlocked = true; }); }
             audioPlay(soundName) { this.audio.sounds.get(soundName)?.(); }
-            triggerVibration(duration = 10) { if (navigator.vibrate) { navigator.vibrate(duration); } }
+            triggerVibration(patternOrDuration = 10) { if (navigator.vibrate) { navigator.vibrate(patternOrDuration); } }
 
 
             startTimer() {
@@ -1312,6 +1270,29 @@
                 }
             }
             saveStateForUndo() { this.lastGameState = this.getState(); }
+
+            showCurseEffect(cellElement) {
+                const board = this.DOMElements.game_board_container;
+                board.classList.add('shake-animation');
+                setTimeout(() => board.classList.remove('shake-animation'), 400);
+
+                const overlay = document.createElement('div');
+                overlay.textContent = '☠️';
+                overlay.className = 'curse-overlay';
+                
+                const rect = cellElement.getBoundingClientRect();
+                overlay.style.top = `${rect.top}px`;
+                overlay.style.left = `${rect.left}px`;
+                overlay.style.width = `${rect.width}px`;
+                overlay.style.height = `${rect.height}px`;
+                overlay.style.display = 'flex';
+                overlay.style.alignItems = 'center';
+                overlay.style.justifyContent = 'center';
+
+                document.body.appendChild(overlay);
+                setTimeout(() => overlay.remove(), 700);
+            }
+            
             async completeMove(r, c) {
                 this.gameStateManager.setState('PROCESSING_TURN');
                 const firstCellCoords = this.firstPlacementCell; 
@@ -1323,6 +1304,20 @@
                 this.updateGridCell(r, c);
                 this.audioPlay('pop');
                 this.triggerVibration(20);
+
+                this.vibratedForScoreThisTurn = false;
+
+                // --- NEW: Check for special symbol placements for effects ---
+                const placedSymbols = [this.gridData[r][c], this.gridData[firstCellCoords.r][firstCellCoords.c]];
+                if (placedSymbols.includes(this.SPECIAL_SYMBOLS.WILD)) {
+                    createSparkles(this.gridCells[r][c]);
+                    createSparkles(this.gridCells[firstCellCoords.r][firstCellCoords.c]);
+                }
+                if (placedSymbols.includes(this.SPECIAL_SYMBOLS.CURSED)) {
+                    const cursedCell = this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED ? this.gridCells[r][c] : this.gridCells[firstCellCoords.r][firstCellCoords.c];
+                    this.showCurseEffect(cursedCell);
+                    this.triggerVibration([100, 50, 100]);
+                }
                 
                 await delay(300);
                 this.processTurnEnd();
@@ -1490,8 +1485,9 @@
 
                 this.gridData[targetCell.r][targetCell.c] = chosenSymbol;
                 this.updateGridCell(targetCell.r, targetCell.c);
+                createSparkles(this.gridCells[targetCell.r][targetCell.c]); // --- NEW: Sparkle on Golden Alloha placement
                 this.audioPlay('chime');
-                this.triggerVibration(20);
+                this.triggerVibration(50);
 
                 emptyCells.forEach(({ r, c }) => {
                     if (r !== targetCell.r || c !== targetCell.c) {
@@ -1527,6 +1523,10 @@
                 }
 
                 this.renderEndGamePanel(finalScore);
+
+                if (this.scores.penalty < 0) {
+                    this.triggerVibration([150, 50, 70]);
+                }
 
                 const highScoreKey = `cactiFactiHighScore_${this.config.id}_${this.isTimeBurst ? 'timeburst' : 'classic'}`;
                 const currentHighScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
@@ -1571,36 +1571,14 @@
                 const shareBtnSpan = shareBtn.querySelector('span');
                 if (!shareBtn || !shareBtnSpan) return;
 
-                const originalBtnContent = shareBtn.innerHTML;
-
-                const finalScoreEl = document.getElementById('final-score-modal');
-                const highScoreEl = document.getElementById('high-score-modal');
-                const originalFinalScoreHTML = finalScoreEl.innerHTML;
-                const originalHighScoreHTML = highScoreEl.innerHTML;
+                const originalBtnText = shareBtnSpan.textContent;
+                const buttonContainer = document.getElementById('game-over-buttons');
+                const modalContent = document.querySelector('#game-over-modal .modal-content');
 
                 try {
                     shareBtnSpan.textContent = 'Generating...';
                     shareBtn.disabled = true;
 
-                    finalScoreEl.classList.remove('digit-score-container');
-                    finalScoreEl.innerHTML = `${score}`;
-                    highScoreEl.classList.remove('digit-score-container');
-                    highScoreEl.innerHTML = `${highScore}`;
-
-                    const scoreBreakdown = document.getElementById('score-breakdown');
-                    const buttonContainer = document.getElementById('game-over-buttons');
-                    const modalContent = document.querySelector('#game-over-modal .modal-content');
-                    
-                    const editionName = this.config.name;
-                    const shareHeader = document.createElement('div');
-                    shareHeader.innerHTML = `<p style="margin-bottom: 0.5rem; font-family: 'Quicksand', sans-serif; font-weight: 600; color: var(--text-secondary);">${editionName}</p>`;
-                    const shareFooter = document.createElement('div');
-                    shareFooter.innerHTML = `<p style="margin-top: 1rem; font-family: 'Quicksand', sans-serif; font-weight: 700; color: var(--accent);">Play Alloha!</p>`;
-
-                    modalContent.prepend(shareHeader);
-                    modalContent.appendChild(shareFooter);
-
-                    if (scoreBreakdown) scoreBreakdown.style.display = 'none';
                     if (buttonContainer) buttonContainer.style.display = 'none';
 
                     await new Promise(resolve => setTimeout(resolve, 50));
@@ -1608,15 +1586,8 @@
                     const canvas = await html2canvas(modalContent, {
                         allowTaint: true,
                         useCORS: true,
-                        backgroundColor: null,
-                        ignoreElements: (element) => element.classList.contains('no-screenshot')
+                        backgroundColor: null
                     });
-
-                    shareHeader.remove();
-                    shareFooter.remove();
-
-                    if (scoreBreakdown) scoreBreakdown.style.display = 'grid';
-                    if (buttonContainer) buttonContainer.style.display = 'flex';
 
                     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                     if (!blob) throw new Error("Canvas to Blob conversion failed.");
@@ -1643,11 +1614,9 @@
                     console.error('Sharing failed:', error);
                     shareBtnSpan.textContent = 'Error!';
                 } finally {
-                    finalScoreEl.innerHTML = originalFinalScoreHTML;
-                    highScoreEl.innerHTML = originalHighScoreHTML;
-
+                    if (buttonContainer) buttonContainer.style.display = 'flex';
                     setTimeout(() => {
-                        shareBtn.innerHTML = originalBtnContent;
+                        shareBtnSpan.textContent = originalBtnText;
                         shareBtn.disabled = false;
                     }, 2000);
                 }
@@ -1691,6 +1660,7 @@
                             heroScore += 2;
                             this.heroBlocks.delete(`${coord.r},${coord.c}`);
                             showFloatingScore('+2', this.gridCells[coord.r][coord.c]);
+                            createSparkles(this.gridCells[coord.r][coord.c]); // --- NEW: Sparkle on Hero placement
                         }
                     });
                 }
@@ -1726,6 +1696,11 @@
                 scoredLines.forEach(line => {
                     const isNewlyFormed = line.cells.some(cell => lastMoveSet.has(`${cell.r},${cell.c}`));
                     if (line.score > 0 && isNewlyFormed) {
+                        // --- NEW: Vibrate on score ---
+                        if (!this.vibratedForScoreThisTurn) {
+                            this.triggerVibration(40);
+                            this.vibratedForScoreThisTurn = true;
+                        }
                         const sourceCell = this.gridCells[line.cells[Math.floor(line.cells.length / 2)].r][line.cells[Math.floor(line.cells.length / 2)].c];
                         showFloatingScore(`+${line.score}`, sourceCell);
                         line.cells.forEach(coord => {
@@ -1790,7 +1765,18 @@
                 rS.forEach((s, i) => this.updateScoreElement(`row-score-${i}`, s)); 
                 cS.forEach((s, i) => this.updateScoreElement(`col-score-${i}`, s)); 
             }
-            updateScoreElement(id, score) { const el = document.getElementById(id); if (el) { el.textContent = score; el.classList.toggle('text-red-500', score < 0); } }
+            updateScoreElement(id, score) { 
+                const el = document.getElementById(id); 
+                if (el) { 
+                    const oldScore = parseInt(el.textContent);
+                    el.textContent = score; 
+                    el.classList.toggle('text-red-500', score < 0); 
+                    // --- NEW: Vibrate on penalty ---
+                    if (score < 0 && oldScore >= 0) {
+                        this.triggerVibration([70, 40, 70]);
+                    }
+                } 
+            }
             
             updateSuperpowerButtonsUI() {
                 const ids = ['past-lives', 'no-return', 'bomb-bae', 'swap-them'];
