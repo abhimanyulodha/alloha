@@ -285,8 +285,57 @@
             font-size: 0.7rem;
             font-weight: 500;
             color: var(--text-secondary);
-            opacity: 0.9;
             margin-top: -2px;
+        }
+        
+        .badge-item {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .badge-item:hover {
+            transform: scale(1.1);
+        }
+        .badge-item.locked {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+        .badge-item .badge-emoji {
+            font-size: clamp(2.5rem, 10vw, 3.5rem);
+            line-height: 1;
+        }
+        .badge-item .badge-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            /* FIX 2: Added styles for Badge Share image */
+            text-align: center;
+            min-height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translate(-50%, -150%);
+            background: var(--card);
+            color: var(--text);
+            padding: 12px 24px;
+            border-radius: 9999px;
+            box-shadow: var(--shadow-strong);
+            z-index: 1001;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slide-in-out 3s ease-in-out forwards;
+        }
+        @keyframes slide-in-out {
+            0% { transform: translate(-50%, -150%); }
+            15% { transform: translate(-50%, 0); }
+            85% { transform: translate(-50%, 0); }
+            100% { transform: translate(-50%, -150%); }
         }
     </style>
     
@@ -335,8 +384,9 @@
 
                 <div class="glass-card enhanced-shadow rounded-2xl p-4">
                     <div class="flex justify-center items-center gap-3">
-                        <button id="rules-btn" class="flex-1 py-2 px-4 themed-button text-sm" style="color: var(--accent); background: var(--accent-light);">How to Play</button>
-                        <button id="new-game-btn" class="flex-1 py-2 px-4 themed-button text-white text-sm">New Game</button>
+                        <button id="rules-btn" class="py-2 px-3 themed-button text-xs whitespace-nowrap" style="color: var(--accent); background: var(--accent-light);">Help</button>
+                        <button id="new-game-btn" class="py-2 px-3 themed-button text-white text-xs whitespace-nowrap">New Game</button>
+                        <button id="badges-btn" class="py-2 px-3 themed-button text-xs whitespace-nowrap" style="color: var(--accent); background: var(--accent-light);">Badges</button>
                     </div>
                     <div class="text-center mt-3">
                         <button id="select-edition-btn" class="w-full py-2 px-4 themed-button text-white text-sm flex items-center justify-center gap-2">
@@ -350,11 +400,11 @@
                     <div class="grid grid-cols-2 gap-4 text-center">
                         <div>
                             <h3 class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">Total Score</h3>
-                            <div id="total-score" class="text-3xl font-bold" style="color: var(--accent);"></div>
+                            <div id="total-score" class="text-3xl font-bold" style="color: var(--accent);" aria-live="polite"></div>
                         </div>
                         <div>
                             <h3 class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">High Score</h3>
-                            <div id="high-score" class="text-3xl font-bold" style="color: #FFC107;"></div>
+                            <div id="high-score" class="text-3xl font-bold" style="color: #FFC107;" aria-live="polite"></div>
                         </div>
                     </div>
                     
@@ -363,27 +413,27 @@
                     <div class="grid grid-cols-3 gap-y-3 text-center">
                         <div class="border-r" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Rows</h3>
-                            <div id="rows-total-score" class="text-lg font-bold"></div>
+                            <div id="rows-total-score" class="text-lg font-bold" aria-live="polite"></div>
                         </div>
                         <div class="border-r" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Columns</h3>
-                            <div id="cols-total-score" class="text-lg font-bold"></div>
+                            <div id="cols-total-score" class="text-lg font-bold" aria-live="polite"></div>
                         </div>
                         <div>
                             <h3 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Twinning</h3>
-                            <div id="cross-total-score" class="text-lg font-bold" style="color: #FFC107;"></div>
+                            <div id="cross-total-score" class="text-lg font-bold" style="color: #FFC107;" aria-live="polite"></div>
                         </div>
                         <div class="border-r pt-3 border-t" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider leading-tight" style="color: var(--text-secondary);">Grid<br>Bonus</h3>
-                            <div id="bonus-grid-score" class="text-lg font-bold" style="color: #FFC107;"></div>
+                            <div id="bonus-grid-score" class="text-lg font-bold" style="color: #FFC107;" aria-live="polite"></div>
                         </div>
                         <div class="border-r pt-3 border-t" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider leading-tight" style="color: var(--text-secondary);">Hero<br>Bonus</h3>
-                            <div id="hero-bonus-score" class="text-lg font-bold" style="color: #FFC107;"></div>
+                            <div id="hero-bonus-score" class="text-lg font-bold" style="color: #FFC107;" aria-live="polite"></div>
                         </div>
                         <div class="pt-3 border-t" style="border-color: var(--faint-border);">
                             <h3 class="text-xs font-semibold uppercase tracking-wider leading-tight" style="color: var(--text-secondary);">Empty<br>Block</h3>
-                            <div id="empty-block-penalty" class="text-lg font-bold" style="color: var(--text);"></div>
+                            <div id="empty-block-penalty" class="text-lg font-bold" style="color: var(--text);" aria-live="polite"></div>
                         </div>
                     </div>
                 </div>
@@ -496,7 +546,7 @@
             <button id="close-game-over-btn" aria-label="Close Game Over" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
             <h2 class="text-4xl font-bold mb-2" style="font-family: 'Pacifico', cursive; color: var(--accent);">Game Over Alloha!</h2>
             <p id="game-over-reason" class="text-lg mt-2 mb-4" style="color: var(--accent);"></p>
-            <div id="final-score-modal" class="text-7xl font-bold my-4" style="color: var(--accent);"></div>
+            <div id="final-score-modal" class="text-7xl font-bold my-8" style="color: var(--accent);" aria-live="polite"></div>
             <div id="score-breakdown" class="mb-6 p-4 glass-card rounded-xl text-xs" style="display: grid;">
                 <div class="grid grid-cols-2 gap-2">
                     <div class="text-left">Rows: <span id="final-rows-score" class="float-right font-bold">0</span></div>
@@ -507,7 +557,7 @@
                     <div class="text-left col-span-2 border-t pt-2 mt-2">Empty Block: <span id="final-penalty-score" class="float-right font-bold">0</span></div>
                 </div>
             </div>
-            <p>High score: <span id="high-score-modal" class="font-bold" style="color: #FFC107;">0</span></p>
+            <p>High score: <span id="high-score-modal" class="font-bold" style="color: #FFC107;" aria-live="polite">0</span></p>
             <div id="game-over-buttons" class="no-screenshot flex flex-col items-center gap-3 mt-6">
                 <div class="flex w-full items-center gap-3">
                     <button id="play-again-btn" class="flex-1 themed-button text-white font-bold py-3 px-4 rounded-xl text-lg">Play Again</button>
@@ -549,7 +599,8 @@
     </div>
 
     <div id="warning-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
-        <div class="modal-content w-full max-w-sm themed-modal p-8 text-center transform scale-95 -translate-y-4">
+        <div class="modal-content w-full max-w-sm themed-modal p-8 text-center transform scale-95 -translate-y-4 relative">
+            <button id="close-warning-x-btn" aria-label="Close Warning" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
             <h2 class="text-2xl font-bold mb-4" style="color: var(--accent);">Action Needed!</h2>
             <p class="mb-6" style="color: var(--text-secondary);">Please place your current Allohas on the board before rolling the dice again.</p>
             <div class="flex justify-center items-center">
@@ -559,21 +610,164 @@
     </div>
 
     <div id="unlock-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
-        <div class="modal-content w-full max-w-sm themed-modal p-8 text-center transform scale-95 -translate-y-4">
+        <div class="modal-content w-full max-w-sm themed-modal p-8 text-center transform scale-95 -translate-y-4 relative">
+            <button id="close-unlock-x-btn" aria-label="Close Unlock Notification" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
             <h2 class="text-3xl font-bold mb-2" style="font-family: 'Pacifico', cursive; color: var(--accent);">Edition Unlocked!</h2>
             <p class="text-lg mt-4 mb-6" style="color: var(--text-secondary);">Congratulations, you can now play:</p>
             <p id="unlocked-edition-name" class="text-2xl font-bold mb-6" style="color: var(--text);"></p>
             <button id="close-unlock-btn" class="py-2 px-8 themed-button text-white text-sm">Awesome!</button>
         </div>
     </div>
+    
+    <div id="badges-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
+        <div class="modal-content w-full max-w-md text-center themed-modal p-6 transform scale-95 -translate-y-4">
+            <button id="close-badges-btn" aria-label="Close Badges" class="no-screenshot absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
+            <h2 class="text-4xl font-bold mb-1" style="font-family: 'Pacifico', cursive; color: var(--accent);">Collect Alloha Badges</h2>
+            <p id="badge-info-text" class="text-sm min-h-10 flex items-center justify-center" style="color: var(--text-secondary);">Click a badge to see how to unlock it.</p>
+            <div id="badges-grid" class="grid grid-cols-3 gap-4 lg:gap-6">
+                </div>
+            <button id="share-badges-btn" class="no-screenshot themed-button w-full py-2.5 px-4 text-sm font-semibold rounded-lg mt-6" style="background: var(--accent-gradient-shaded); color: white;">
+                Share Badges
+            </button>
+        </div>
+    </div>
 
     <script>
     (function() {
-        // --- ADD THIS DEVELOPER FLAG ---
-        // Set to true to unlock all game editions for testing purposes.
         const DEV_UNLOCK_ALL = false;
 
-        // --- Helper functions for animations ---
+        const CONSTANTS = {
+            TOAST_DURATION: 3000,
+            SPARKLE_DURATION: 700,
+            FLOATING_SCORE_DURATION: 1200,
+            SHAKE_ANIMATION_DURATION: 400,
+            DICE_TUMBLE_DURATION: 600,
+            TWINNING_FLASH_DURATION: 1500,
+            MOVE_COMPLETION_DELAY: 300,
+            CURSE_EFFECT_DURATION: 700,
+            GOLDEN_ALLOHA_DELAY: 500,
+            END_GAME_MODAL_DELAY: 500,
+            CONFETTI_DURATION: 4000,
+            VARIANT_SWITCH_DELAY: 250,
+        };
+
+        const SUPERPOWERS = {
+            PAST_LIVES: 'pastLives',
+            BOMB_BAE: 'bombBae',
+            NO_RETURN: 'noReturn',
+            SWAP_THEM: 'swapThem',
+        };
+        
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        const badgeConfigs = {
+            baby: { name: 'Baby', emoji: '👶', description: 'Complete your first game of Alloha.' },
+            enthusiast: { name: 'Enthusiast', emoji: '🎮', description: 'Play 10 games in any mode.' },
+            veteran: { name: 'Veteran', emoji: '🎖️', description: 'Play 50 games in any mode.' },
+            timeTraveller: { name: 'Time Traveller', emoji: '⏱️', description: 'Complete your first game in Time Burst mode.' },
+            masterOfTime: { name: 'Master of Time', emoji: '⏳', description: 'Win 10 games in Time Burst mode.' },
+            centuryClub: { name: 'Century Club', emoji: '🏆', description: 'Score over 100 points in a single game.' },
+            perfectionist: { name: 'Perfectionist', emoji: '🎯', description: 'Create a line of 7 identical Allohas.' },
+            gridMaster: { name: 'Grid Master', emoji: '🎨', description: 'Finish a game with no empty blocks.' },
+            pureSkill: { name: 'Pure Skill', emoji: '🎀', description: 'Win a game without using any superpowers.' },
+            fineNine: { name: 'Fine Nine', emoji: '🖼️', description: 'Create a 3x3 Grid Bonus of the same Alloha.' },
+            fineSquare: { name: 'Fine Square', emoji: '🏁', description: 'Create a 4x4 Grid Bonus of the same Alloha.' },
+            heroWorship: { name: 'Hero Worship', emoji: '🦸', description: 'Score all 14 Hero Bonus points in a single game.' },
+            explorer: { name: 'Explorer', emoji: '🗺️', description: 'Play a game in 5 different Game Editions.' },
+            collector: { name: 'Collector', emoji: '👑', description: 'Play a game in every available Game Edition.' },
+            allRounder: { name: 'All-Rounder', emoji: '⚖️', description: 'Win a game in both Classic and Time Burst modes.' },
+        };
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = message;
+            toast.setAttribute('aria-live', 'assertive');
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), CONSTANTS.TOAST_DURATION);
+        }
+
+        function getPlayerStats() {
+            try {
+                const stats = localStorage.getItem('allohaPlayerStats');
+                return stats ? JSON.parse(stats) : {
+                    gamesPlayed: 0,
+                    timeBurstGamesPlayed: 0,
+                    timeBurstWins: 0,
+                    classicWins: 0,
+                    playedEditions: {},
+                    unlockedEditions: {},
+                    unlockedBadges: {}
+                };
+            } catch (e) {
+                console.error("Could not access localStorage. Progress will not be saved.", e);
+                return {
+                    gamesPlayed: 0,
+                    timeBurstGamesPlayed: 0,
+                    timeBurstWins: 0,
+                    classicWins: 0,
+                    playedEditions: {},
+                    unlockedEditions: {},
+                    unlockedBadges: {}
+                };
+            }
+        }
+
+        function savePlayerStats(stats) {
+            try {
+                localStorage.setItem('allohaPlayerStats', JSON.stringify(stats));
+            } catch (e) {
+                console.error("Could not save to localStorage.", e);
+            }
+        }
+
+        function unlockBadge(badgeId, statsObj = null) {
+            let stats = statsObj || getPlayerStats();
+            if (!stats.unlockedBadges[badgeId]) {
+                const badge = badgeConfigs[badgeId];
+                stats.unlockedBadges[badgeId] = { unlockedAt: new Date().toISOString() };
+                if (!statsObj) { // Only save if we had to fetch the stats ourselves
+                    savePlayerStats(stats);
+                }
+                showToast(`<span>${badge.emoji}</span> Badge Unlocked: ${badge.name}`);
+            }
+        }
+
+        function renderBadgesGrid() {
+            const grid = document.getElementById('badges-grid');
+            const infoText = document.getElementById('badge-info-text');
+            if (!grid || !infoText) return;
+
+            grid.innerHTML = '';
+            infoText.textContent = 'Click a badge to see how to unlock it.';
+
+            const stats = getPlayerStats();
+
+            for (const badgeId in badgeConfigs) {
+                const badge = badgeConfigs[badgeId];
+                const isUnlocked = !!stats.unlockedBadges[badgeId];
+
+                const item = document.createElement('div');
+                item.className = 'badge-item';
+                if (!isUnlocked) {
+                    item.classList.add('locked');
+                }
+
+                item.innerHTML = `
+                    <div class="badge-emoji">${badge.emoji}</div>
+                    <div class="badge-name">${badge.name}</div>
+                `;
+
+                item.addEventListener('click', () => {
+                    infoText.textContent = `${badge.name}: ${badge.description}`;
+                });
+
+                grid.appendChild(item);
+            }
+        }
+
         function createSparkles(element) {
             const rect = element.getBoundingClientRect();
             const container = document.body;
@@ -587,7 +781,7 @@
                 sparkle.style.setProperty('--sparkle-x', `${Math.cos(randomAngle) * randomDist}px`);
                 sparkle.style.setProperty('--sparkle-y', `${Math.sin(randomAngle) * randomDist}px`);
                 container.appendChild(sparkle);
-                setTimeout(() => sparkle.remove(), 700);
+                setTimeout(() => sparkle.remove(), CONSTANTS.SPARKLE_DURATION);
             }
         }
 
@@ -599,7 +793,7 @@
             floater.style.top = `${startRect.top + startRect.height / 2 - 15}px`;
             floater.style.left = `${startRect.left + startRect.width / 2 - 15}px`;
             document.body.appendChild(floater);
-            setTimeout(() => floater.remove(), 1200);
+            setTimeout(() => floater.remove(), CONSTANTS.FLOATING_SCORE_DURATION);
         }
 
         function animateScoreUpdate(containerId, newValue, minLength = 1) {
@@ -620,103 +814,79 @@
             container.textContent = valueStr;
         }
         
-        // --- THEME CONFIGURATIONS ---
-        const themeConfigs = {
-            pastel_pals: { name: "Pastel Pals", symbols: ['🐰', '🐶', '🐯', '🐼', '🦄', '🐸'], palette: { bg: 'linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)', card: 'rgba(255, 255, 255, 0.88)', text: '#4A148C', text_secondary: '#7B1FA2', accent: '#8E24AA', accent_gradient: 'linear-gradient(135deg, #8E24AA 0%, #AB47BC 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #BA68C8 0%, #CE93D8 100%)', highlighted_bg: 'rgba(142, 36, 170, 0.15)', highlighted_border: 'rgba(142, 36, 170, 0.3)', grid_cell_bg: '#F9F6FB', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🐰':'text-pink-400', '🐶':'text-amber-600', '🐯':'text-orange-500', '🐼':'text-gray-700', '🦄':'text-purple-500', '🐸':'text-green-500' } },
-            green_grocer: { name: "Green Grocer", symbols: ['🥑', '🥦', '🧄', '🌽', '🫑', '🌶️'], palette: { bg: 'linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#33691E', text_secondary: '#689F38', accent: '#8BC34A', accent_gradient: 'linear-gradient(135deg, #8BC34A 0%, #9CCC65 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #AED581 0%, #C5E1A5 100%)', highlighted_bg: 'rgba(139, 195, 74, 0.15)', highlighted_border: 'rgba(139, 195, 74, 0.3)', grid_cell_bg: '#FCFFF5', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🥑':'text-green-800', '🥦':'text-green-600', '🧄':'text-gray-500', '🌽':'text-yellow-500', '🫑':'text-green-700', '🌶️':'text-red-600' } },
-            bug_life: { name: "Bug's Life", symbols: ['🦋', '🐝', '🪲', '🐛', '🐞', '🪰'], palette: { bg: 'linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#004D40', text_secondary: '#00796B', accent: '#009688', accent_gradient: 'linear-gradient(135deg, #009688 0%, #26A69A 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)', highlighted_bg: 'rgba(0, 150, 136, 0.15)', highlighted_border: 'rgba(0, 150, 136, 0.3)', grid_cell_bg: '#F5FCFB', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🦋':'text-blue-500', '🐝':'text-yellow-500', '🪲':'text-amber-800', '🐛':'text-lime-600', '🐞':'text-red-600', '🪰':'text-gray-700' } },
-            hats_off: { name: "Hats Off", symbols: ['🪖', '🎩', '🧢', '👒', '⛑️', '👑'], palette: { bg: 'linear-gradient(135deg, #A1887F 0%, #795548 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#3E2723', text_secondary: '#5D4037', accent: '#FFD700', accent_light: '#6D4C41', accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFC107 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #5D4037 0%, #4E342E 100%)', highlighted_bg: 'rgba(255, 215, 0, 0.45)', highlighted_border: 'rgba(255, 215, 0, 0.6)', grid_cell_bg: '#EFEBE9', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🪖':'text-green-800', '🎩':'text-gray-800', '🧢':'text-blue-600', '👒':'text-pink-400', '⛑️':'text-red-600', '👑':'text-yellow-500' } },
-            golden_bakery: { name: "Golden Bakery", symbols: ['🍞', '🥯', '🥐', '🧇', '🍪', '🥞'], palette: { bg: 'linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#8D6E63', text_secondary: '#A1887F', accent: '#AF8260', accent_gradient: 'linear-gradient(135deg, #AF8260 0%, #C19A7B 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #D4B298 0%, #E6C9B4 100%)', highlighted_bg: 'rgba(175, 130, 96, 0.15)', highlighted_border: 'rgba(175, 130, 96, 0.3)', grid_cell_bg: '#FFFBF2', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🍞':'text-amber-800', '🥯':'text-amber-700', '🥐':'text-orange-600', '🧇':'text-yellow-700', '🍪':'text-amber-900', '🥞':'text-amber-600' } },
-             sporty_vibes: { name: "Sporty Vibes", symbols: ['🏀', '⚽️', '🥎', '🏉', '🏐', '🏈'], palette: { bg: 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#1B5E20', text_secondary: '#2E7D32', accent: '#FF9800', accent_gradient: 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFB74D 0%, #FFCC80 100%)', highlighted_bg: 'rgba(255, 152, 0, 0.45)', highlighted_border: 'rgba(255, 152, 0, 0.6)', grid_cell_bg: '#F1F8E9', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🏀':'text-orange-600', '⚽️':'text-black', '🥎':'text-lime-400', '🏉':'text-amber-800', '🏐':'text-blue-500', '🏈':'text-amber-900' } },
-            school_of_magic: { name: "School of Magic", symbols: ['🧙‍♀️', '🦉', '📜', '🏆', '🏟️', '🔮'], palette: { bg: 'linear-gradient(135deg, #4E342E 0%, #212121 100%)', card: 'rgba(78, 52, 46, 0.75)', text: '#FFECB3', text_secondary: '#D7CCC8', accent: '#D32F2F', accent_gradient: 'linear-gradient(135deg, #D32F2F 0%, #FFC107 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #EF5350 0%, #FFD54F 100%)', highlighted_bg: 'rgba(211, 47, 47, 0.15)', highlighted_border: 'rgba(211, 47, 47, 0.3)', grid_cell_bg: '#6D4C41', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🧙‍♀️':'text-purple-300', '🦉':'text-gray-300', '📜':'text-yellow-200', '🏆':'text-yellow-400', '🏟️':'text-gray-400', '🔮':'text-purple-400' } },
-            emoji_fun: { name: "Emoji Fun", symbols: ['😍', '😎', '🤩', '😂', '🥵', '🤯'], palette: { bg: 'linear-gradient(135deg, #FFF9C4 0%, #FFF176 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#4E342E', text_secondary: '#795548', accent: '#42A5F5', accent_gradient: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)', highlighted_bg: 'rgba(66, 165, 245, 0.15)', highlighted_border: 'rgba(66, 165, 245, 0.3)', grid_cell_bg: '#FFFDE7', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '😍':'text-red-500', '😎':'text-black', '🤩':'text-yellow-600', '😂':'text-blue-500', '🥵':'text-orange-500', '🤯':'text-purple-500' } },
-            deep_ocean: { name: "Deep Ocean", symbols: ['🐡', '🦑', '🦀', '🐙', '🐳', '🐠'], palette: { bg: 'linear-gradient(135deg, #1A237E 0%, #0D47A1 100%)', card: 'rgba(26, 35, 126, 0.7)', text: '#E3F2FD', text_secondary: '#90CAF9', accent: '#42A5F5', accent_gradient: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)', highlighted_bg: 'rgba(66, 165, 245, 0.2)', highlighted_border: 'rgba(66, 165, 245, 0.4)', grid_cell_bg: '#1976D2', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🐡':'text-yellow-300', '🦑':'text-pink-300', '🦀':'text-red-400', '🐙':'text-purple-300', '🐳':'text-blue-300', '🐠':'text-orange-300' } },
-            road_block_theme: { name: "Road Block", symbols: ['🚑', '🚌', '🚗', '🚎', '🚜', '✈️'], palette: { bg: 'linear-gradient(135deg, #B0BEC5 0%, #78909C 100%)', card: 'rgba(255, 255, 255, 0.8)', text: '#263238', text_secondary: '#455A64', accent: '#FFC107', accent_gradient: 'linear-gradient(135deg, #FFCA28 0%, #FFD54F 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFE082 0%, #FFEE58 100%)', highlighted_bg: 'rgba(255, 193, 7, 0.15)', highlighted_border: 'rgba(255, 193, 7, 0.3)', grid_cell_bg: '#ECEFF1', toggle_bg_inactive: 'rgba(0,0,0,0.2)', }, symbolColors: { '🚑':'text-red-500', '🚌':'text-yellow-500', '🚗':'text-blue-500', '🚎':'text-green-500', '🚜':'text-orange-500', '✈️':'text-gray-400' } },
-            the_post_office: { name: "The Post Office", symbols: ['📦', '📮', '🗂️', '🗳️', '🗄️', '📬'], palette: { bg: 'linear-gradient(135deg, #EFEBE9 0%, #D7CCC8 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#3E2723', text_secondary: '#6D4C41', accent: '#D32F2F', accent_gradient: 'linear-gradient(135deg, #D32F2F 0%, #E53935 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #EF5350 0%, #E57373 100%)', highlighted_bg: 'rgba(211, 47, 47, 0.1)', highlighted_border: 'rgba(211, 47, 47, 0.25)', grid_cell_bg: '#F8F5F3', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '📦':'text-amber-800', '📮':'text-red-600', '🗂️':'text-gray-500', '🗳️':'text-blue-700', '🗄️':'text-gray-600', '📬':'text-red-700' } },
-            tutti_frutti: { name: "Tutti Frutti", symbols: ['🍓', '🫐', '🍉', '🥝', '🥭', '🍋'], palette: { bg: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#4E342E', text_secondary: '#6D4C41', accent: '#EC407A', accent_gradient: 'linear-gradient(135deg, #EC407A 0%, #F06292 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #F48FB1 0%, #F8BBD0 100%)', highlighted_bg: 'rgba(236, 64, 122, 0.1)', highlighted_border: 'rgba(236, 64, 122, 0.25)', grid_cell_bg: '#FFFFFF', toggle_bg_inactive: '#F0F0F0', }, symbolColors: { '🍓':'text-red-500', '🫐':'text-blue-600', '🍉':'text-green-600', '🥝':'text-lime-700', '🥭':'text-orange-500', '🍋':'text-yellow-500' } },
-            zedi_zodi: { name: "Zodiac Night", symbols: ['♋', '♒', '♎', '♐', '♌', '♉'], palette: { bg: 'linear-gradient(135deg, #0f0c29 0%, #302b63 100%)', card: 'rgba(48, 43, 99, 0.75)', text: '#FFFFFF', text_secondary: '#A9B4D1', accent: '#FFD700', accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)', highlighted_bg: 'rgba(255, 215, 0, 0.15)', highlighted_border: 'rgba(255, 215, 0, 0.3)', grid_cell_bg: '#6A6E89', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '♋':'text-gray-300', '♒':'text-blue-300', '♎':'text-pink-300', '♐':'text-orange-300', '♌':'text-yellow-300', '♉':'text-green-300' } },
-            desert_oasis: { name: "Desert Oasis", symbols: ['🌵', '🪨', '☀️', '🐍', '⛺', '🌴'], palette: { bg: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#5D4037', text_secondary: '#6D4C41', accent: '#00897B', accent_gradient: 'linear-gradient(135deg, #00897B 0%, #26A69A 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)', highlighted_bg: 'rgba(0, 137, 123, 0.15)', highlighted_border: 'rgba(0, 137, 123, 0.3)', grid_cell_bg: '#FFFBF2', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🌵':'text-green-700', '🪨':'text-gray-600', '☀️':'text-yellow-600', '🐍':'text-emerald-800', '⛺':'text-orange-700', '🌴':'text-lime-800' } },
-            morning_aviary: { name: "Morning Aviary", symbols: ['🐔', '🐦', '🐥', '🐣', '🐝', '🐧'], palette: { bg: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#0D47A1', text_secondary: '#1976D2', accent: '#FFA000', accent_gradient: 'linear-gradient(135deg, #FFA000 0%, #FFB300 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)', highlighted_bg: 'rgba(255, 160, 0, 0.15)', highlighted_border: 'rgba(255, 160, 0, 0.3)', grid_cell_bg: '#F7FBFF', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🐔':'text-red-600', '🐦':'text-blue-500', '🐥':'text-yellow-500', '🐣':'text-yellow-400', '🐝':'text-yellow-600', '🐧':'text-gray-800' } },
-            creepy_crawlies: { name: "Creepy Crawlies", symbols: ['🐍', '🦎', '🦂', '🐭', '🥚', '🐁'], palette: { bg: 'linear-gradient(135deg, #37474F 0%, #212121 100%)', card: 'rgba(38, 50, 56, 0.8)', text: '#CFD8DC', text_secondary: '#90A4AE', accent: '#7E57C2', accent_gradient: 'linear-gradient(135deg, #7E57C2 0%, #9575CD 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #B39DDB 0%, #D1C4E9 100%)', highlighted_bg: 'rgba(126, 87, 194, 0.15)', highlighted_border: 'rgba(126, 87, 194, 0.3)', grid_cell_bg: '#546E7A', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🐍':'text-green-400', '🦎':'text-lime-400', '🦂':'text-red-400', '🐭':'text-gray-300', '🥚':'text-gray-200', '🐁':'text-gray-100' } },
-            ancient_secrets: { name: "Ancient Secrets", symbols: ['🔍', '🧩', '🀄', '🔑', '🧭', '👁️'], palette: { bg: 'linear-gradient(135deg, #5D4037 0%, #3E2723 100%)', card: 'rgba(62, 39, 35, 0.75)', text: '#D7CCC8', text_secondary: '#D7CCC8', accent: '#FFCA28', accent_gradient: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFA000 0%, #FF6F00 100%)', highlighted_bg: 'rgba(255, 202, 40, 0.15)', highlighted_border: 'rgba(255, 202, 40, 0.3)', grid_cell_bg: '#795548', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🔍':'text-blue-300', '🧩':'text-orange-300', '🀄':'text-red-300', '🔑':'text-yellow-300', '🧭':'text-gray-300', '👁️':'text-cyan-300' } },
-            cosmic_drift: { name: "Cosmic Drift", symbols: ['🌍', '🚀', '🪐', '🌗', '💫', '🛰️'], palette: { bg: 'linear-gradient(135deg, #1A237E 0%, #0D123B 100%)', card: 'rgba(48, 59, 128, 0.7)', text: '#E8EAF6', text_secondary: '#9FA8DA', accent: '#536DFE', accent_gradient: 'linear-gradient(135deg, #536DFE 0%, #7C4DFF 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #7C4DFF 0%, #B388FF 100%)', highlighted_bg: 'rgba(83, 109, 254, 0.2)', highlighted_border: 'rgba(83, 109, 254, 0.4)', grid_cell_bg: '#5C6BC0', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🌍':'text-blue-300', '🚀':'text-gray-200', '🪐':'text-amber-300', '🌗':'text-gray-100', '💫':'text-yellow-300', '🛰️':'text-blue-200' } },
-            petal_meadow: { name: "Petal Meadow", symbols: ['🌸', '🌺', '🌷', '🪷', '🪻', '🌻'], palette: { bg: 'linear-gradient(135deg, #E6EE9C 0%, #C5E1A5 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#2E7D32', text_secondary: '#558B2F', accent: '#D81B60', accent_gradient: 'linear-gradient(135deg, #D81B60 0%, #E91E63 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #F06292 0%, #F48FB1 100%)', highlighted_bg: 'rgba(216, 27, 96, 0.1)', highlighted_border: 'rgba(216, 27, 96, 0.25)', grid_cell_bg: '#F8FFF0', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🌸':'text-pink-400', '🌺':'text-red-500', '🌷':'text-orange-500', '🪷':'text-pink-500', '🪻':'text-purple-500', '🌻':'text-yellow-500' } },
-            monster_mash: { name: "Monster Mash", symbols: ['👹', '🐲', '👻', '👽', '🎃', '😈'], palette: { bg: 'linear-gradient(135deg, #432874 0%, #18142a 100%)', card: 'rgba(40, 30, 60, 0.8)', text: '#E0D6FF', text_secondary: '#BCA9F0', accent: '#FF7900', accent_gradient: 'linear-gradient(135deg, #FF7900 0%, #FF983D 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFB47A 0%, #FFD0B1 100%)', highlighted_bg: 'rgba(255, 121, 0, 0.15)', highlighted_border: 'rgba(255, 121, 0, 0.3)', grid_cell_bg: '#4A3F71', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '👹':'text-red-400', '🐲':'text-green-400', '👻':'text-gray-200', '👽':'text-lime-300', '🎃':'text-orange-400', '😈':'text-purple-400' } }
-        };
-
-        function applyTheme(themeId) {
-            const theme = themeConfigs[themeId];
-            if (!theme) {
-                console.warn(`Theme "${themeId}" not found.`);
-                return;
-            }
-            const root = document.documentElement;
-            const palette = theme.palette;
-            for (const key in palette) {
-                root.style.setProperty(`--${key.replace(/_/g, '-')}`, palette[key]);
+        async function handleShareBadges() {
+            const shareBtn = document.getElementById('share-badges-btn');
+            if (!shareBtn) return;
+    
+            const originalBtnText = shareBtn.textContent;
+            const modalContent = document.querySelector('#badges-modal .modal-content');
+    
+            try {
+                shareBtn.textContent = 'Generating...';
+                shareBtn.disabled = true;
+    
+                await new Promise(resolve => setTimeout(resolve, 50));
+    
+                const canvas = await html2canvas(modalContent, {
+                    allowTaint: true,
+                    useCORS: true,
+                    backgroundColor: null,
+                    ignoreElements: (element) => element.classList.contains('no-screenshot')
+                });
+    
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                if (!blob) throw new Error("Canvas to Blob conversion failed.");
+                
+                const file = new File([blob], 'alloha-badges.png', { type: 'image/png' });
+                const shareText = `🏆 Check out my Badge Collection in Alloha! 🏆\n\nPlay now: https://abhimanyulodha.github.io/alloha/`;
+    
+                if (navigator.share && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        title: 'My Alloha Badges!',
+                        text: shareText,
+                        files: [file]
+                    });
+                } else {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Alloha-Badges.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href);
+                }
+            } catch (error) {
+                console.error('Badge sharing failed:', error);
+                shareBtn.textContent = 'Error!';
+            } finally {
+                setTimeout(() => {
+                    shareBtn.textContent = originalBtnText;
+                    shareBtn.disabled = false;
+                }, 2000);
             }
         }
 
-        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-        const generateCrossScoreSegments = (isTwinningCell) => {
-            const segments = [];
-            const GRID_SIZE = 7;
-
-            const processLine = (lineType, index) => {
-                let currentSegment = null;
-                for (let i = 0; i < GRID_SIZE; i++) {
-                    const isTwinning = (lineType === 'row') ? isTwinningCell(index, i) : isTwinningCell(i, index);
-                    if (isTwinning) {
-                        if (currentSegment === null) {
-                            currentSegment = { type: lineType, index: index, start: i, end: i };
-                        } else {
-                            currentSegment.end = i;
-                        }
-                    } else {
-                        if (currentSegment !== null) {
-                            segments.push(currentSegment);
-                            currentSegment = null;
-                        }
-                    }
-                }
-                if (currentSegment !== null) {
-                    segments.push(currentSegment);
-                }
-            };
-
-            for (let r = 0; r < GRID_SIZE; r++) {
-                processLine('row', r);
-            }
-            for (let c = 0; c < GRID_SIZE; c++) {
-                processLine('col', c);
-            }
-            
-            return segments;
-        };
-        
-        // --- VARIANT CONFIGURATIONS ---
-        const variantConfigs = {
-            'plain_jean': { id: 'plain_jean', name: 'Plain Jean', themeId: 'pastel_pals', timeLimit: 100, isTwinningCell: (r, c) => false, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'one_won': { id: 'one_won', name: 'One Won', themeId: 'green_grocer', timeLimit: 100, isTwinningCell: (r, c) => c === 3, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'plus_minus': { id: 'plus_minus', name: 'Plus Minus', themeId: 'bug_life', timeLimit: 100, isTwinningCell: (r, c) => r === 3 || c === 3, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'hat_trick': { id: 'hat_trick', name: 'Hat Trick', themeId: 'hats_off', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 6 || c === 0, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'sugar_cube': { id: 'sugar_cube', name: 'Sugar Cube', themeId: 'golden_bakery', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 6 || c === 0 || c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'spoil_sport': { id: 'spoil_sport', name: 'Spoil Sport', themeId: 'sporty_vibes', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 3 || c === 0 || c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'marry_harry': { id: 'marry_harry', name: 'Marry Harry', themeId: 'school_of_magic', timeLimit: 100, isTwinningCell: (r, c) => c === 1 || c === 5 || (r === 3 && c >= 1 && c <= 5), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'cosy_emoji': { id: 'cosy_emoji', name: 'Cosy Emoji', themeId: 'emoji_fun', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 3 || r === 6 || c === 0, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'wonder_wander': { id: 'wonder_wander', name: 'Wonder Wander', themeId: 'deep_ocean', timeLimit: 120, isTwinningCell: (r, c) => r === 6 || [0, 3, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'road_block': { id: 'road_block', name: 'Road Block', themeId: 'road_block_theme', timeLimit: 120, isTwinningCell: (r, c) => [0, 2, 4, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'box_vox': { id: 'box_vox', name: 'Box Vox', themeId: 'the_post_office', timeLimit: 120, isTwinningCell: (r, c) => [0, 3, 6].includes(r) || [0, 3, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'hash_hush': { id: 'hash_hush', name: 'Hash Hush', themeId: 'tutti_frutti', timeLimit: 120, isTwinningCell: (r, c) => [2, 4].includes(r) || [2, 4].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'zedi_zodi': { id: 'zedi_zodi', name: 'Zedi Zodi', themeId: 'zedi_zodi', timeLimit: 120, isTwinningCell: (r, c) => r === 0 || r === 6 || r + c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'core': { id: 'core', name: 'Cacti Facti Edition', themeId: 'desert_oasis', timeLimit: 150, isTwinningCell: (r, c) => (r === 3 && c >= 3 && c <= 5) || (r === 5 && c >= 1 && c <= 3) || (c === 1 && r >= 1 && r <= 5) || (c === 3) || (c === 5 && r >= 0 && r <= 3), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'eight_and_watch': { id: 'eight_and_watch', name: 'Eight and Watch', themeId: 'morning_aviary', timeLimit: 150, isTwinningCell: (r, c) => (r === 0 && c >= 3) || (r === 3) || (r === 6 && c <= 3) || (c === 0 && r >= 3) || (c === 3) || (c === 6 && r <= 3), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'fake_snake': { id: 'fake_snake', name: 'Fake Snake', themeId: 'creepy_crawlies', timeLimit: 150, isTwinningCell: (r, c) => (r === 0 && c >= 4) || (r === 2 && c >= 2 && c <= 4) || (r === 4 && c <= 2) || (c === 0 && r >= 4) || (c === 2 && r >= 2 && r <= 4) || (c === 4 && r <= 2), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'rune_dune': { id: 'rune_dune', name: 'Rune Dune', themeId: 'ancient_secrets', timeLimit: 150, isTwinningCell: (r, c) => (r === 2 && c >= 1 && c <= 5) || (r === 4 && c >= 1 && c <= 5) || (c === 1 && (r <= 2 || r >= 4)) || (c === 3) || (c === 5 && (r <= 2 || r >= 4)), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'space_race': { id: 'space_race', name: 'Space Race', themeId: 'cosmic_drift', timeLimit: 180, isTwinningCell: (r, c) => (r === 2 && c >= 2 && c <= 4) || (r === 3 && (c <= 2 || c >= 4)) || (r === 4 && c >= 2 && c <= 4) || (c === 2 && r >= 2 && r <= 4) || (c === 3 && (r <= 2 || r >= 4)) || (c === 4 && r >= 2 && r <= 4), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'flower_power': { id: 'flower_power', name: 'Flower Power', themeId: 'petal_meadow', timeLimit: 180, isTwinningCell: (r, c) => (r === 0 && c >= 2 && c <= 4) || (r === 2 && c >= 2 && c <= 4) || r === 4 || (c === 1 && r >= 3 && r <= 5) || (c === 2 && r <= 2) || (c === 3 && r >= 2) || (c === 4 && r <= 2) || (c === 5 && r >= 3 && r <= 5), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'monster': { id: 'monster', name: 'Monster Monster', themeId: 'monster_mash', timeLimit: 180, isTwinningCell: (r, c) => (r === 0 && c <= 2) || (r === 2 && c <= 4) || (r === 3 && c >= 4) || (r === 4 && c >= 2 && c <= 4) || (r === 6 && c <= 3) || (c === 0 && r <= 2) || (c === 2 && r <= 4) || (c === 3 && r >= 4) || (c === 4 && r >= 2 && r <= 4), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } }
+        const themeConfigs = {
+            pastel_pals: { name: "Pastel Pals", symbols: ['🐰', '🐶', '🐯', '🐼', '🦄', '🐸'], palette: { bg: 'linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)', card: 'rgba(255, 255, 255, 0.88)', text: '#4A148C', text_secondary: '#7B1FA2', accent: '#8E24AA', 'accent-light': '#F3E5F5', accent_gradient: 'linear-gradient(135deg, #8E24AA 0%, #AB47BC 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #BA68C8 0%, #CE93D8 100%)', highlighted_bg: 'rgba(142, 36, 170, 0.15)', highlighted_border: 'rgba(142, 36, 170, 0.3)', grid_cell_bg: '#F9F6FB', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🐰':'text-pink-400', '🐶':'text-amber-600', '🐯':'text-orange-500', '🐼':'text-gray-700', '🦄':'text-purple-500', '🐸':'text-green-500' } },
+            green_grocer: { name: "Green Grocer", symbols: ['🥑', '🥦', '🧄', '🌽', '🫑', '🌶️'], palette: { bg: 'linear-gradient(135deg, #F1F8E9 0%, #DCEDC8 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#33691E', text_secondary: '#689F38', accent: '#8BC34A', 'accent-light': '#F1F8E9', accent_gradient: 'linear-gradient(135deg, #8BC34A 0%, #9CCC65 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #AED581 0%, #C5E1A5 100%)', highlighted_bg: 'rgba(139, 195, 74, 0.15)', highlighted_border: 'rgba(139, 195, 74, 0.3)', grid_cell_bg: '#FCFFF5', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🥑':'text-green-800', '🥦':'text-green-600', '🧄':'text-gray-500', '🌽':'text-yellow-500', '🫑':'text-green-700', '🌶️':'text-red-600' } },
+            bug_life: { name: "Bug's Life", symbols: ['🦋', '🐝', '🪲', '🐛', '🐞', '🪰'], palette: { bg: 'linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#004D40', text_secondary: '#00796B', accent: '#009688', 'accent-light': '#E0F2F1', accent_gradient: 'linear-gradient(135deg, #009688 0%, #26A69A 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)', highlighted_bg: 'rgba(0, 150, 136, 0.15)', highlighted_border: 'rgba(0, 150, 136, 0.3)', grid_cell_bg: '#F5FCFB', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🦋':'text-blue-500', '🐝':'text-yellow-500', '🪲':'text-amber-800', '🐛':'text-lime-600', '🐞':'text-red-600', '🪰':'text-gray-700' } },
+            hats_off: { name: "Hats Off", symbols: ['🪖', '🎩', '🧢', '👒', '⛑️', '👑'], palette: { bg: 'linear-gradient(135deg, #A1887F 0%, #795548 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#3E2723', text_secondary: '#5D4037', accent: '#FFD700', 'accent-light': '#6D4C41', accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFC107 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #5D4037 0%, #4E342E 100%)', highlighted_bg: 'rgba(255, 215, 0, 0.45)', highlighted_border: 'rgba(255, 215, 0, 0.6)', grid_cell_bg: '#EFEBE9', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🪖':'text-green-800', '🎩':'text-gray-800', '🧢':'text-blue-600', '👒':'text-pink-400', '⛑️':'text-red-600', '👑':'text-yellow-500' } },
+            golden_bakery: { name: "Golden Bakery", symbols: ['🍞', '🥯', '🥐', '🧇', '🍪', '🥞'], palette: { bg: 'linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#8D6E63', text_secondary: '#A1887F', accent: '#AF8260', 'accent-light': '#FFF8E1', accent_gradient: 'linear-gradient(135deg, #AF8260 0%, #C19A7B 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #D4B298 0%, #E6C9B4 100%)', highlighted_bg: 'rgba(175, 130, 96, 0.15)', highlighted_border: 'rgba(175, 130, 96, 0.3)', grid_cell_bg: '#FFFBF2', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🍞':'text-amber-800', '🥯':'text-amber-700', '🥐':'text-orange-600', '🧇':'text-yellow-700', '🍪':'text-amber-900', '🥞':'text-amber-600' } },
+             sporty_vibes: { name: "Sporty Vibes", symbols: ['🏀', '⚽️', '🥎', '🏉', '🏐', '🏈'], palette: { bg: 'linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#1B5E20', text_secondary: '#2E7D32', accent: '#FF9800', 'accent-light': '#C8E6C9', accent_gradient: 'linear-gradient(135deg, #FF9800 0%, #FFA726 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFB74D 0%, #FFCC80 100%)', highlighted_bg: 'rgba(255, 152, 0, 0.45)', highlighted_border: 'rgba(255, 152, 0, 0.6)', grid_cell_bg: '#F1F8E9', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🏀':'text-orange-600', '⚽️':'text-black', '🥎':'text-lime-400', '🏉':'text-amber-800', '🏐':'text-blue-500', '🏈':'text-amber-900' } },
+            school_of_magic: { name: "School of Magic", symbols: ['🧙‍♀️', '🦉', '📜', '🏆', '🏟️', '🔮'], palette: { bg: 'linear-gradient(135deg, #4E342E 0%, #212121 100%)', card: 'rgba(78, 52, 46, 0.75)', text: '#FFECB3', text_secondary: '#D7CCC8', accent: '#D32F2F', 'accent-light': '#5D4037', accent_gradient: 'linear-gradient(135deg, #D32F2F 0%, #FFC107 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #EF5350 0%, #FFD54F 100%)', highlighted_bg: 'rgba(211, 47, 47, 0.15)', highlighted_border: 'rgba(211, 47, 47, 0.3)', grid_cell_bg: '#6D4C41', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🧙‍♀️':'text-purple-300', '🦉':'text-gray-300', '📜':'text-yellow-200', '🏆':'text-yellow-400', '🏟️':'text-gray-400', '🔮':'text-purple-400' } },
+            emoji_fun: { name: "Emoji Fun", symbols: ['😍', '😎', '🤩', '😂', '🥵', '🤯'], palette: { bg: 'linear-gradient(135deg, #FFF9C4 0%, #FFF176 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#4E342E', text_secondary: '#795548', accent: '#42A5F5', 'accent-light': '#E3F2FD', accent_gradient: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)', highlighted_bg: 'rgba(66, 165, 245, 0.15)', highlighted_border: 'rgba(66, 165, 245, 0.3)', grid_cell_bg: '#FFFDE7', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '😍':'text-red-500', '😎':'text-black', '🤩':'text-yellow-600', '😂':'text-blue-500', '🥵':'text-orange-500', '🤯':'text-purple-500' } },
+            deep_ocean: { name: "Deep Ocean", symbols: ['🐡', '🦑', '🦀', '🐙', '🐳', '🐠'], palette: { bg: 'linear-gradient(135deg, #1A237E 0%, #0D47A1 100%)', card: 'rgba(26, 35, 126, 0.7)', text: '#E3F2FD', text_secondary: '#90CAF9', accent: '#42A5F5', 'accent-light': '#1A237E', accent_gradient: 'linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #90CAF9 0%, #BBDEFB 100%)', highlighted_bg: 'rgba(66, 165, 245, 0.2)', highlighted_border: 'rgba(66, 165, 245, 0.4)', grid_cell_bg: '#1976D2', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🐡':'text-yellow-300', '🦑':'text-pink-300', '🦀':'text-red-400', '🐙':'text-purple-300', '🐳':'text-blue-300', '🐠':'text-orange-300' } },
+            road_block_theme: { name: "Road Block", symbols: ['🚑', '🚌', '🚗', '🚎', '🚜', '✈️'], palette: { bg: 'linear-gradient(135deg, #B0BEC5 0%, #78909C 100%)', card: 'rgba(255, 255, 255, 0.8)', text: '#263238', text_secondary: '#455A64', accent: '#FFC107', 'accent-light': '#CFD8DC', accent_gradient: 'linear-gradient(135deg, #FFCA28 0%, #FFD54F 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFE082 0%, #FFEE58 100%)', highlighted_bg: 'rgba(255, 193, 7, 0.15)', highlighted_border: 'rgba(255, 193, 7, 0.3)', grid_cell_bg: '#ECEFF1', toggle_bg_inactive: 'rgba(0,0,0,0.2)', }, symbolColors: { '🚑':'text-red-500', '🚌':'text-yellow-500', '🚗':'text-blue-500', '🚎':'text-green-500', '🚜':'text-orange-500', '✈️':'text-gray-400' } },
+            the_post_office: { name: "The Post Office", symbols: ['📦', '📮', '🗂️', '🗳️', '🗄️', '📬'], palette: { bg: 'linear-gradient(135deg, #EFEBE9 0%, #D7CCC8 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#3E2723', text_secondary: '#6D4C41', accent: '#D32F2F', 'accent-light': '#FFCDD2', accent_gradient: 'linear-gradient(135deg, #D32F2F 0%, #E53935 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #EF5350 0%, #E57373 100%)', highlighted_bg: 'rgba(211, 47, 47, 0.1)', highlighted_border: 'rgba(211, 47, 47, 0.25)', grid_cell_bg: '#F8F5F3', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '📦':'text-amber-800', '📮':'text-red-600', '🗂️':'text-gray-500', '🗳️':'text-blue-700', '🗄️':'text-gray-600', '📬':'text-red-700' } },
+            tutti_frutti: { name: "Tutti Frutti", symbols: ['🍓', '🫐', '🍉', '🥝', '🥭', '🍋'], palette: { bg: 'linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#4E342E', text_secondary: '#6D4C41', accent: '#EC407A', 'accent-light': '#FCE4EC', accent_gradient: 'linear-gradient(135deg, #EC407A 0%, #F06292 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #F48FB1 0%, #F8BBD0 100%)', highlighted_bg: 'rgba(236, 64, 122, 0.1)', highlighted_border: 'rgba(236, 64, 122, 0.25)', grid_cell_bg: '#FFFFFF', toggle_bg_inactive: '#F0F0F0', }, symbolColors: { '🍓':'text-red-500', '🫐':'text-blue-600', '🍉':'text-green-600', '🥝':'text-lime-700', '🥭':'text-orange-500', '🍋':'text-yellow-500' } },
+            zedi_zodi: { name: "Zodiac Night", symbols: ['♋', '♒', '♎', '♐', '♌', '♉'], palette: { bg: 'linear-gradient(135deg, #0f0c29 0%, #302b63 100%)', card: 'rgba(48, 43, 99, 0.75)', text: '#FFFFFF', text_secondary: '#A9B4D1', accent: '#FFD700', 'accent-light': '#4A428A', accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)', highlighted_bg: 'rgba(255, 215, 0, 0.15)', highlighted_border: 'rgba(255, 215, 0, 0.3)', grid_cell_bg: '#6A6E89', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '♋':'text-gray-300', '♒':'text-blue-300', '♎':'text-pink-300', '♐':'text-orange-300', '♌':'text-yellow-300', '♉':'text-green-300' } },
+            desert_oasis: { name: "Desert Oasis", symbols: ['🌵', '🪨', '☀️', '🐍', '⛺', '🌴'], palette: { bg: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#5D4037', text_secondary: '#6D4C41', accent: '#00897B', 'accent-light': '#B2DFDB', accent_gradient: 'linear-gradient(135deg, #00897B 0%, #26A69A 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)', highlighted_bg: 'rgba(0, 137, 123, 0.15)', highlighted_border: 'rgba(0, 137, 123, 0.3)', grid_cell_bg: '#FFFBF2', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🌵':'text-green-700', '🪨':'text-gray-600', '☀️':'text-yellow-600', '🐍':'text-emerald-800', '⛺':'text-orange-700', '🌴':'text-lime-800' } },
+            morning_aviary: { name: "Morning Aviary", symbols: ['🐔', '🐦', '🐥', '🐣', '🐝', '🐧'], palette: { bg: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#0D47A1', text_secondary: '#1976D2', accent: '#FFA000', 'accent-light': '#FFECB3', accent_gradient: 'linear-gradient(135deg, #FFA000 0%, #FFB300 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)', highlighted_bg: 'rgba(255, 160, 0, 0.15)', highlighted_border: 'rgba(255, 160, 0, 0.3)', grid_cell_bg: '#F7FBFF', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🐔':'text-red-600', '🐦':'text-blue-500', '🐥':'text-yellow-500', '🐣':'text-yellow-400', '🐝':'text-yellow-600', '🐧':'text-gray-800' } },
+            creepy_crawlies: { name: "Creepy Crawlies", symbols: ['🐍', '🦎', '🦂', '🐭', '🥚', '🐁'], palette: { bg: 'linear-gradient(135deg, #37474F 0%, #212121 100%)', card: 'rgba(38, 50, 56, 0.8)', text: '#CFD8DC', text_secondary: '#90A4AE', accent: '#7E57C2', 'accent-light': '#512DA8', accent_gradient: 'linear-gradient(135deg, #7E57C2 0%, #9575CD 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #B39DDB 0%, #D1C4E9 100%)', highlighted_bg: 'rgba(126, 87, 194, 0.15)', highlighted_border: 'rgba(126, 87, 194, 0.3)', grid_cell_bg: '#546E7A', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🐍':'text-green-400', '🦎':'text-lime-400', '🦂':'text-red-400', '🐭':'text-gray-300', '🥚':'text-gray-200', '🐁':'text-gray-100' } },
+            ancient_secrets: { name: "Ancient Secrets", symbols: ['🔍', '🧩', '🀄', '🔑', '🧭', '👁️'], palette: { bg: 'linear-gradient(135deg, #5D4037 0%, #3E2723 100%)', card: 'rgba(62, 39, 35, 0.75)', text: '#D7CCC8', text_secondary: '#D7CCC8', accent: '#FFCA28', 'accent-light': '#4E342E', accent_gradient: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFA000 0%, #FF6F00 100%)', highlighted_bg: 'rgba(255, 202, 40, 0.15)', highlighted_border: 'rgba(255, 202, 40, 0.3)', grid_cell_bg: '#795548', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🔍':'text-blue-300', '🧩':'text-orange-300', '🀄':'text-red-300', '🔑':'text-yellow-300', '🧭':'text-gray-300', '👁️':'text-cyan-300' } },
+            cosmic_drift: { name: "Cosmic Drift", symbols: ['🌍', '🚀', '🪐', '🌗', '💫', '🛰️'], palette: { bg: 'linear-gradient(135deg, #1A237E 0%, #0D123B 100%)', card: 'rgba(48, 59, 128, 0.7)', text: '#E8EAF6', text_secondary: '#9FA8DA', accent: '#536DFE', 'accent-light': '#1A237E', accent_gradient: 'linear-gradient(135deg, #536DFE 0%, #7C4DFF 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #7C4DFF 0%, #B388FF 100%)', highlighted_bg: 'rgba(83, 109, 254, 0.2)', highlighted_border: 'rgba(83, 109, 254, 0.4)', grid_cell_bg: '#5C6BC0', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🌍':'text-blue-300', '🚀':'text-gray-200', '🪐':'text-amber-300', '🌗':'text-gray-100', '💫':'text-yellow-300', '🛰️':'text-blue-200' } },
+            petal_meadow: { name: "Petal Meadow", symbols: ['🌸', '🌺', '🌷', '🪷', '🪻', '🌻'], palette: { bg: 'linear-gradient(135deg, #E6EE9C 0%, #C5E1A5 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#2E7D32', text_secondary: '#558B2F', accent: '#D81B60', 'accent-light': '#F8BBD0', accent_gradient: 'linear-gradient(135deg, #D81B60 0%, #E91E63 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #F06292 0%, #F48FB1 100%)', highlighted_bg: 'rgba(216, 27, 96, 0.1)', highlighted_border: 'rgba(216, 27, 96, 0.25)', grid_cell_bg: '#F8FFF0', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🌸':'text-pink-400', '🌺':'text-red-500', '🌷':'text-orange-500', '🪷':'text-pink-500', '🪻':'text-purple-500', '🌻':'text-yellow-500' } },
+            monster_mash: { name: "Monster Mash", symbols: ['👹', '🐲', '👻', '👽', '🎃', '😈'], palette: { bg: 'linear-gradient(135deg, #432874 0%, #18142a 100%)', card: 'rgba(40, 30, 60, 0.8)', text: '#E0D6FF', text_secondary: '#BCA9F0', accent: '#FF7900', 'accent-light': '#6A1B9A', accent_gradient: 'linear-gradient(135deg, #FF7900 0%, #FF983D 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFB47A 0%, #FFD0B1 100%)', highlighted_bg: 'rgba(255, 121, 0, 0.15)', highlighted_border: 'rgba(255, 121, 0, 0.3)', grid_cell_bg: '#4A3F71', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '👹':'text-red-400', '🐲':'text-green-400', '👻':'text-gray-200', '👽':'text-lime-300', '🎃':'text-orange-400', '😈':'text-purple-400' } }
         };
 
         const unlockProgression = {
@@ -743,6 +913,149 @@
           'flower_power':    { unlocks: 'monster',           score: 95 },
           'monster':         null // The last game, unlocks nothing
         };
+
+        function generateCrossScoreSegments(isTwinningCell) {
+            const segments = [];
+            const GRID_SIZE = 7;
+            const MIN_SEQUENCE_LENGTH = 3;
+
+            // Helper to find contiguous segments in an array of indices
+            function findContiguousSegments(indices) {
+                if (indices.length === 0) return [];
+                indices.sort((a, b) => a - b);
+                const result = [];
+                let currentSegment = [indices[0]];
+                for (let i = 1; i < indices.length; i++) {
+                    if (indices[i] === indices[i - 1] + 1) {
+                        currentSegment.push(indices[i]);
+                    } else {
+                        result.push(currentSegment);
+                        currentSegment = [indices[i]];
+                    }
+                }
+                result.push(currentSegment);
+                return result;
+            }
+
+            // Check rows
+            for (let r = 0; r < GRID_SIZE; r++) {
+                const highlightedCols = [];
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    if (isTwinningCell(r, c)) {
+                        highlightedCols.push(c);
+                    }
+                }
+                const colSegments = findContiguousSegments(highlightedCols);
+                colSegments.forEach(seg => {
+                    if (seg.length >= MIN_SEQUENCE_LENGTH) {
+                        segments.push({ type: 'row', index: r, start: seg[0], end: seg[seg.length - 1] });
+                    }
+                });
+            }
+
+            // Check columns
+            for (let c = 0; c < GRID_SIZE; c++) {
+                const highlightedRows = [];
+                for (let r = 0; r < GRID_SIZE; r++) {
+                    if (isTwinningCell(r, c)) {
+                        highlightedRows.push(r);
+                    }
+                }
+                const rowSegments = findContiguousSegments(highlightedRows);
+                rowSegments.forEach(seg => {
+                    if (seg.length >= MIN_SEQUENCE_LENGTH) {
+                        segments.push({ type: 'col', index: c, start: seg[0], end: seg[seg.length - 1] });
+                    }
+                });
+            }
+            return segments;
+        }
+
+        const variantConfigs = {
+            'plain_jean': { id: 'plain_jean', name: 'Plain Jean', themeId: 'pastel_pals', timeLimit: 100, isTwinningCell: (r, c) => false, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'one_won': { id: 'one_won', name: 'One Won', themeId: 'green_grocer', timeLimit: 100, isTwinningCell: (r, c) => c === 3, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'plus_minus': { id: 'plus_minus', name: 'Plus Minus', themeId: 'bug_life', timeLimit: 100, isTwinningCell: (r, c) => r === 3 || c === 3, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'hat_trick': { id: 'hat_trick', name: 'Hat Trick', themeId: 'hats_off', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 6 || c === 0, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'sugar_cube': { id: 'sugar_cube', name: 'Sugar Cube', themeId: 'golden_bakery', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 6 || c === 0 || c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'spoil_sport': { id: 'spoil_sport', name: 'Spoil Sport', themeId: 'sporty_vibes', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 3 || c === 0 || c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'marry_harry': { id: 'marry_harry', name: 'Marry Harry', themeId: 'school_of_magic', timeLimit: 100, isTwinningCell: (r, c) => c === 1 || c === 5 || (r === 3 && c >= 1 && c <= 5), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'cosy_emoji': { id: 'cosy_emoji', name: 'Cosy Emoji', themeId: 'emoji_fun', timeLimit: 100, isTwinningCell: (r, c) => r === 0 || r === 3 || r === 6 || c === 0, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'wonder_wander': { id: 'wonder_wander', name: 'Wonder Wander', themeId: 'deep_ocean', timeLimit: 120, isTwinningCell: (r, c) => r === 6 || [0, 3, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'road_block': { id: 'road_block', name: 'Road Block', themeId: 'road_block_theme', timeLimit: 120, isTwinningCell: (r, c) => [0, 2, 4, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'box_vox': { id: 'box_vox', name: 'Box Vox', themeId: 'the_post_office', timeLimit: 120, isTwinningCell: (r, c) => [0, 3, 6].includes(r) || [0, 3, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'hash_hush': { id: 'hash_hush', name: 'Hash Hush', themeId: 'tutti_frutti', timeLimit: 120, isTwinningCell: (r, c) => [2, 4].includes(r) || [2, 4].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'zedi_zodi': { id: 'zedi_zodi', name: 'Zedi Zodi', themeId: 'zedi_zodi', timeLimit: 120, isTwinningCell: (r, c) => r === 0 || r === 6 || r + c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'core': { id: 'core', name: 'Cacti Facti Edition', themeId: 'desert_oasis', timeLimit: 150, isTwinningCell: (r, c) => (r === 3 && c >= 3 && c <= 5) || (r === 5 && c >= 1 && c <= 3) || (c === 1 && r >= 1 && r <= 5) || (c === 3) || (c === 5 && r >= 0 && r <= 3), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'eight_and_watch': { id: 'eight_and_watch', name: 'Eight and Watch', themeId: 'morning_aviary', timeLimit: 150, isTwinningCell: (r, c) => (r === 0 && c >= 3) || (r === 3) || (r === 6 && c <= 3) || (c === 0 && r >= 3) || (c === 3) || (c === 6 && r <= 3), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'fake_snake': { id: 'fake_snake', name: 'Fake Snake', themeId: 'creepy_crawlies', timeLimit: 150, isTwinningCell: (r, c) => (r === 0 && c >= 4) || (r === 2 && c >= 2 && c <= 4) || (r === 4 && c <= 2) || (c === 0 && r >= 4) || (c === 2 && r >= 2 && r <= 4) || (c === 4 && r <= 2), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'rune_dune': { id: 'rune_dune', name: 'Rune Dune', themeId: 'ancient_secrets', timeLimit: 150, isTwinningCell: (r, c) => (r === 2 && c >= 1 && c <= 5) || (r === 4 && c >= 1 && c <= 5) || (c === 1 && (r <= 2 || r >= 4)) || (c === 3) || (c === 5 && (r <= 2 || r >= 4)), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'space_race': { id: 'space_race', name: 'Space Race', themeId: 'cosmic_drift', timeLimit: 180, isTwinningCell: (r, c) => (r === 2 && c >= 2 && c <= 4) || (r === 3 && (c <= 2 || c >= 4)) || (r === 4 && c >= 2 && c <= 4) || (c === 2 && r >= 2 && r <= 4) || (c === 3 && (r <= 2 || r >= 4)) || (c === 4 && r >= 2 && r <= 4), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'flower_power': { id: 'flower_power', name: 'Flower Power', themeId: 'petal_meadow', timeLimit: 180, isTwinningCell: (r, c) => (r === 0 && c >= 2 && c <= 4) || (r === 2 && c >= 2 && c <= 4) || r === 4 || (c === 1 && r >= 3 && r <= 5) || (c === 2 && r <= 2) || (c === 3 && r >= 2) || (c === 4 && r <= 2) || (c === 5 && r >= 3 && r <= 5), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'monster': { id: 'monster', name: 'Monster Monster', themeId: 'monster_mash', timeLimit: 180, isTwinningCell: (r, c) => (r === 0 && c <= 2) || (r === 2 && c <= 4) || (r === 3 && c >= 4) || (r === 4 && c >= 2 && c <= 4) || (r === 6 && c <= 3) || (c === 0 && r <= 2) || (c === 2 && r <= 4) || (c === 3 && r >= 4) || (c === 4 && r >= 2 && r <= 4), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } }
+        };
+
+        function applyTheme(themeId) {
+            const root = document.documentElement;
+            const theme = themeConfigs[themeId] || themeConfigs.pastel_pals;
+            Object.keys(theme.palette).forEach(key => {
+                const cssVar = `--${key.replace(/_/g, '-')}`;
+                root.style.setProperty(cssVar, theme.palette[key]);
+            });
+        }
+        
+        // --- Focus Trap for Modals ---
+        let modalFocusTrapListener = null;
+        let previouslyFocusedElement = null;
+
+        function handleModalOpen(modalEl) {
+            if (!modalEl) return;
+            previouslyFocusedElement = document.activeElement;
+            modalEl.classList.add('is-open');
+            document.body.classList.add('modal-open');
+
+            const focusableElements = modalEl.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            const firstFocusable = focusableElements[0];
+            const lastFocusable = focusableElements[focusableElements.length - 1];
+
+            if (firstFocusable) {
+                firstFocusable.focus();
+            }
+
+            modalFocusTrapListener = (e) => {
+                if (e.key !== 'Tab') return;
+                
+                if (e.shiftKey) { // Shift + Tab
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus();
+                        e.preventDefault();
+                    }
+                } else { // Tab
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus();
+                        e.preventDefault();
+                    }
+                }
+            };
+            modalEl.addEventListener('keydown', modalFocusTrapListener);
+        }
+
+        function handleModalClose(modalEl) {
+            if (!modalEl) return;
+            modalEl.classList.remove('is-open');
+            document.body.classList.remove('modal-open');
+            
+            if (modalFocusTrapListener) {
+                modalEl.removeEventListener('keydown', modalFocusTrapListener);
+                modalFocusTrapListener = null;
+            }
+            if (previouslyFocusedElement) {
+                previouslyFocusedElement.focus();
+                previouslyFocusedElement = null;
+            }
+        }
+
 
         class GameState {
             constructor() {
@@ -772,11 +1085,645 @@
             is(state) { return this.currentState === state; }
         }
 
+        // --- HELPER CLASSES DEFINED FIRST ---
+        class AudioManager {
+            constructor() {
+                this.unlocked = false;
+                this.context = null;
+                this.sounds = new Map();
+            }
+
+            init() {
+                this._createContext();
+                this._createSounds();
+            }
+
+            _createContext() {
+                try {
+                    if (!this.context) {
+                        this.context = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                } catch (e) {
+                    console.error("AudioContext not supported.", e);
+                }
+            }
+
+            _createSounds() {
+                if (!this.context || this.sounds.size > 0) return;
+                const soundConfigs = {
+                    'pop': [1200, 0.1, 0.05], 'roll': [220, 0.2, 0.2], 'hover': [660, 0.05, 0.1],
+                    'invalid': [150, 0.3, 0.2], 'power-activate': [880, 0.15, 0.2],
+                    'power-use': [1047, 0.2, 0.3], 'chime': [1047, 0.15, 0.2], 'thud': [100, 0.3, 0.1]
+                };
+                for (const key in soundConfigs) {
+                    this.sounds.set(key, () => this._playTone(...soundConfigs[key]));
+                }
+            }
+
+            _playTone(freq, vol, dur) {
+                if (!this.unlocked || !this.context) return;
+                try {
+                    const o = this.context.createOscillator();
+                    const g = this.context.createGain();
+                    o.connect(g);
+                    g.connect(this.context.destination);
+                    o.frequency.value = freq;
+                    g.gain.setValueAtTime(0, this.context.currentTime);
+                    g.gain.linearRampToValueAtTime(vol * 0.1, this.context.currentTime + 0.01);
+                    g.gain.exponentialRampToValueAtTime(0.001, this.context.currentTime + dur);
+                    o.start();
+                    o.stop(this.context.currentTime + dur);
+                } catch (e) {
+                    console.error("Error playing tone.", e);
+                }
+            }
+
+            unlock() {
+                if (this.unlocked) return;
+                document.getElementById('audio-unlocker').play().finally(() => {
+                    this.unlocked = true;
+                });
+            }
+
+            play(soundName) {
+                const soundAction = this.sounds.get(soundName);
+                if (soundAction) {
+                    soundAction();
+                }
+            }
+        }
+
+        class Renderer {
+            constructor(game, DOMElements) {
+                this.game = game;
+                this.DOMElements = DOMElements;
+                this.gridCells = [];
+            }
+            
+            async renderGrid() {
+                const fragment = document.createDocumentFragment(); this.DOMElements.game_board.innerHTML = ''; this.gridCells = [];
+                for (let r = 0; r < this.game.GRID_SIZE; r++) {
+                    const row = [];
+                    for (let c = 0; c < this.game.GRID_SIZE; c++) {
+                        const cell = this.createCellElement(r, c); this.updateCell(cell, r, c); this.game.inputHandler.addCellEventListeners(cell);
+                        fragment.appendChild(cell); row.push(cell);
+                    }
+                    this.gridCells.push(row);
+                }
+                this.DOMElements.game_board.appendChild(fragment);
+            }
+
+            createCellElement(r, c) { const cell = document.createElement('div'); cell.dataset.row = r; cell.dataset.col = c; cell.className = this.getCellClasses(r, c); return cell; }
+            getCellClasses(r, c) {
+                let classes = 'grid-cell';
+                if (this.game.config.isTwinningCell(r, c)) classes += ' highlighted';
+                if (this.game.stuckBlocks.has(`${r},${c}`)) classes += ' stuck-cell';
+                if (this.game.heroBlocks.has(`${r},${c}`)) classes += ' hero-block-hint';
+                return classes;
+            }
+
+            updateCell(cell, r, c) {
+                cell.className = this.getCellClasses(r, c);
+                const symbol = this.game.gridData[r][c];
+                
+                cell.innerHTML = ''; 
+                cell.style.setProperty('--hero-symbol', `'${this.game.heroSymbol}'`);
+
+                if (symbol) {
+                    const symbolSpan = document.createElement('span');
+                    symbolSpan.textContent = symbol;
+                    if(this.game.SYMBOL_COLORS[symbol]) {
+                       symbolSpan.className = this.game.SYMBOL_COLORS[symbol];
+                    }
+                    cell.appendChild(symbolSpan);
+                } else {
+                    cell.textContent = this.game.stuckBlocks.has(`${r},${c}`) ? '💣' : '';
+                }
+            }
+
+            updateFullGrid() { for (let r = 0; r < this.game.GRID_SIZE; r++) for (let c = 0; c < this.game.GRID_SIZE; c++) this.updateGridCell(r, c); }
+            updateGridCell(r, c) { if (this.gridCells[r]?.[c]) this.updateCell(this.gridCells[r][c], r, c); }
+
+            renderScorePlaceholders() {
+                this.DOMElements.row_scores_display.innerHTML = ''; 
+                this.DOMElements.col_scores_display.innerHTML = '';
+                for (let i = 0; i < this.game.GRID_SIZE; i++) {
+                    const rowScore = document.createElement('div'); rowScore.id = `row-score-${i}`; rowScore.className = 'grid-cell score-display-cell'; rowScore.textContent = '0'; this.DOMElements.row_scores_display.appendChild(rowScore);
+                    const colScore = document.createElement('div'); colScore.id = `col-score-${i}`; colScore.className = 'grid-cell score-display-cell'; colScore.textContent = '0'; this.DOMElements.col_scores_display.appendChild(colScore);
+                }
+            }
+
+            renderControls() {
+                const inGameContent = this.DOMElements.in_game_content;
+                const preGameContent = this.DOMElements.pre_game_content;
+                
+                if(inGameContent) inGameContent.className = '';
+
+                if (this.game.gameStateManager.is('PRE_GAME')) {
+                    if(preGameContent) preGameContent.style.display = 'block';
+                    if(inGameContent) inGameContent.style.display = 'none';
+                } else {
+                    if(preGameContent) preGameContent.style.display = 'none';
+                    if(inGameContent) inGameContent.style.display = 'block';
+                    this.renderDiceAndPowers();
+                }
+            }
+
+            renderDiceAndPowers() {
+                const container = this.DOMElements.in_game_content;
+                container.className = '';
+                container.innerHTML = '';
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'w-full flex flex-col justify-start gap-3 lg:gap-4';
+                let timerHTML = '';
+                if(this.game.isTimeBurst) {
+                    timerHTML = `<div id="timer-display" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-2xl lg:text-3xl font-bold" style="color: var(--accent);" aria-live="polite">${this.game.timeLeft}</div>`;
+                }
+
+                wrapper.innerHTML = `<div class="flex justify-center items-center gap-2 lg:gap-4">
+                    <button id="roll-dice-btn" aria-label="Roll Dice" class="w-14 h-14 lg:w-16 lg:h-16 text-4xl lg:text-5xl flex items-center justify-center" style="color: var(--accent);">🎲</button>
+                    <div id="dice-1" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
+                    <div id="dice-2" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
+                    ${timerHTML}
+                </div>
+                <div class="glass-card enhanced-shadow rounded-xl px-3 py-2 text-center"><h2 class="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center justify-center gap-2" style="color: var(--text-secondary);">Alloha Superpowers <span id="sp-charges" class="text-base">✨✨</span></h2><div class="grid grid-cols-4 gap-1 text-center">
+                    <button id="past-lives-btn" class="superpower-btn"><div>Past</div><div>Lives</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
+                    <button id="no-return-btn" class="superpower-btn"><div>No</div><div>Return</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
+                    <button id="bomb-bae-btn" class="superpower-btn"><div>Bomb</div><div>Bae</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
+                    <button id="swap-them-btn" class="superpower-btn"><div>Swap</div><div>Them</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
+                </div></div>`;
+                
+                container.appendChild(wrapper);
+
+                this.updateControlsState();
+                this.game.inputHandler.attachSuperpowerEventListeners();
+                this.updateSuperpowerButtonsUI();
+                if(this.game.isTimeBurst) this.updateTimerDisplay();
+            }
+
+            updateControlsState() {
+                if (this.game.gameStateManager.is('PRE_GAME')) return;
+                const rollBtn = document.getElementById('roll-dice-btn');
+                if (rollBtn) {
+                    rollBtn.classList.toggle('bob-animation', this.game.gameStateManager.is('AWAITING_ROLL'));
+                }
+                const dice1 = document.getElementById('dice-1'), dice2 = document.getElementById('dice-2');
+                if (!dice1 || !dice2) return;
+                
+                dice1.classList.remove('shimmer-text');
+                dice2.classList.remove('shimmer-text');
+                
+                if (this.game.gameStateManager.is('AWAITING_PLACEMENT') && this.game.currentRoll.length === 2) {
+                    const symbol1 = this.game.currentRoll[0], symbol2 = this.game.currentRoll[1];
+                    const color1 = this.game.SYMBOL_COLORS[symbol1] || 'text-gray-700';
+                    const color2 = this.game.SYMBOL_COLORS[symbol2] || 'text-gray-700';
+
+                    dice1.innerHTML = `<span class="${color1}">${symbol1}</span>`;
+                    dice2.innerHTML = `<span class="${color2}">${symbol2}</span>`;
+                } else {
+                    dice1.textContent = '?';
+                    dice2.textContent = '?';
+                    dice1.classList.add('shimmer-text');
+                    dice2.classList.add('shimmer-text');
+                }
+            }
+
+            updateScoreDisplays(r, c, cross, b, h, p) { 
+                animateScoreUpdate('total-score', r + c + cross + b + h + p, 3); 
+                animateScoreUpdate('rows-total-score', r, 2); 
+                animateScoreUpdate('cols-total-score', c, 2); 
+                animateScoreUpdate('cross-total-score', cross, 2); 
+                animateScoreUpdate('bonus-grid-score', b, 2);
+                animateScoreUpdate('hero-bonus-score', h, 2);
+                animateScoreUpdate('empty-block-penalty', p, 2); 
+            }
+            
+            updateIndividualScores(rS, cS) { 
+                rS.forEach((s, i) => this.updateScoreElement(`row-score-${i}`, s)); 
+                cS.forEach((s, i) => this.updateScoreElement(`col-score-${i}`, s)); 
+            }
+            
+            updateScoreElement(id, score) { 
+                const el = document.getElementById(id); 
+                if (el) { 
+                    const oldScore = parseInt(el.textContent);
+                    el.textContent = score; 
+                    el.classList.toggle('text-red-500', score < 0); 
+                    if (score < 0 && oldScore >= 0) {
+                        this.game.triggerVibration([70, 40, 70]);
+                    }
+                } 
+            }
+            
+            updateSuperpowerButtonsUI() {
+                const ids = {
+                    [SUPERPOWERS.PAST_LIVES]: 'past-lives-btn',
+                    [SUPERPOWERS.NO_RETURN]: 'no-return-btn',
+                    [SUPERPOWERS.BOMB_BAE]: 'bomb-bae-btn',
+                    [SUPERPOWERS.SWAP_THEM]: 'swap-them-btn',
+                };
+                Object.keys(ids).forEach(powerKey => {
+                    const btn = document.getElementById(ids[powerKey]);
+                    if (!btn) return;
+                    const overlay = btn.querySelector('.superpower-used-overlay');
+                    if(this.game.usedSuperpowers.has(powerKey)) {
+                        if(overlay) overlay.classList.remove('hidden');
+                    } else {
+                        if(overlay) overlay.classList.add('hidden');
+                    }
+                });
+
+                const totalUsed = this.game.usedSuperpowers.size, isMidMove = this.game.firstPlacementCell !== null, isPowerActive = this.game.activeSuperpower !== null, isAwaitingRoll = this.game.gameStateManager.is('AWAITING_ROLL');
+                const btns = { 
+                    [SUPERPOWERS.PAST_LIVES]: document.getElementById('past-lives-btn'), 
+                    [SUPERPOWERS.BOMB_BAE]: document.getElementById('bomb-bae-btn'), 
+                    [SUPERPOWERS.NO_RETURN]: document.getElementById('no-return-btn'), 
+                    [SUPERPOWERS.SWAP_THEM]: document.getElementById('swap-them-btn') 
+                };
+                
+                if (btns[SUPERPOWERS.PAST_LIVES]) btns[SUPERPOWERS.PAST_LIVES].disabled = totalUsed >= 2 || this.game.usedSuperpowers.has(SUPERPOWERS.PAST_LIVES) || !this.game.lastGameState || isMidMove || isPowerActive || !isAwaitingRoll;
+                if (btns[SUPERPOWERS.BOMB_BAE]) btns[SUPERPOWERS.BOMB_BAE].disabled = totalUsed >= 2 || this.game.usedSuperpowers.has(SUPERPOWERS.BOMB_BAE) || this.game.gridData.flat().every(s => s === null) || isMidMove || isPowerActive;
+                if (btns[SUPERPOWERS.NO_RETURN]) btns[SUPERPOWERS.NO_RETURN].disabled = this.game.turnCount < 1 || totalUsed >= 2 || this.game.usedSuperpowers.has(SUPERPOWERS.NO_RETURN) || isMidMove || isPowerActive;
+                if (btns[SUPERPOWERS.SWAP_THEM]) btns[SUPERPOWERS.SWAP_THEM].disabled = this.game.turnCount < 1 || totalUsed >= 2 || this.game.usedSuperpowers.has(SUPERPOWERS.SWAP_THEM) || !isAwaitingRoll || isMidMove || isPowerActive;
+                
+                Object.values(btns).forEach(btn => { if(btn) btn.classList.remove('superpower-btn--active')});
+                if (isPowerActive && btns[this.game.activeSuperpower]) {
+                    btns[this.game.activeSuperpower].classList.add('superpower-btn--active');
+                }
+                document.body.style.cursor = this.game.activeSuperpower === SUPERPOWERS.BOMB_BAE ? 'crosshair' : '';
+
+                const spChargesEl = document.getElementById('sp-charges');
+                if (spChargesEl) {
+                    if (totalUsed === 0) {
+                        spChargesEl.innerHTML = '✨✨';
+                    } else if (totalUsed === 1) {
+                        spChargesEl.innerHTML = '✨<span class="opacity-30">✨</span>';
+                    } else {
+                        spChargesEl.innerHTML = '<span class="opacity-30">✨✨</span>';
+                    }
+                }
+            }
+            
+            syncPanelHeights() { setTimeout(() => { if (window.innerWidth < 1024) return; const boardHeight = this.DOMElements.game_board_container?.getBoundingClientRect().height; if (boardHeight) this.DOMElements.scoring_panel.style.height = `${boardHeight}px`; }, 50); }
+            
+            updateProgressBar() {
+                if (!this.DOMElements.progress_bar_fill) return;
+                const percentage = (this.game.turnCount / this.game.MAX_TURNS) * 100;
+                this.DOMElements.progress_bar_fill.style.width = `${percentage}%`;
+            }
+
+            flashTwinningPattern() {
+                const highlightedCells = document.querySelectorAll('.highlighted');
+                if (highlightedCells.length === 0) return;
+
+                highlightedCells.forEach(cell => {
+                    cell.classList.add('twinning-flash-animation');
+                });
+                setTimeout(() => {
+                    highlightedCells.forEach(cell => {
+                        cell.classList.remove('twinning-flash-animation');
+                    });
+                }, CONSTANTS.TWINNING_FLASH_DURATION);
+            }
+
+            showCurseEffect(cellElement) {
+                const board = this.DOMElements.game_board_container;
+                board.classList.add('shake-animation');
+                setTimeout(() => board.classList.remove('shake-animation'), CONSTANTS.SHAKE_ANIMATION_DURATION);
+
+                const overlay = document.createElement('div');
+                overlay.textContent = '☠️';
+                overlay.className = 'curse-overlay';
+                
+                const rect = cellElement.getBoundingClientRect();
+                overlay.style.top = `${rect.top}px`;
+                overlay.style.left = `${rect.left}px`;
+                overlay.style.width = `${rect.width}px`;
+                overlay.style.height = `${rect.height}px`;
+                overlay.style.display = 'flex';
+                overlay.style.alignItems = 'center';
+                overlay.style.justifyContent = 'center';
+
+                document.body.appendChild(overlay);
+                setTimeout(() => overlay.remove(), CONSTANTS.CURSE_EFFECT_DURATION);
+            }
+
+            highlightValidPlacements(r, c) {
+                const adjacent = [ [r-1, c], [r+1, c], [r, c-1], [r, c+1] ];
+                adjacent.forEach(([nr, nc]) => {
+                    if (nr >= 0 && nr < this.game.GRID_SIZE && nc >= 0 && nc < this.game.GRID_SIZE && !this.game.gridData[nr][nc]) {
+                        const cell = this.gridCells[nr][nc];
+                        cell.classList.add('valid-placement');
+                    }
+                });
+            }
+
+            clearPlacementHighlights() {
+                this.gridCells.flat().forEach(cell => {
+                    cell.classList.remove('valid-placement');
+                });
+            }
+
+            renderGoldenAllohaPlacementPrompt(symbol) {
+                const container = this.DOMElements.in_game_content;
+                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
+                container.innerHTML = '';
+
+                const line1 = document.createElement('h2');
+                line1.className = 'text-xl lg:text-2xl font-semibold';
+                line1.style.color = 'var(--accent)';
+                line1.innerHTML = `You chose <span class="text-5xl align-middle ${this.game.SYMBOL_COLORS[symbol] || 'text-gray-700'}">${symbol}</span>`;
+
+                const line2 = document.createElement('p');
+                line2.className = 'text-base lg:text-lg font-medium mt-2';
+                line2.style.color = 'var(--text-secondary)';
+                line2.textContent = 'Place it on any highlighted Allohome!';
+
+                container.appendChild(line1);
+                container.appendChild(line2);
+            }
+
+            renderEndGamePanel(score) {
+                const container = this.DOMElements.in_game_content;
+                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
+                container.innerHTML = '';
+
+                const title = document.createElement('h2');
+                title.className = 'text-3xl font-bold';
+                title.style.fontFamily = "'Pacifico', cursive";
+                title.style.color = 'var(--accent)';
+                title.textContent = 'Game Over Alloha!';
+
+                const scoreDisplay = document.createElement('div');
+                scoreDisplay.id = 'end-game-score-display';
+                scoreDisplay.className = 'text-7xl font-bold my-2';
+                scoreDisplay.style.color = 'var(--accent)';
+                
+                container.appendChild(title);
+                container.appendChild(scoreDisplay);
+                animateScoreUpdate('end-game-score-display', score, 3);
+            }
+
+            async renderGoldenAllohaSelector() {
+                const container = this.DOMElements.in_game_content;
+                container.className = '';
+                container.innerHTML = '';
+
+                return new Promise(resolve => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'w-full flex flex-col items-center justify-center h-full gap-4 pt-2';
+                    
+                    const title = document.createElement('h2');
+                    title.className = 'text-base lg:text-lg font-semibold text-center uppercase tracking-wider';
+                    title.style.color = 'var(--accent)';
+                    title.textContent = 'Choose Last Alloha';
+
+                    const selector = document.createElement('div');
+                    selector.className = 'grid grid-cols-3 gap-2 lg:gap-4';
+
+                    this.game.SYMBOLS.forEach(symbol => {
+                        const btn = document.createElement('button');
+                        btn.className = `w-12 h-12 lg:w-14 lg:h-14 rounded-xl text-3xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95`;
+                        const symbolSpan = document.createElement('span');
+                        symbolSpan.className = this.game.SYMBOL_COLORS[symbol] || '';
+                        symbolSpan.textContent = symbol;
+                        btn.appendChild(symbolSpan);
+                        btn.addEventListener('click', () => resolve(symbol));
+                        selector.appendChild(btn);
+                    });
+
+                    wrapper.appendChild(title);
+                    wrapper.appendChild(selector);
+                    container.appendChild(wrapper);
+                });
+            }
+            
+            showSymbolSelectorForExchange(r, c) {
+                 this.game.cellToExchange = {r, c}; this.DOMElements.exchange_options.innerHTML = '';
+                 this.game.SYMBOLS.filter(s => s !== this.game.gridData[r][c]).forEach(symbol => {
+                    const btn = document.createElement('button');
+                    btn.className = `w-20 h-20 text-4xl rounded-lg hover:bg-orange-100/50 flex items-center justify-center`;
+                    const symbolSpan = document.createElement('span');
+                    symbolSpan.className = this.game.SYMBOL_COLORS[symbol] || '';
+                    symbolSpan.textContent = symbol;
+                    btn.appendChild(symbolSpan);
+                    btn.addEventListener('click', () => this.game.handleSymbolExchange(symbol));
+                    this.DOMElements.exchange_options.appendChild(btn);
+                 });
+                 handleModalOpen(this.DOMElements.exchange_modal);
+            }
+            
+            triggerBoardAndFloatAnimations(scoredLines, lastMoveCoords) {
+                if (!scoredLines || !lastMoveCoords) return;
+                const lastMoveSet = new Set(lastMoveCoords.map(c => `${c.r},${c.c}`));
+
+                scoredLines.forEach(line => {
+                    const isNewlyFormed = line.cells.some(cell => lastMoveSet.has(`${cell.r},${cell.c}`));
+                    if (line.score > 0 && isNewlyFormed) {
+                        if (!this.game.vibratedForScoreThisTurn) {
+                            this.game.triggerVibration(40);
+                            this.game.vibratedForScoreThisTurn = true;
+                        }
+                        const sourceCell = this.gridCells[line.cells[Math.floor(line.cells.length / 2)].r][line.cells[Math.floor(line.cells.length / 2)].c];
+                        showFloatingScore(`+${line.score}`, sourceCell);
+                        line.cells.forEach(coord => {
+                            const cellEl = this.gridCells[coord.r][coord.c];
+                            cellEl.classList.add('score-pulse-animation');
+                            cellEl.addEventListener('animationend', () => cellEl.classList.remove('score-pulse-animation'), { once: true });
+                        });
+                    }
+                });
+            }
+            
+            triggerConfetti() {
+                const container = this.DOMElements.effects_container;
+                if (!container) return;
+                const colors = ['#E57373', '#FF8A65', '#FFC107', '#FFF176'];
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti-piece';
+                    confetti.style.left = `${Math.random() * 100}%`;
+                    confetti.style.animation = `confetti-fall ${1.5 + Math.random() * 2}s ${Math.random() * 2}s linear forwards`;
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), CONSTANTS.CONFETTI_DURATION);
+                }
+            }
+
+            updateTimerDisplay() {
+                const timerEl = document.getElementById('timer-display');
+                if (timerEl) {
+                    timerEl.textContent = this.game.timeLeft;
+                }
+            }
+        }
+
+        class InputHandler {
+            constructor(game) {
+                this.game = game;
+            }
+
+            attachAllListeners() {
+                // Event delegation for dynamically created elements
+                document.getElementById('in-game-content-wrapper').addEventListener('click', (e) => {
+                    if (e.target.closest('#roll-dice-btn')) this.handleRollDice();
+                });
+                document.getElementById('game-board').addEventListener('click', (e) => {
+                    const cell = e.target.closest('[data-row]');
+                    if (cell) this.handleCellClick(cell);
+                });
+                window.addEventListener('resize', this.game.renderer.syncPanelHeights.bind(this.game.renderer));
+            }
+            
+            addCellEventListeners(cell) { 
+                // This method is now only a placeholder if direct binding is needed, 
+                // but we are using event delegation from attachAllListeners.
+            }
+            
+            attachSuperpowerEventListeners() {
+                document.getElementById('past-lives-btn')?.addEventListener('click', () => {
+                    if (document.getElementById('past-lives-btn').disabled) return;
+                    this.game.audioManager.play('power-activate');
+                    this.game.triggerVibration(30);
+
+                    const state = this.game.lastGameState;
+                    this.game.gridData = JSON.parse(state.gridData);
+                    this.game.currentRoll = state.currentRoll;
+                    this.game.firstPlacementCell = state.firstPlacementCell;
+                    this.game.turnCount = state.turnCount;
+                    this.game.stuckBlocks = new Set(state.stuckBlocks);
+                    this.game.gameStateManager.currentState = state.currentState;
+                    this.game.timeLeft = state.timeLeft;
+
+                    this.game.renderer.updateFullGrid();
+                    this.game.renderer.updateControlsState();
+                    this.game.updateAllScores();
+                    this.game.renderer.updateProgressBar();
+                    
+                    this.game.consumeSuperpower(SUPERPOWERS.PAST_LIVES);
+                });
+
+                const powerBtns = { 
+                    [SUPERPOWERS.BOMB_BAE]: 'bomb-bae-btn', 
+                    [SUPERPOWERS.NO_RETURN]: 'no-return-btn', 
+                    [SUPERPOWERS.SWAP_THEM]: 'swap-them-btn' 
+                };
+                for (const [power, id] of Object.entries(powerBtns)) { 
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        btn.addEventListener('click', () => {
+                            if (btn.disabled) return;
+                            this.game.activeSuperpower = power;
+                            this.game.gameStateManager.setState('SUPERPOWER_ACTIVE');
+                            this.game.audioManager.play('power-activate');
+                            this.game.triggerVibration(30);
+                            this.game.renderer.updateSuperpowerButtonsUI();
+                        });
+                    }
+                }
+            }
+
+            handleCellClick(cell) {
+                const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
+
+                if (this.game.activeSuperpower) { this.handleSuperpowerCellClick(r, c, cell); return; }
+                if (!this.game.gameStateManager.is('AWAITING_PLACEMENT')) return;
+                if (this.game.firstPlacementCell) { this.handleSecondPlacement(r, c, cell); } else { this.handleFirstPlacement(r, c); }
+            }
+
+            handleFirstPlacement(r, c) { 
+                if (!this.game.gridData[r][c]) { 
+                    this.game.gridData[r][c] = this.game.currentRoll[0]; 
+                    this.game.firstPlacementCell = { r, c }; 
+                    this.game.renderer.updateGridCell(r, c); 
+                    this.game.renderer.highlightValidPlacements(r, c);
+                    this.game.renderer.updateSuperpowerButtonsUI(); 
+                } 
+            }
+
+            handleSecondPlacement(r, c, cell) {
+                const { r: pR, c: pC } = this.game.firstPlacementCell;
+                if (pR === r && pC === c) { 
+                    this.game.gridData[r][c] = null; 
+                    this.game.firstPlacementCell = null; 
+                    this.game.renderer.updateGridCell(r, c); 
+                    this.game.renderer.clearPlacementHighlights();
+                    this.game.renderer.updateSuperpowerButtonsUI(); 
+                    return; 
+                }
+                if ((Math.abs(pR - r) + Math.abs(pC - c) === 1) && !this.game.gridData[r][c]) { 
+                    this.game.renderer.clearPlacementHighlights();
+                    this.game.completeMove(r, c); 
+                }
+                else { 
+                    cell.classList.add('shake-animation'); 
+                    setTimeout(() => cell.classList.remove('shake-animation'), CONSTANTS.SHAKE_ANIMATION_DURATION); 
+                    this.game.audioManager.play('invalid'); 
+                }
+            }
+
+            async handleRollDice() {
+                if (this.game.gameStateManager.is('AWAITING_PLACEMENT')) {
+                    handleModalOpen(this.game.DOMElements.warning_modal);
+                    return;
+                }
+                if (!this.game.gameStateManager.is('AWAITING_ROLL')) return;
+                
+                this.game.triggerVibration(50);
+
+                if (this.game.turnCount >= this.game.MAX_TURNS || !this.game.hasValidMoves()) {
+                    this.game.startGoldenAllohaSequence();
+                    return;
+                }
+
+                this.game.gameStateManager.setState('ANIMATING_ROLL');
+                if (this.game.isTimeBurst && !this.game.timerId) { this.game.startTimer(); }
+
+                const d1 = document.getElementById('dice-1'), d2 = document.getElementById('dice-2');
+                this.game.renderer.updateControlsState();
+                d1.classList.add('dice-tumble');
+                d2.classList.add('dice-tumble');
+
+                const nextTurn = this.game.turnCount + 1; let tempRoll;
+                if (nextTurn === this.game.cursedBlockTurn) { this.game.audioManager.play('thud'); tempRoll = [this.game.SYMBOLS[Math.floor(Math.random() * this.game.SYMBOLS.length)], this.game.SPECIAL_SYMBOLS.CURSED]; }
+                else if (nextTurn === this.game.wildcardTurn) { this.game.audioManager.play('chime'); tempRoll = [this.game.SYMBOLS[Math.floor(Math.random() * this.game.SYMBOLS.length)], this.game.SPECIAL_SYMBOLS.WILD]; }
+                else { this.game.audioManager.play('roll'); tempRoll = [this.game.SYMBOLS[Math.floor(Math.random() * this.game.SYMBOLS.length)], this.game.SYMBOLS[Math.floor(Math.random() * this.game.SYMBOLS.length)]]; }
+                
+                this.game.currentRoll = tempRoll.sort(() => Math.random() - 0.5);
+                
+                await delay(CONSTANTS.DICE_TUMBLE_DURATION);
+                                
+                this.game.gameStateManager.setState('AWAITING_PLACEMENT');
+                this.game.saveStateForUndo(); 
+                this.game.renderer.updateControlsState(); 
+                this.game.renderer.updateSuperpowerButtonsUI();
+            }
+
+            handleSuperpowerCellClick(r, c, cell) {
+                if (this.game.gridData[r][c] === this.game.SPECIAL_SYMBOLS.CURSED) {
+                    this.game.audioManager.play('invalid');
+                    cell.classList.add('shake-animation');
+                    setTimeout(() => cell.classList.remove('shake-animation'), CONSTANTS.SHAKE_ANIMATION_DURATION);
+                    return;
+                }
+
+                const strategy = this.game._superpowerStrategies[this.game.activeSuperpower];
+                if (strategy) {
+                    strategy(r, c, cell);
+                } else {
+                    this.game.audioManager.play('invalid');
+                }
+            }
+        }
+        
+        // --- Game class now defined AFTER its dependencies ---
         class Game {
-            constructor(variantConfig, themeConfig, isTimeBurst, savedState = null) {
+            constructor(variantConfig, themeConfig, isTimeBurst, allVariantConfigs, savedState = null) {
                 this.config = variantConfig;
                 this.theme = themeConfig;
                 this.isTimeBurst = isTimeBurst;
+                this.allVariantConfigs = allVariantConfigs;
                 
                 this.SYMBOLS = this.theme.symbols;
                 this.SYMBOL_COLORS = this.theme.symbolColors;
@@ -784,13 +1731,14 @@
                 this.SCORING_RULES = { 7: 20, 6: 12, 5: 8, 4: 5, 3: 3 };
                 this.GRID_SIZE = 7; this.MAX_TURNS = 24; this.CROSS_MULTIPLIER = 2; this.LINE_DEATH_PENALTY = -5; this.CROSS_DEATH_PENALTY = -5; this.MIN_SEQUENCE_LENGTH = 3;
 
-                this.gridCells = [];
                 this.DOMElements = this._getDOMElements();
-                this.audio = { unlocked: false, context: null, sounds: new Map() };
+                this.audioManager = new AudioManager();
+                this.renderer = new Renderer(this, this.DOMElements);
+                this.inputHandler = new InputHandler(this);
                 
                 this._initializeState(savedState);
                 this._setupUI();
-                this._attachEventListeners();
+                this.inputHandler.attachAllListeners();
             }
 
             _initializeState(savedState = null) {
@@ -844,11 +1792,11 @@
                 const highScoreKey = `cactiFactiHighScore_${this.config.id}_${this.isTimeBurst ? 'timeburst' : 'classic'}`;
                 this.highScore = parseInt(localStorage.getItem(highScoreKey)) || 0;
                 
-                this.audioInit();
+                this.audioManager.init();
 
                 this._superpowerStrategies = {
-                    swapThem: (r, c, cell) => {
-                        if (!this.gridData[r][c] || this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED) { this.audioPlay('invalid'); return; }
+                    [SUPERPOWERS.SWAP_THEM]: (r, c, cell) => {
+                        if (!this.gridData[r][c] || this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED) { this.audioManager.play('invalid'); return; }
                         if (!this.swapFirstCell) {
                             this.swapFirstCell = { r, c };
                             cell.classList.add('pulse-animation');
@@ -857,61 +1805,44 @@
                             if (r1 === r && c1 === c) { this.swapFirstCell = null; cell.classList.remove('pulse-animation'); return; }
                             if (Math.abs(r1 - r) + Math.abs(c1 - c) === 1) {
                                 [this.gridData[r1][c1], this.gridData[r][c]] = [this.gridData[r][c], this.gridData[r1][c1]];
-                                this.gridCells[r1][c1].classList.remove('pulse-animation');
+                                this.renderer.gridCells[r1][c1].classList.remove('pulse-animation');
                                 this.swapFirstCell = null;
-                                this.consumeSuperpower('swapThem');
+                                this.consumeSuperpower(SUPERPOWERS.SWAP_THEM);
                                 this.gameStateManager.setState('AWAITING_ROLL');
-                                this.renderControls();
+                                this.renderer.renderControls();
                             } else {
-                                this.audioPlay('invalid');
+                                this.audioManager.play('invalid');
                                 cell.classList.add('shake-animation');
-                                setTimeout(() => cell.classList.remove('shake-animation'), 400);
-                                this.gridCells[r1][c1].classList.remove('pulse-animation');
+                                setTimeout(() => cell.classList.remove('shake-animation'), CONSTANTS.SHAKE_ANIMATION_DURATION);
+                                this.renderer.gridCells[r1][c1].classList.remove('pulse-animation');
                                 this.swapFirstCell = null;
                             }
                         }
                     },
-                    bombBae: (r, c, cell) => {
+                    [SUPERPOWERS.BOMB_BAE]: (r, c, cell) => {
                         const targetSymbol = this.gridData[r][c];
                         if (!targetSymbol || targetSymbol === this.SPECIAL_SYMBOLS.WILD) {
-                            this.audioPlay('invalid');
+                            this.audioManager.play('invalid');
                             cell.classList.add('shake-animation');
-                            setTimeout(() => cell.classList.remove('shake-animation'), 400);
+                            setTimeout(() => cell.classList.remove('shake-animation'), CONSTANTS.SHAKE_ANIMATION_DURATION);
                             return;
                         }
 
-                        // Set the bombed cell to null
-                        this.gridData[r][c] = null;
-
-                        // Create a temporary column with remaining symbols
-                        const remainingSymbols = [];
-                        for(let i = 0; i < this.GRID_SIZE; i++) {
-                            if (this.gridData[i][c] !== null) {
-                                remainingSymbols.push(this.gridData[i][c]);
-                            }
+                        // Apply gravity effect
+                        for (let i = r; i > 0; i--) {
+                            this.gridData[i][c] = this.gridData[i - 1][c];
                         }
-                        
-                        // Clear the original column
-                        for(let i = 0; i < this.GRID_SIZE; i++) {
-                            this.gridData[i][c] = null;
-                        }
+                        this.gridData[0][c] = null;
 
-                        // Repopulate the column from the bottom up
-                        let newRow = this.GRID_SIZE - 1;
-                        for(let i = remainingSymbols.length - 1; i >= 0; i--) {
-                            this.gridData[newRow][c] = remainingSymbols[i];
-                            newRow--;
-                        }
-
-                        this.consumeSuperpower('bombBae');
+                        this.consumeSuperpower(SUPERPOWERS.BOMB_BAE);
                         this.gameStateManager.setState('AWAITING_ROLL');
-                        this.renderControls();
+                        this.renderer.renderControls();
                     },
-                    noReturn: (r, c, cell) => {
+                    [SUPERPOWERS.NO_RETURN]: (r, c, cell) => {
                         if (this.gridData[r][c]) {
-                            this.showSymbolSelectorForExchange(r, c);
+                            this.renderer.showSymbolSelectorForExchange(r, c);
                         } else {
-                            this.audioPlay('invalid');
+                            this.audioManager.play('invalid');
                         }
                     }
                 };
@@ -919,18 +1850,21 @@
 
             _setupUI() {
                 animateScoreUpdate('high-score', this.highScore, 3);
-                ['game-over-modal', 'exchange-modal', 'rules-modal', 'tutorial-modal', 'warning-modal', 'unlock-modal'].forEach(id => document.getElementById(id)?.classList.remove('is-open'));
+                ['game-over-modal', 'exchange-modal', 'rules-modal', 'tutorial-modal', 'warning-modal', 'unlock-modal', 'badges-modal'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.remove('is-open');
+                });
                 
-                this.renderGrid().then(() => {
+                this.renderer.renderGrid().then(() => {
                     if (!this.lastGameState && this.turnCount === 0) {
-                        this.flashTwinningPattern();
+                        this.renderer.flashTwinningPattern();
                     }
                 });
-                this.renderScorePlaceholders();
-                this.renderControls();
+                this.renderer.renderScorePlaceholders();
+                this.renderer.renderControls();
                 this.updateAllScores();
-                this.updateProgressBar();
-                this.syncPanelHeights();
+                this.renderer.updateProgressBar();
+                this.renderer.syncPanelHeights();
             }
 
             _getDOMElements() {
@@ -949,7 +1883,7 @@
                     new_game_btn: 'new-game-btn', game_board_container: 'game-board-container', scoring_panel: 'scoring-panel',
                     effects_container: 'effects-container', rules_title: 'rules-title', 
                     in_game_content: 'in-game-content', pre_game_content: 'pre-game-content',
-                    'in_game_content_wrapper': 'in_game_content_wrapper',
+                    'in_game_content_wrapper': 'in-game-content-wrapper',
                     tutorial_modal: 'tutorial-modal', tutorial_content: 'tutorial-content', tutorial_next_btn: 'tutorial-next-btn', close_tutorial_btn: 'close-tutorial-btn',
                     warning_modal: 'warning-modal', close_warning_btn: 'close-warning-btn',
                     unlock_modal: 'unlock-modal', unlocked_edition_name: 'unlocked-edition-name', close_unlock_btn: 'close-unlock-btn'
@@ -1026,15 +1960,13 @@
                 
                 nextBtn.textContent = this.tutorialStep === 3 ? "Start Playing" : "Next";
                 
-                modal.classList.add('is-open');
-                document.body.classList.add('modal-open');
+                handleModalOpen(modal);
             }
 
             completeTutorial() {
                 this.tutorialMode = false;
                 localStorage.setItem('allohaTutorialCompleted', 'true');
-                this.DOMElements.tutorial_modal.classList.remove('is-open');
-                document.body.classList.remove('modal-open');
+                handleModalClose(this.DOMElements.tutorial_modal);
             }
 
             getState() {
@@ -1058,25 +1990,28 @@
                 };
             }
 
-            audioInit() { this.audioCreateContext(); this.audioCreateSounds(); }
-            audioCreateContext() { try { if (!this.audio.context) this.audio.context = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
-            audioCreateSounds() { if (!this.audio.context || this.audio.sounds.size > 0) return; const s = { 'pop': [1200,.1,.05], 'roll': [220,.2,.2], 'hover': [660,.05,.1], 'invalid': [150,.3,.2], 'power-activate': [880,.15,.2], 'power-use': [1047,.2,.3], 'chime': [1047, .15, .2], 'thud': [100, .3, .1] }; for (const k in s) { this.audio.sounds.set(k, ()=>this.audioPlayTone(...s[k])); } }
-            audioPlayTone(freq, vol, dur) { if (!this.audio.unlocked || !this.audio.context) return; try { const o = this.audio.context.createOscillator(), g = this.audio.context.createGain(); o.connect(g); g.connect(this.audio.context.destination); o.frequency.value = freq; g.gain.setValueAtTime(0, this.audio.context.currentTime); g.gain.linearRampToValueAtTime(vol*.1, this.audio.context.currentTime+.01); g.gain.exponentialRampToValueAtTime(.001, this.audio.context.currentTime+dur); o.start(); o.stop(this.audio.context.currentTime+dur); } catch (e) {} }
-            audioUnlock() { if (this.audio.unlocked) return; document.getElementById('audio-unlocker').play().finally(() => { this.audio.unlocked = true; }); }
-            audioPlay(soundName) { this.audio.sounds.get(soundName)?.(); }
             triggerVibration(patternOrDuration = 10) { if (navigator.vibrate) { navigator.vibrate(patternOrDuration); } }
-
 
             startTimer() {
                 if (this.timerId || this.gameStateManager.is('GAME_OVER')) return;
-                this.updateTimerDisplay();
+                
+                if (this.isTimeBurst) {
+                    let stats = getPlayerStats();
+                    if (!stats.timeBurstGamesPlayed || stats.timeBurstGamesPlayed === 0) {
+                        unlockBadge('timeTraveller', stats);
+                    }
+                    stats.timeBurstGamesPlayed = (stats.timeBurstGamesPlayed || 0) + 1;
+                    savePlayerStats(stats);
+                }
+
+                this.renderer.updateTimerDisplay();
                 this.timerId = setInterval(() => {
                     if (this.gameStateManager.is('GAME_OVER')) {
                         this.stopTimer();
                         return;
                     }
                     this.timeLeft--;
-                    this.updateTimerDisplay();
+                    this.renderer.updateTimerDisplay();
                     if (this.timeLeft <= 0) {
                         this.endGame("Time's up!");
                     }
@@ -1090,13 +2025,6 @@
                 }
             }
 
-            updateTimerDisplay() {
-                const timerEl = document.getElementById('timer-display');
-                if (timerEl) {
-                    timerEl.textContent = this.timeLeft;
-                }
-            }
-
             calculateLineScore(line, lineType, index) {
                 let totalScore = 0; const usedIndices = new Set(); const scoredLines = [];
                 for (let len = this.GRID_SIZE; len >= this.MIN_SEQUENCE_LENGTH; len--) {
@@ -1104,6 +2032,11 @@
                         if ([...Array(len).keys()].some(k => usedIndices.has(i + k))) continue;
                         const slice = line.slice(i, i + len);
                         if (this.isValidSequence(slice)) {
+
+                            if (len === 7) {
+                                unlockBadge('perfectionist');
+                            }
+
                             const score = this.SCORING_RULES[len];
                             totalScore += score;
                             const cells = [];
@@ -1139,6 +2072,41 @@
                 }
                 return true;
             }
+
+            checkGridBadges(stats) {
+                let found3x3 = false;
+                let found4x4 = false;
+
+                for (let size = 4; size >= 3; size--) {
+                    if ((size === 4 && found4x4) || (size === 3 && found3x3)) continue;
+
+                    for (let r = 0; r <= this.GRID_SIZE - size; r++) {
+                        for (let c = 0; c <= this.GRID_SIZE - size; c++) {
+                            const first = this.gridData[r][c];
+                            if (!first || first === this.SPECIAL_SYMBOLS.CURSED || first === this.SPECIAL_SYMBOLS.WILD) continue;
+                            
+                            let isSolidSquare = true;
+                            for (let i = 0; i < size; i++) {
+                                for (let j = 0; j < size; j++) {
+                                    if (this.gridData[r + i][c + j] !== first) {
+                                        isSolidSquare = false;
+                                        break;
+                                    }
+                                }
+                                if (!isSolidSquare) break;
+                            }
+
+                            if (isSolidSquare) {
+                                if (size === 4) found4x4 = true;
+                                if (size === 3) found3x3 = true;
+                            }
+                        }
+                    }
+                }
+                if (found4x4) unlockBadge('fineSquare', stats);
+                if (found3x3) unlockBadge('fineNine', stats);
+            }
+
             calculateBonusGrids() {
                 let points = 0;
                 for (let size = this.GRID_SIZE; size >= 2; size--) {
@@ -1158,251 +2126,8 @@
                 }
                 return points;
             }
-            createCellElement(r, c) { const cell = document.createElement('div'); cell.dataset.row = r; cell.dataset.col = c; cell.className = this.getCellClasses(r, c); return cell; }
-            getCellClasses(r, c) {
-                let classes = 'grid-cell';
-                if (this.config.isTwinningCell(r, c)) classes += ' highlighted';
-                if (this.stuckBlocks.has(`${r},${c}`)) classes += ' stuck-cell';
-                if (this.heroBlocks.has(`${r},${c}`)) classes += ' hero-block-hint';
-                return classes;
-            }
-            updateCell(cell, r, c) {
-                cell.className = this.getCellClasses(r, c);
-                const symbol = this.gridData[r][c];
-                
-                cell.innerHTML = ''; 
-                cell.style.setProperty('--hero-symbol', `'${this.heroSymbol}'`);
-
-                if (symbol) {
-                    const symbolSpan = document.createElement('span');
-                    symbolSpan.textContent = symbol;
-                    if(this.SYMBOL_COLORS[symbol]) {
-                       symbolSpan.className = this.SYMBOL_COLORS[symbol];
-                    }
-                    cell.appendChild(symbolSpan);
-                } else {
-                    cell.textContent = this.stuckBlocks.has(`${r},${c}`) ? '💣' : '';
-                }
-            }
-            addCellEventListeners(cell) { cell.addEventListener('click', this.handleCellClick.bind(this)); }
-            syncPanelHeights() { setTimeout(() => { if (window.innerWidth < 1024) return; const boardHeight = this.DOMElements.game_board_container?.getBoundingClientRect().height; if (boardHeight) this.DOMElements.scoring_panel.style.height = `${boardHeight}px`; }, 50); }
             
-            updateProgressBar() {
-                if (!this.DOMElements.progress_bar_fill) return;
-                const percentage = (this.turnCount / this.MAX_TURNS) * 100;
-                this.DOMElements.progress_bar_fill.style.width = `${percentage}%`;
-            }
-
-            flashTwinningPattern() {
-                const highlightedCells = document.querySelectorAll('.highlighted');
-                if (highlightedCells.length === 0) return;
-
-                highlightedCells.forEach(cell => {
-                    cell.classList.add('twinning-flash-animation');
-                });
-                setTimeout(() => {
-                    highlightedCells.forEach(cell => {
-                        cell.classList.remove('twinning-flash-animation');
-                    });
-                }, 1500);
-            }
-
-            async renderGrid() {
-                const fragment = document.createDocumentFragment(); this.DOMElements.game_board.innerHTML = ''; this.gridCells = [];
-                for (let r = 0; r < this.GRID_SIZE; r++) {
-                    const row = [];
-                    for (let c = 0; c < this.GRID_SIZE; c++) {
-                        const cell = this.createCellElement(r, c); this.updateCell(cell, r, c); this.addCellEventListeners(cell);
-                        fragment.appendChild(cell); row.push(cell);
-                    }
-                    this.gridCells.push(row);
-                }
-                this.DOMElements.game_board.appendChild(fragment);
-            }
-            updateFullGrid() { for (let r = 0; r < this.GRID_SIZE; r++) for (let c = 0; c < this.GRID_SIZE; c++) this.updateGridCell(r, c); }
-            updateGridCell(r, c) { if (this.gridCells[r]?.[c]) this.updateCell(this.gridCells[r][c], r, c); }
-            
-            renderScorePlaceholders() {
-                this.DOMElements.row_scores_display.innerHTML = ''; 
-                this.DOMElements.col_scores_display.innerHTML = '';
-                for (let i = 0; i < this.GRID_SIZE; i++) {
-                    const rowScore = document.createElement('div'); rowScore.id = `row-score-${i}`; rowScore.className = 'grid-cell score-display-cell'; rowScore.textContent = '0'; this.DOMElements.row_scores_display.appendChild(rowScore);
-                    const colScore = document.createElement('div'); colScore.id = `col-score-${i}`; colScore.className = 'grid-cell score-display-cell'; colScore.textContent = '0'; this.DOMElements.col_scores_display.appendChild(colScore);
-                }
-            }
-            renderControls() {
-                const inGameContent = this.DOMElements.in_game_content;
-                const preGameContent = this.DOMElements.pre_game_content;
-                
-                if(inGameContent) inGameContent.className = '';
-
-                if (this.gameStateManager.is('PRE_GAME')) {
-                    if(preGameContent) preGameContent.style.display = 'block';
-                    if(inGameContent) inGameContent.style.display = 'none';
-                } else {
-                    if(preGameContent) preGameContent.style.display = 'none';
-                    if(inGameContent) inGameContent.style.display = 'block';
-                    this.renderDiceAndPowers();
-                }
-            }
-            renderDiceAndPowers() {
-                const container = this.DOMElements.in_game_content;
-                container.className = '';
-                container.innerHTML = '';
-
-                const wrapper = document.createElement('div');
-                wrapper.className = 'w-full flex flex-col justify-start gap-3 lg:gap-4';
-                let timerHTML = '';
-                if(this.isTimeBurst) {
-                    timerHTML = `<div id="timer-display" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-2xl lg:text-3xl font-bold" style="color: var(--accent);">${this.timeLeft}</div>`;
-                }
-
-                wrapper.innerHTML = `<div class="flex justify-center items-center gap-2 lg:gap-4">
-                    <button id="roll-dice-btn" aria-label="Roll Dice" class="w-14 h-14 lg:w-16 lg:h-16 text-4xl lg:text-5xl flex items-center justify-center" style="color: var(--accent);">🎲</button>
-                    <div id="dice-1" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
-                    <div id="dice-2" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
-                    ${timerHTML}
-                </div>
-                <div class="glass-card enhanced-shadow rounded-xl px-3 py-2 text-center"><h2 class="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center justify-center gap-2" style="color: var(--text-secondary);">Alloha Superpowers <span id="sp-charges" class="text-base">✨✨</span></h2><div class="grid grid-cols-4 gap-1 text-center">
-                    <button id="past-lives-btn" class="superpower-btn"><div>Past</div><div>Lives</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
-                    <button id="no-return-btn" class="superpower-btn"><div>No</div><div>Return</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
-                    <button id="bomb-bae-btn" class="superpower-btn"><div>Bomb</div><div>Bae</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
-                    <button id="swap-them-btn" class="superpower-btn"><div>Swap</div><div>Them</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
-                </div></div>`;
-                
-                container.appendChild(wrapper);
-
-                const rollBtn = wrapper.querySelector('#roll-dice-btn');
-                if(rollBtn) rollBtn.addEventListener('click', this.handleRollDice.bind(this));
-                
-                this.updateControlsState();
-                this._attachSuperpowerEventListeners(); 
-                this.updateSuperpowerButtonsUI();
-                if(this.isTimeBurst) this.updateTimerDisplay();
-            }
-            updateControlsState() {
-                if (this.gameStateManager.is('PRE_GAME')) return;
-                const rollBtn = document.getElementById('roll-dice-btn');
-                if (rollBtn) {
-                    rollBtn.classList.toggle('bob-animation', this.gameStateManager.is('AWAITING_ROLL'));
-                }
-                const dice1 = document.getElementById('dice-1'), dice2 = document.getElementById('dice-2');
-                if (!dice1 || !dice2) return;
-                
-                dice1.classList.remove('shimmer-text');
-                dice2.classList.remove('shimmer-text');
-                
-                if (this.gameStateManager.is('AWAITING_PLACEMENT') && this.currentRoll.length === 2) {
-                    const symbol1 = this.currentRoll[0], symbol2 = this.currentRoll[1];
-                    const color1 = this.SYMBOL_COLORS[symbol1] || 'text-gray-700';
-                    const color2 = this.SYMBOL_COLORS[symbol2] || 'text-gray-700';
-
-                    dice1.innerHTML = `<span class="${color1}">${symbol1}</span>`;
-                    dice2.innerHTML = `<span class="${color2}">${symbol2}</span>`;
-                } else {
-                    dice1.textContent = '?';
-                    dice2.textContent = '?';
-                    dice1.classList.add('shimmer-text');
-                    dice2.classList.add('shimmer-text');
-                }
-            }
-            async handleRollDice() {
-                if (this.gameStateManager.is('AWAITING_PLACEMENT')) {
-                    this.DOMElements.warning_modal.classList.add('is-open');
-                    document.body.classList.add('modal-open');
-                    return;
-                }
-                if (!this.gameStateManager.is('AWAITING_ROLL')) return;
-                
-                this.triggerVibration(50);
-
-                if (this.turnCount >= this.MAX_TURNS || !this.hasValidMoves()) {
-                    this.startGoldenAllohaSequence();
-                    return;
-                }
-
-                this.gameStateManager.setState('ANIMATING_ROLL');
-                if (this.isTimeBurst && !this.timerId) { this.startTimer(); }
-
-                const d1 = document.getElementById('dice-1'), d2 = document.getElementById('dice-2');
-                this.updateControlsState();
-                d1.classList.add('dice-tumble');
-                d2.classList.add('dice-tumble');
-
-                const nextTurn = this.turnCount + 1; let tempRoll;
-                if (nextTurn === this.cursedBlockTurn) { this.audioPlay('thud'); tempRoll = [this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)], this.SPECIAL_SYMBOLS.CURSED]; }
-                else if (nextTurn === this.wildcardTurn) { this.audioPlay('chime'); tempRoll = [this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)], this.SPECIAL_SYMBOLS.WILD]; }
-                else { this.audioPlay('roll'); tempRoll = [this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)], this.SYMBOLS[Math.floor(Math.random() * this.SYMBOLS.length)]]; }
-                
-                this.currentRoll = tempRoll.sort(() => Math.random() - 0.5);
-                
-                await delay(600);
-                                
-                this.gameStateManager.setState('AWAITING_PLACEMENT');
-                this.saveStateForUndo(); 
-                this.updateControlsState(); 
-                this.updateSuperpowerButtonsUI();
-            }
-            handleCellClick(e) {
-                const cell = e.target.closest('[data-row]'); if (!cell) return;
-                const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
-
-                if (this.activeSuperpower) { this.handleSuperpowerCellClick(r, c, cell); return; }
-                if (!this.gameStateManager.is('AWAITING_PLACEMENT')) return;
-                if (this.firstPlacementCell) { this.handleSecondPlacement(r, c, cell); } else { this.handleFirstPlacement(r, c); }
-            }
-            handleFirstPlacement(r, c) { 
-                if (!this.gridData[r][c]) { 
-                    this.gridData[r][c] = this.currentRoll[0]; 
-                    this.firstPlacementCell = { r, c }; 
-                    this.updateGridCell(r, c); 
-                    this.highlightValidPlacements(r, c);
-                    this.updateSuperpowerButtonsUI(); 
-                } 
-            }
-            handleSecondPlacement(r, c, cell) {
-                const { r: pR, c: pC } = this.firstPlacementCell;
-                if (pR === r && pC === c) { 
-                    this.gridData[r][c] = null; 
-                    this.firstPlacementCell = null; 
-                    this.updateGridCell(r, c); 
-                    this.clearPlacementHighlights();
-                    this.updateSuperpowerButtonsUI(); 
-                    return; 
-                }
-                if ((Math.abs(pR - r) + Math.abs(pC - c) === 1) && !this.gridData[r][c]) { 
-                    this.clearPlacementHighlights();
-                    this.completeMove(r, c); 
-                }
-                else { 
-                    cell.classList.add('shake-animation'); 
-                    setTimeout(() => cell.classList.remove('shake-animation'), 400); 
-                    this.audioPlay('invalid'); 
-                }
-            }
             saveStateForUndo() { this.lastGameState = this.getState(); }
-
-            showCurseEffect(cellElement) {
-                const board = this.DOMElements.game_board_container;
-                board.classList.add('shake-animation');
-                setTimeout(() => board.classList.remove('shake-animation'), 400);
-
-                const overlay = document.createElement('div');
-                overlay.textContent = '☠️';
-                overlay.className = 'curse-overlay';
-                
-                const rect = cellElement.getBoundingClientRect();
-                overlay.style.top = `${rect.top}px`;
-                overlay.style.left = `${rect.left}px`;
-                overlay.style.width = `${rect.width}px`;
-                overlay.style.height = `${rect.height}px`;
-                overlay.style.display = 'flex';
-                overlay.style.alignItems = 'center';
-                overlay.style.justifyContent = 'center';
-
-                document.body.appendChild(overlay);
-                setTimeout(() => overlay.remove(), 700);
-            }
             
             async completeMove(r, c) {
                 this.gameStateManager.setState('PROCESSING_TURN');
@@ -1411,25 +2136,25 @@
                 this.lastMoveCoords = [{r,c}, firstCellCoords];
                 this.firstPlacementCell = null;
                 this.turnCount++;
-                this.updateProgressBar();
-                this.updateGridCell(r, c);
-                this.audioPlay('pop');
+                this.renderer.updateProgressBar();
+                this.renderer.updateGridCell(r, c);
+                this.audioManager.play('pop');
                 this.triggerVibration(20);
 
                 this.vibratedForScoreThisTurn = false;
 
                 const placedSymbols = [this.gridData[r][c], this.gridData[firstCellCoords.r][firstCellCoords.c]];
                 if (placedSymbols.includes(this.SPECIAL_SYMBOLS.WILD)) {
-                    createSparkles(this.gridCells[r][c]);
-                    createSparkles(this.gridCells[firstCellCoords.r][firstCellCoords.c]);
+                    createSparkles(this.renderer.gridCells[r][c]);
+                    createSparkles(this.renderer.gridCells[firstCellCoords.r][firstCellCoords.c]);
                 }
                 if (placedSymbols.includes(this.SPECIAL_SYMBOLS.CURSED)) {
-                    const cursedCell = this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED ? this.gridCells[r][c] : this.gridCells[firstCellCoords.r][firstCellCoords.c];
-                    this.showCurseEffect(cursedCell);
+                    const cursedCell = this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED ? this.renderer.gridCells[r][c] : this.renderer.gridCells[firstCellCoords.r][firstCellCoords.c];
+                    this.renderer.showCurseEffect(cursedCell);
                     this.triggerVibration([100, 50, 100]);
                 }
                 
-                await delay(300);
+                await delay(CONSTANTS.MOVE_COMPLETION_DELAY);
                 this.processTurnEnd();
             }
 
@@ -1438,101 +2163,11 @@
                 this.updateAllScores(); 
                 if (this.turnCount >= this.MAX_TURNS || !this.hasValidMoves()) {
                     this.gameStateManager.setState('AWAITING_ROLL');
-                    this.renderControls();
+                    this.renderer.renderControls();
                     return;
                 }
                 this.gameStateManager.setState('AWAITING_ROLL');
-                this.renderControls();
-            }
-
-            highlightValidPlacements(r, c) {
-                const adjacent = [ [r-1, c], [r+1, c], [r, c-1], [r, c+1] ];
-                adjacent.forEach(([nr, nc]) => {
-                    if (nr >= 0 && nr < this.GRID_SIZE && nc >= 0 && nc < this.GRID_SIZE && !this.gridData[nr][nc]) {
-                        const cell = this.gridCells[nr][nc];
-                        cell.classList.add('valid-placement');
-                    }
-                });
-            }
-
-            clearPlacementHighlights() {
-                this.gridCells.flat().forEach(cell => {
-                    cell.classList.remove('valid-placement');
-                });
-            }
-
-            renderGoldenAllohaPlacementPrompt(symbol) {
-                const container = this.DOMElements.in_game_content;
-                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
-                container.innerHTML = '';
-
-                const line1 = document.createElement('h2');
-                line1.className = 'text-xl lg:text-2xl font-semibold';
-                line1.style.color = 'var(--accent)';
-                line1.innerHTML = `You chose <span class="text-5xl align-middle ${this.SYMBOL_COLORS[symbol] || 'text-gray-700'}">${symbol}</span>`;
-
-                const line2 = document.createElement('p');
-                line2.className = 'text-base lg:text-lg font-medium mt-2';
-                line2.style.color = 'var(--text-secondary)';
-                line2.textContent = 'Place it on any highlighted Allohome!';
-
-                container.appendChild(line1);
-                container.appendChild(line2);
-            }
-
-            renderEndGamePanel(score) {
-                const container = this.DOMElements.in_game_content;
-                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
-                container.innerHTML = '';
-
-                const title = document.createElement('h2');
-                title.className = 'text-3xl font-bold';
-                title.style.fontFamily = "'Pacifico', cursive";
-                title.style.color = 'var(--accent)';
-                title.textContent = 'Game Over Alloha!';
-
-                const scoreDisplay = document.createElement('div');
-                scoreDisplay.id = 'end-game-score-display';
-                scoreDisplay.className = 'text-7xl font-bold my-2';
-                scoreDisplay.style.color = 'var(--accent)';
-                
-                container.appendChild(title);
-                container.appendChild(scoreDisplay);
-                animateScoreUpdate('end-game-score-display', score, 3);
-            }
-
-            async renderGoldenAllohaSelector() {
-                const container = this.DOMElements.in_game_content;
-                container.className = '';
-                container.innerHTML = '';
-
-                return new Promise(resolve => {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'w-full flex flex-col items-center justify-center h-full gap-4 pt-2';
-                    
-                    const title = document.createElement('h2');
-                    title.className = 'text-base lg:text-lg font-semibold text-center uppercase tracking-wider';
-                    title.style.color = 'var(--accent)';
-                    title.textContent = 'Choose Last Alloha';
-
-                    const selector = document.createElement('div');
-                    selector.className = 'grid grid-cols-3 gap-2 lg:gap-4';
-
-                    this.SYMBOLS.forEach(symbol => {
-                        const btn = document.createElement('button');
-                        btn.className = `w-12 h-12 lg:w-14 lg:h-14 rounded-xl text-3xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95`;
-                        const symbolSpan = document.createElement('span');
-                        symbolSpan.className = this.SYMBOL_COLORS[symbol] || '';
-                        symbolSpan.textContent = symbol;
-                        btn.appendChild(symbolSpan);
-                        btn.addEventListener('click', () => resolve(symbol));
-                        selector.appendChild(btn);
-                    });
-
-                    wrapper.appendChild(title);
-                    wrapper.appendChild(selector);
-                    container.appendChild(wrapper);
-                });
+                this.renderer.renderControls();
             }
             
             async waitForCellClick(validCells) {
@@ -1574,49 +2209,77 @@
                     return;
                 }
                 
-                const chosenSymbol = await this.renderGoldenAllohaSelector();
-                this.renderGoldenAllohaPlacementPrompt(chosenSymbol);
+                const chosenSymbol = await this.renderer.renderGoldenAllohaSelector();
+                this.renderer.renderGoldenAllohaPlacementPrompt(chosenSymbol);
                 
                 emptyCells.forEach(({ r, c }) => {
-                    if (this.gridCells[r] && this.gridCells[r][c]) {
-                        this.gridCells[r][c].classList.add('golden-placement-option');
+                    if (this.renderer.gridCells[r] && this.renderer.gridCells[r][c]) {
+                        this.renderer.gridCells[r][c].classList.add('golden-placement-option');
                     }
                 });
                 
                 const targetCell = await this.waitForCellClick(emptyCells);
                 
                 emptyCells.forEach(({ r, c }) => {
-                    if (this.gridCells[r] && this.gridCells[r][c]) {
-                        this.gridCells[r][c].classList.remove('golden-placement-option');
+                    if (this.renderer.gridCells[r] && this.renderer.gridCells[r][c]) {
+                        this.renderer.gridCells[r][c].classList.remove('golden-placement-option');
                     }
                 });
 
                 this.gridData[targetCell.r][targetCell.c] = chosenSymbol;
-                this.updateGridCell(targetCell.r, targetCell.c);
-                createSparkles(this.gridCells[targetCell.r][targetCell.c]);
-                this.audioPlay('chime');
+                this.renderer.updateGridCell(targetCell.r, targetCell.c);
+                createSparkles(this.renderer.gridCells[targetCell.r][targetCell.c]);
+                this.audioManager.play('chime');
                 this.triggerVibration(50);
 
                 emptyCells.forEach(({ r, c }) => {
                     if (r !== targetCell.r || c !== targetCell.c) {
                         this.stuckBlocks.add(`${r},${c}`);
-                        this.updateGridCell(r, c);
+                        this.renderer.updateGridCell(r, c);
                     }
                 });
 
-                if (emptyCells.length > 1) this.audioPlay('thud');
+                if (emptyCells.length > 1) this.audioManager.play('thud');
 
-                await delay(500); 
+                await delay(CONSTANTS.GOLDEN_ALLOHA_DELAY); 
 
                 this.endGame("The grid is complete!");
             }
             
+            checkEndGameBadges() {
+                let stats = getPlayerStats();
+                
+                stats.gamesPlayed++;
+                if (this.isTimeBurst && this.currentTotalScore > 0) stats.timeBurstWins++;
+                if (!this.isTimeBurst && this.currentTotalScore > 0) stats.classicWins++;
+                stats.playedEditions[this.config.id] = true;
+
+                if (stats.gamesPlayed >= 1) unlockBadge('baby', stats);
+                if (stats.gamesPlayed >= 10) unlockBadge('enthusiast', stats);
+                if (stats.gamesPlayed >= 50) unlockBadge('veteran', stats);
+                if (stats.timeBurstWins >= 10) unlockBadge('masterOfTime', stats);
+
+                if (this.currentTotalScore > 100) unlockBadge('centuryClub', stats);
+                if (this.gridData.flat().every(cell => cell !== null)) unlockBadge('gridMaster', stats);
+                if (this.usedSuperpowers.size === 0 && this.currentTotalScore > 0) unlockBadge('pureSkill', stats);
+                if (this.scores.hero === 14) unlockBadge('heroWorship', stats);
+
+                if (Object.keys(stats.playedEditions).length >= 5) unlockBadge('explorer', stats);
+                if (Object.keys(stats.playedEditions).length === Object.keys(this.allVariantConfigs).length) unlockBadge('collector', stats);
+                if (stats.classicWins > 0 && stats.timeBurstWins > 0) unlockBadge('allRounder', stats);
+                
+                this.checkGridBadges(stats);
+                savePlayerStats(stats);
+            }
+
             endGame(reason = "") {
                 if (this.gameStateManager.is('GAME_OVER')) return;
                 this.stopTimer();
                 this.gameStateManager.setState('GAME_OVER');
                 this.lastMoveCoords = null;
                 this.updateAllScores();
+
+                this.checkEndGameBadges();
 
                 if (reason === "Time's up!") {
                     this.DOMElements.game_board_container.classList.add('shake-animation');
@@ -1637,7 +2300,7 @@
                     finalScore = 0;
                 }
 
-                this.renderEndGamePanel(finalScore);
+                this.renderer.renderEndGamePanel(finalScore);
 
                 if (this.scores.penalty < 0) {
                     this.triggerVibration([150, 50, 70]);
@@ -1648,7 +2311,7 @@
                 if (finalScore > currentHighScore) {
                     localStorage.setItem(highScoreKey, finalScore);
                     this.highScore = finalScore;
-                    this.triggerConfetti();
+                    this.renderer.triggerConfetti();
                 }
 
                 this.DOMElements.game_over_reason.textContent = reason;
@@ -1664,22 +2327,9 @@
                 this.DOMElements.final_penalty_score.textContent = formatNegative(this.scores.penalty);
 
                 setTimeout(() => {
-                    this.DOMElements.game_over_modal.classList.add('is-open');
-                    document.body.classList.add('modal-open');
-                    const shareBtn = document.getElementById('share-score-btn');
-                    const changeEditionBtn = document.getElementById('change-edition-btn-modal');
-                    
-                    if (shareBtn) {
-                        shareBtn.addEventListener('click', () => this.handleShareScore(finalScore, this.highScore));
-                    }
-                    if (changeEditionBtn) {
-                        changeEditionBtn.addEventListener('click', () => {
-                            this.DOMElements.game_over_modal.classList.remove('is-open');
-                            document.body.classList.remove('modal-open');
-                            document.getElementById('select-edition-btn').click();
-                        });
-                    }
-                }, 500);
+                    handleModalOpen(this.DOMElements.game_over_modal);
+                    // Event listeners for buttons inside this modal are now handled globally by gameManager
+                }, CONSTANTS.END_GAME_MODAL_DELAY);
             }
 
             async handleShareScore(score, highScore) {
@@ -1735,34 +2385,19 @@
                 }
             }
 
-            triggerConfetti() {
-                const container = this.DOMElements.effects_container;
-                if (!container) return;
-                const colors = ['#E57373', '#FF8A65', '#FFC107', '#FFF176'];
-                for (let i = 0; i < 50; i++) {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti-piece';
-                    confetti.style.left = `${Math.random() * 100}%`;
-                    confetti.style.animation = `confetti-fall ${1.5 + Math.random() * 2}s ${Math.random() * 2}s linear forwards`;
-                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    container.appendChild(confetti);
-                    setTimeout(() => confetti.remove(), 4000);
-                }
-            }
-
             hasValidMoves() { for (let r = 0; r < this.GRID_SIZE; r++) for (let c = 0; c < this.GRID_SIZE; c++) if (!this.gridData[r][c]) { const n = [[-1, 0], [1, 0], [0, -1], [0, 1]]; for (const [dr, dc] of n) { const nr = r + dr, nc = c + dc; if (nr >= 0 && nr < this.GRID_SIZE && nc >= 0 && nc < this.GRID_SIZE && !this.gridData[nr][nc]) return true; } } return false; }
-            detectStuckBlocks() { this.stuckBlocks.clear(); for (let r = 0; r < this.GRID_SIZE; r++) for (let c = 0; c < this.GRID_SIZE; c++) if (!this.gridData[r][c]) { const n = [[-1, 0], [1, 0], [0, -1], [0, 1]]; if (n.every(([dr, dc]) => { const nr = r + dr, nc = c + dc; return nr < 0 || nr >= this.GRID_SIZE || nc < 0 || nc >= this.GRID_SIZE || this.gridData[nr][nc] })) this.stuckBlocks.add(`${r},${c}`); } this.updateFullGrid(); }
+            detectStuckBlocks() { this.stuckBlocks.clear(); for (let r = 0; r < this.GRID_SIZE; r++) for (let c = 0; c < this.GRID_SIZE; c++) if (!this.gridData[r][c]) { const n = [[-1, 0], [1, 0], [0, -1], [0, 1]]; if (n.every(([dr, dc]) => { const nr = r + dr, nc = c + dc; return nr < 0 || nr >= this.GRID_SIZE || nc < 0 || nc >= this.GRID_SIZE || this.gridData[nr][nc] })) this.stuckBlocks.add(`${r},${c}`); } this.renderer.updateFullGrid(); }
             updateAllScores() {
                 const rS = this.calculateRowScores(), cS = this.calculateColumnScores(), crS = this.calculateCrossScore(), bS = this.calculateBonusGrids(), hS = this.calculateHeroBonus();
                 
-                this.triggerBoardAndFloatAnimations(rS.lines, this.lastMoveCoords);
-                this.triggerBoardAndFloatAnimations(cS.lines, this.lastMoveCoords);
+                this.renderer.triggerBoardAndFloatAnimations(rS.lines, this.lastMoveCoords);
+                this.renderer.triggerBoardAndFloatAnimations(cS.lines, this.lastMoveCoords);
                 
                 this.scores = { rows: rS.total, cols: cS.total, cross: crS, bonus: bS, hero: hS, penalty: -this.stuckBlocks.size };
                 this.currentTotalScore = rS.total + cS.total + crS + bS + hS - this.stuckBlocks.size;
 
-                this.updateScoreDisplays(this.scores.rows, this.scores.cols, this.scores.cross, this.scores.bonus, this.scores.hero, this.scores.penalty);
-                this.updateIndividualScores(rS.individual, cS.individual);
+                this.renderer.updateScoreDisplays(this.scores.rows, this.scores.cols, this.scores.cross, this.scores.bonus, this.scores.hero, this.scores.penalty);
+                this.renderer.updateIndividualScores(rS.individual, cS.individual);
             }
 
             calculateHeroBonus() {
@@ -1772,8 +2407,8 @@
                         if (this.heroBlocks.has(`${coord.r},${coord.c}`) && this.gridData[coord.r][coord.c] === this.heroSymbol) {
                             heroScore += 2;
                             this.heroBlocks.delete(`${coord.r},${coord.c}`);
-                            showFloatingScore('+2', this.gridCells[coord.r][coord.c]);
-                            createSparkles(this.gridCells[coord.r][coord.c]);
+                            showFloatingScore('+2', this.renderer.gridCells[coord.r][coord.c]);
+                            createSparkles(this.renderer.gridCells[coord.r][coord.c]);
                         }
                     });
                 }
@@ -1802,28 +2437,6 @@
                 return { total, individual, lines: allScoredLines };
             }
 
-            triggerBoardAndFloatAnimations(scoredLines, lastMoveCoords) {
-                if (!scoredLines || !lastMoveCoords) return;
-                const lastMoveSet = new Set(lastMoveCoords.map(c => `${c.r},${c.c}`));
-
-                scoredLines.forEach(line => {
-                    const isNewlyFormed = line.cells.some(cell => lastMoveSet.has(`${cell.r},${cell.c}`));
-                    if (line.score > 0 && isNewlyFormed) {
-                        if (!this.vibratedForScoreThisTurn) {
-                            this.triggerVibration(40);
-                            this.vibratedForScoreThisTurn = true;
-                        }
-                        const sourceCell = this.gridCells[line.cells[Math.floor(line.cells.length / 2)].r][line.cells[Math.floor(line.cells.length / 2)].c];
-                        showFloatingScore(`+${line.score}`, sourceCell);
-                        line.cells.forEach(coord => {
-                            const cellEl = this.gridCells[coord.r][coord.c];
-                            cellEl.classList.add('score-pulse-animation');
-                            cellEl.addEventListener('animationend', () => cellEl.classList.remove('score-pulse-animation'), { once: true });
-                        });
-                    }
-                });
-            }
-
             calculateCrossScore() {
                 let bonusScore = 0;
                 const getScoreForSegment = (segmentSymbols) => {
@@ -1844,7 +2457,7 @@
                     return 0;
                 };
 
-                this.config.getCrossScoreSegments().forEach(seg => {
+                (this.config.getCrossScoreSegments() || []).forEach(seg => {
                     const segmentSymbols = [];
                     for (let i = seg.start; i <= seg.end; i++) {
                         segmentSymbols.push(seg.type === 'row' ? this.gridData[seg.index][i] : this.gridData[i][seg.index]);
@@ -1862,168 +2475,18 @@
 
                 return bonusScore;
             }
-
-            updateScoreDisplays(r, c, cross, b, h, p) { 
-                animateScoreUpdate('total-score', r + c + cross + b + h + p, 3); 
-                animateScoreUpdate('rows-total-score', r, 2); 
-                animateScoreUpdate('cols-total-score', c, 2); 
-                animateScoreUpdate('cross-total-score', cross, 2); 
-                animateScoreUpdate('bonus-grid-score', b, 2);
-                animateScoreUpdate('hero-bonus-score', h, 2);
-                animateScoreUpdate('empty-block-penalty', p, 2); 
-            }
             
-            updateIndividualScores(rS, cS) { 
-                rS.forEach((s, i) => this.updateScoreElement(`row-score-${i}`, s)); 
-                cS.forEach((s, i) => this.updateScoreElement(`col-score-${i}`, s)); 
-            }
-            updateScoreElement(id, score) { 
-                const el = document.getElementById(id); 
-                if (el) { 
-                    const oldScore = parseInt(el.textContent);
-                    el.textContent = score; 
-                    el.classList.toggle('text-red-500', score < 0); 
-                    if (score < 0 && oldScore >= 0) {
-                        this.triggerVibration([70, 40, 70]);
-                    }
-                } 
-            }
-            
-            updateSuperpowerButtonsUI() {
-                const ids = ['past-lives', 'no-return', 'bomb-bae', 'swap-them'];
-                ids.forEach(id => {
-                    const btn = document.getElementById(`${id}-btn`);
-                    if (!btn) return;
-                    const overlay = btn.querySelector('.superpower-used-overlay');
-                    const camelCaseKey = id.replace(/-./g, char => char.toUpperCase()[1]);
-                    if(this.usedSuperpowers.has(camelCaseKey)) {
-                        if(overlay) overlay.classList.remove('hidden');
-                    } else {
-                        if(overlay) overlay.classList.add('hidden');
-                    }
-                });
-
-                const totalUsed = this.usedSuperpowers.size, isMidMove = this.firstPlacementCell !== null, isPowerActive = this.activeSuperpower !== null, isAwaitingRoll = this.gameStateManager.is('AWAITING_ROLL');
-                const btns = { pastLives: document.getElementById('past-lives-btn'), bombBae: document.getElementById('bomb-bae-btn'), noReturn: document.getElementById('no-return-btn'), swapThem: document.getElementById('swap-them-btn') };
-                
-                if (btns.pastLives) btns.pastLives.disabled = totalUsed >= 2 || this.usedSuperpowers.has('pastLives') || !this.lastGameState || isMidMove || isPowerActive || !isAwaitingRoll;
-                // Bomb Bae can now be used as long as a block is filled.
-                if (btns.bombBae) btns.bombBae.disabled = totalUsed >= 2 || this.usedSuperpowers.has('bombBae') || this.gridData.flat().every(s => s === null) || isMidMove || isPowerActive;
-                if (btns.noReturn) btns.noReturn.disabled = this.turnCount < 1 || totalUsed >= 2 || this.usedSuperpowers.has('noReturn') || isMidMove || isPowerActive;
-                if (btns.swapThem) btns.swapThem.disabled = this.turnCount < 1 || totalUsed >= 2 || this.usedSuperpowers.has('swapThem') || !isAwaitingRoll || isMidMove || isPowerActive;
-                
-                Object.values(btns).forEach(btn => { if(btn) btn.classList.remove('superpower-btn--active')});
-                if (isPowerActive && btns[this.activeSuperpower]) {
-                    btns[this.activeSuperpower].classList.add('superpower-btn--active');
-                }
-                document.body.classList.toggle('cursor-target', this.activeSuperpower === 'bombBae');
-
-                const spChargesEl = document.getElementById('sp-charges');
-                if (spChargesEl) {
-                    if (totalUsed === 0) {
-                        spChargesEl.innerHTML = '✨✨';
-                    } else if (totalUsed === 1) {
-                        spChargesEl.innerHTML = '✨<span class="opacity-30">✨</span>';
-                    } else {
-                        spChargesEl.innerHTML = '<span class="opacity-30">✨✨</span>';
-                    }
-                }
-            }
-            
-            handleSuperpowerCellClick(r, c, cell) {
-                if (this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED) {
-                    this.audioPlay('invalid');
-                    cell.classList.add('shake-animation');
-                    setTimeout(() => cell.classList.remove('shake-animation'), 400);
-                    return;
-                }
-
-                const strategy = this._superpowerStrategies[this.activeSuperpower];
-                if (strategy) {
-                    strategy(r, c, cell);
-                } else {
-                    this.audioPlay('invalid');
-                }
-            }
-
-            showSymbolSelectorForExchange(r, c) {
-                 this.cellToExchange = {r, c}; this.DOMElements.exchange_options.innerHTML = '';
-                 this.SYMBOLS.filter(s => s !== this.gridData[r][c]).forEach(symbol => {
-                    const btn = document.createElement('button');
-                    btn.className = `w-20 h-20 text-4xl rounded-lg hover:bg-orange-100/50 flex items-center justify-center`;
-                    const symbolSpan = document.createElement('span');
-                    symbolSpan.className = this.SYMBOL_COLORS[symbol] || '';
-                    symbolSpan.textContent = symbol;
-                    btn.appendChild(symbolSpan);
-                    btn.addEventListener('click', () => this.handleSymbolExchange(symbol));
-                    this.DOMElements.exchange_options.appendChild(btn);
-                 });
-                 this.DOMElements.exchange_modal.classList.add('is-open');
-                 document.body.classList.add('modal-open');
-            }
             handleSymbolExchange(newSymbol) {
                 if (!this.cellToExchange) return;
                 const {r, c} = this.cellToExchange; this.gridData[r][c] = newSymbol;
-                this.DOMElements.exchange_modal.classList.remove('is-open'); 
-                document.body.classList.remove('modal-open');
+                handleModalClose(this.DOMElements.exchange_modal);
                 this.cellToExchange = null;
-                this.consumeSuperpower('noReturn'); this.gameStateManager.setState('AWAITING_ROLL'); this.renderControls();
+                this.consumeSuperpower(SUPERPOWERS.NO_RETURN); this.gameStateManager.setState('AWAITING_ROLL'); this.renderer.renderControls();
             }
             consumeSuperpower(powerName) {
                 this.triggerVibration(30);
-                this.audioPlay('power-use'); this.usedSuperpowers.add(powerName); this.activeSuperpower = null;
-                this.updateFullGrid(); this.updateAllScores(); this.updateSuperpowerButtonsUI();
-            }
-            _attachSuperpowerEventListeners() {
-                document.getElementById('past-lives-btn')?.addEventListener('click', () => {
-                    if (document.getElementById('past-lives-btn').disabled) return;
-                    this.audioPlay('power-activate');
-                    this.triggerVibration(30);
-
-                    const state = this.lastGameState;
-                    this.gridData = JSON.parse(state.gridData);
-                    this.currentRoll = state.currentRoll;
-                    this.firstPlacementCell = state.firstPlacementCell;
-                    this.turnCount = state.turnCount;
-                    this.stuckBlocks = new Set(state.stuckBlocks);
-                    this.gameStateManager.currentState = state.currentState;
-                    this.timeLeft = state.timeLeft;
-
-                    this.updateFullGrid();
-                    this.updateControlsState();
-                    this.updateAllScores();
-                    this.updateProgressBar();
-                    
-                    this.consumeSuperpower('pastLives');
-                });
-                const powerBtns = { bombBae: 'bomb-bae-btn', noReturn: 'no-return-btn', swapThem: 'swap-them-btn' };
-                for (const [power, id] of Object.entries(powerBtns)) { 
-                    const btn = document.getElementById(id);
-                    if (btn) {
-                        btn.addEventListener('click', () => {
-                            if (btn.disabled) return;
-                            this.activeSuperpower = power;
-                            this.gameStateManager.setState('SUPERPOWER_ACTIVE');
-                            this.audioPlay('power-activate');
-                            this.triggerVibration(30);
-                            this.updateSuperpowerButtonsUI();
-                        });
-                    }
-                }
-            }
-            _attachEventListeners() {
-                this.DOMElements.close_rules_btn.addEventListener('click', () => { this.DOMElements.rules_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
-                this.DOMElements.close_game_over_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
-                this.DOMElements.play_again_btn.addEventListener('click', () => { this.DOMElements.game_over_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); gameManager.resetCurrentVariant(); });
-                this.DOMElements.close_warning_btn.addEventListener('click', () => { this.DOMElements.warning_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
-                this.DOMElements.close_unlock_btn.addEventListener('click', () => { this.DOMElements.unlock_modal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
-                this.DOMElements.close_tutorial_btn.addEventListener('click', () => this.completeTutorial());
-                this.DOMElements.tutorial_next_btn.addEventListener('click', () => {
-                    this.tutorialStep++;
-                    this.showTutorialStep();
-                });
-                
-                window.addEventListener('resize', this.syncPanelHeights.bind(this));
+                this.audioManager.play('power-use'); this.usedSuperpowers.add(powerName); this.activeSuperpower = null;
+                this.renderer.updateFullGrid(); this.updateAllScores(); this.renderer.updateSuperpowerButtonsUI();
             }
         }
         
@@ -2035,146 +2498,66 @@
             pendingAction: null,
             activeMode: 'classic',
 
-            getUnlockedEditions: function() {
-                const saved = localStorage.getItem('allohaUnlockedEditions');
-                if (saved) {
-                    return JSON.parse(saved);
-                } else {
-                    return ['plain_jean'];
-                }
-            },
-
-            saveUnlockedEditions: function(unlockedArray) {
-                localStorage.setItem('allohaUnlockedEditions', JSON.stringify(unlockedArray));
-            },
-
-            unlockEdition: function(editionId) {
-                const unlocked = this.getUnlockedEditions();
-                if (!unlocked.includes(editionId)) {
-                    unlocked.push(editionId);
-                    this.saveUnlockedEditions(unlocked);
-                    
-                    const newEditionName = variantConfigs[editionId]?.name || 'a new edition';
-                    const modal = document.getElementById('unlock-modal');
-                    const nameEl = document.getElementById('unlocked-edition-name');
-                    if (modal && nameEl) {
-                        nameEl.textContent = newEditionName;
-                        modal.classList.add('is-open');
-                        document.body.classList.add('modal-open');
-                        this.currentGameInstance.triggerConfetti();
-                    }
-                }
-            },
-
             init() {
+                this.populateEditionModal();
                 this.setupGlobalEventListeners();
                 this.switchVariant('plain_jean', false);
             },
 
             populateEditionModal() {
                 const container = document.getElementById('edition-options');
+                if (!container) return;
                 container.innerHTML = '';
-                
-                if (DEV_UNLOCK_ALL) {
-                    Object.values(variantConfigs).forEach(config => {
-                        const button = document.createElement('button');
-                        button.className = 'w-full text-left p-3 rounded-lg hover:bg-gray-200/50';
-                        button.dataset.editionId = config.id;
-                        
-                        const contentWrapper = document.createElement('div');
-                        contentWrapper.className = 'flex justify-between items-center';
-                        
-                        const nameSpan = document.createElement('span');
-                        nameSpan.className = 'font-semibold';
-                        nameSpan.textContent = config.name;
-                        contentWrapper.appendChild(nameSpan);
-                        
-                        const emojiSpan = document.createElement('span');
-                        emojiSpan.textContent = '🔓';
-                        contentWrapper.appendChild(emojiSpan);
-                        
-                        button.appendChild(contentWrapper);
-                        button.addEventListener('click', () => this.handleEditionSelection(config.id));
-                        container.appendChild(button);
-                    });
-                    return;
-                }
 
-                const unlockedEditions = this.getUnlockedEditions();
-                let nextToUnlock = null;
-                let previousEditionId = null;
+                // Get player stats to see what's unlocked
+                const stats = getPlayerStats();
+                const unlockedEditions = stats.unlockedEditions || {};
 
-                for (const config of Object.values(variantConfigs)) {
-                    if (!unlockedEditions.includes(config.id)) {
-                        nextToUnlock = config.id;
-                        break;
-                    }
-                }
+                // The first edition is always unlocked
+                const isEditionUnlocked = (id) => id === 'plain_jean' || unlockedEditions[id] || DEV_UNLOCK_ALL;
 
                 Object.values(variantConfigs).forEach(config => {
                     const button = document.createElement('button');
-                    button.className = 'w-full text-left p-3 rounded-lg hover:bg-gray-200/50';
+                    const unlocked = isEditionUnlocked(config.id);
+
+                    button.className = 'w-full text-left p-3 rounded-lg font-semibold flex justify-between items-center transition-colors';
                     button.dataset.editionId = config.id;
                     
-                    const contentWrapper = document.createElement('div');
-                    const detailsWrapper = document.createElement('div');
+                    if (unlocked) {
+                        button.innerHTML = `<span>${config.name}</span>`;
+                        button.classList.add('hover:bg-gray-200/50');
+                        button.onclick = () => {
+                            const game = this.currentGameInstance;
+                            const isGameInProgress = game && game.turnCount > 0 && !game.gameStateManager.is('GAME_OVER');
+                            
+                            handleModalClose(document.getElementById('edition-select-modal'));
+                            const isTimeBurst = this.activeMode === 'timeburst';
 
-                    const mainInfo = document.createElement('div');
-                    mainInfo.className = 'flex justify-between items-center';
-
-                    const nameSpan = document.createElement('span');
-                    nameSpan.className = 'font-semibold';
-                    nameSpan.textContent = config.name;
-                    mainInfo.appendChild(nameSpan);
-
-                    const emojiSpan = document.createElement('span');
-                    mainInfo.appendChild(emojiSpan);
-                    
-                    detailsWrapper.appendChild(mainInfo);
-
-                    if (unlockedEditions.includes(config.id)) {
-                        emojiSpan.textContent = '🔓';
-                        button.addEventListener('click', () => this.handleEditionSelection(config.id));
-                    } else {
-                        emojiSpan.textContent = '🔒';
-                        emojiSpan.style.opacity = '0.4';
-                        nameSpan.style.opacity = '0.4';
-                        button.disabled = true;
-
-                        if (config.id === nextToUnlock) {
-                            const unlockRule = unlockProgression[previousEditionId];
-                            if (unlockRule) {
-                                const requiredEdition = variantConfigs[previousEditionId];
-                                const hintDiv = document.createElement('div');
-                                hintDiv.className = 'unlock-hint';
-                                hintDiv.textContent = `Score ${unlockRule.score} in "${requiredEdition.name}" to unlock.`;
-                                detailsWrapper.appendChild(hintDiv);
+                            if (isGameInProgress && config.id !== this.activeVariantId) {
+                                this.pendingAction = () => this.switchVariant(config.id, isTimeBurst, true);
+                                handleModalOpen(document.getElementById('confirm-restart-modal'));
+                            } else {
+                                this.switchVariant(config.id, isTimeBurst);
                             }
-                        }
+                        };
+                    } else {
+                        // This is a locked edition
+                        const unlockRule = Object.values(unlockProgression).find(rule => rule && rule.unlocks === config.id);
+                        const scoreNeeded = unlockRule ? unlockRule.score : '';
+                        const gameToPlay = Object.keys(unlockProgression).find(key => unlockProgression[key] && unlockProgression[key].unlocks === config.id);
+                        const gameNameToPlay = variantConfigs[gameToPlay]?.name || '';
+
+                        button.innerHTML = `
+                            <div class="flex flex-col">
+                                <span>${config.name}</span>
+                                <span class="text-xs font-normal opacity-70">Score ${scoreNeeded} in ${gameNameToPlay} to unlock</span>
+                            </div>
+                            <span class="text-xl">🔒</span>`;
+                        button.disabled = true;
+                        button.classList.add('opacity-50', 'cursor-not-allowed');
                     }
-
-                    contentWrapper.appendChild(detailsWrapper);
-                    button.appendChild(contentWrapper);
                     container.appendChild(button);
-                    previousEditionId = config.id;
                 });
-            },
-
-            handleEditionSelection(configId) {
-                const game = this.currentGameInstance;
-                const isGameInProgress = game && game.turnCount > 0 && !game.gameStateManager.is('GAME_OVER');
-
-                document.getElementById('edition-select-modal').classList.remove('is-open');
-                document.body.classList.remove('modal-open');
-                const isTimeBurst = this.activeMode === 'timeburst';
-
-                if (isGameInProgress && configId !== this.activeVariantId) {
-                    this.pendingAction = () => this.switchVariant(configId, isTimeBurst, true);
-                    document.getElementById('confirm-restart-modal').classList.add('is-open');
-                    document.body.classList.add('modal-open');
-                } else if (!game || configId !== this.activeVariantId || isTimeBurst !== game.isTimeBurst) {
-                    this.switchVariant(configId, isTimeBurst);
-                }
             },
 
             switchVariant(variantId, isTimeBurst, isNewGame = false) {
@@ -2202,10 +2585,10 @@
                         delete this.gameStates[gameStateKey];
                     }
 
-                    this.currentGameInstance = new Game(variantConfig, themeConfig, isTimeBurst, savedState);
+                    this.currentGameInstance = new Game(variantConfig, themeConfig, isTimeBurst, variantConfigs, savedState);
                                         
                     gameContainer.style.opacity = '1';
-                }, 250);
+                }, CONSTANTS.VARIANT_SWITCH_DELAY);
             },
             
             resetCurrentVariant() {
@@ -2215,57 +2598,116 @@
                 this.switchVariant(this.activeVariantId, this.currentGameInstance.isTimeBurst, true);
             },
             
+            unlockEdition(editionId) {
+                let stats = getPlayerStats();
+                if (!stats.unlockedEditions) {
+                    stats.unlockedEditions = {};
+                }
+                if (stats.unlockedEditions[editionId]) {
+                    return; // Already unlocked
+                }
+
+                stats.unlockedEditions[editionId] = true;
+                savePlayerStats(stats);
+
+                const unlockedEditionName = variantConfigs[editionId]?.name || 'a new edition';
+                const unlockedEditionNameEl = document.getElementById('unlocked-edition-name');
+                
+                if (unlockedEditionNameEl) {
+                    unlockedEditionNameEl.textContent = unlockedEditionName;
+                }
+
+                handleModalOpen(document.getElementById('unlock-modal'));
+                
+                // Refresh the modal content to show the newly unlocked game
+                this.populateEditionModal();
+            },
+
             setupGlobalEventListeners() {
-                const editionModal = document.getElementById('edition-select-modal');
-                const confirmModal = document.getElementById('confirm-restart-modal');
                 const toggleSwitch = document.getElementById('mode-toggle-switch');
-                const classicText = document.getElementById('classic-text');
-                const timeBurstText = document.getElementById('time-burst-text');
 
+                // Centralized Modal Close Button Logic
+                const modalClosers = [
+                    ['close-rules-btn', 'rules-modal'],
+                    ['close-edition-select-btn', 'edition-select-modal'],
+                    ['close-game-over-btn', 'game-over-modal'],
+                    ['close-tutorial-btn', 'tutorial-modal'],
+                    ['close-warning-btn', 'warning-modal'],
+                    ['close-warning-x-btn', 'warning-modal'],
+                    ['close-unlock-btn', 'unlock-modal'],
+                    ['close-unlock-x-btn', 'unlock-modal'],
+                    ['close-badges-btn', 'badges-modal'],
+                ];
+
+                modalClosers.forEach(([buttonId, modalId]) => {
+                    const button = document.getElementById(buttonId);
+                    const modal = document.getElementById(modalId);
+                    if (button && modal) {
+                        button.addEventListener('click', () => handleModalClose(modal));
+                    }
+                });
+
+                // Other Global Listeners
                 document.getElementById('select-edition-btn').addEventListener('click', () => {
-                    this.populateEditionModal();
-
                     const isTimeBurst = this.currentGameInstance.isTimeBurst;
                     this.activeMode = isTimeBurst ? 'timeburst' : 'classic';
                     
                     if(isTimeBurst) {
                         toggleSwitch.classList.add('time-burst-active');
-                        timeBurstText.style.color = 'var(--accent)';
-                        classicText.style.color = 'var(--text-secondary)';
+                        document.getElementById('time-burst-text').style.color = 'var(--accent)';
+                        document.getElementById('classic-text').style.color = 'var(--text-secondary)';
                     } else {
                         toggleSwitch.classList.remove('time-burst-active');
-                        classicText.style.color = 'var(--text)';
-                        timeBurstText.style.color = 'var(--text-secondary)';
+                        document.getElementById('classic-text').style.color = 'var(--text)';
+                        document.getElementById('time-burst-text').style.color = 'var(--text-secondary)';
                     }
 
                     const currentEditionId = this.currentGameInstance.config.id;
-                    const editionButtons = document.querySelectorAll('#edition-options button');
-                    editionButtons.forEach(btn => {
+                    document.querySelectorAll('#edition-options button').forEach(btn => {
                         btn.classList.remove('edition-selected');
                         if (btn.dataset.editionId === currentEditionId) {
                             btn.classList.add('edition-selected');
                         }
                     });
 
-                    editionModal.classList.add('is-open');
-                    document.body.classList.add('modal-open');
+                    handleModalOpen(document.getElementById('edition-select-modal'));
+                });
+                
+                document.getElementById('play-again-btn').addEventListener('click', () => { 
+                    handleModalClose(document.getElementById('game-over-modal'));
+                    this.resetCurrentVariant();
                 });
 
+                document.getElementById('change-edition-btn-modal').addEventListener('click', () => {
+                    handleModalClose(document.getElementById('game-over-modal'));
+                    document.getElementById('select-edition-btn').click();
+                });
+
+                document.getElementById('share-score-btn').addEventListener('click', () => {
+                    const game = this.currentGameInstance;
+                    game.handleShareScore(game.currentTotalScore, game.highScore);
+                });
+
+                document.getElementById('badges-btn').addEventListener('click', () => {
+                    renderBadgesGrid();
+                    handleModalOpen(document.getElementById('badges-modal'));
+                });
+
+                document.getElementById('share-badges-btn').addEventListener('click', handleShareBadges);
+                
                 toggleSwitch.addEventListener('click', () => {
                     toggleSwitch.classList.toggle('time-burst-active');
                     this.activeMode = toggleSwitch.classList.contains('time-burst-active') ? 'timeburst' : 'classic';
                     if (this.activeMode === 'timeburst') {
-                        timeBurstText.style.color = 'var(--accent)';
-                        classicText.style.color = 'var(--text-secondary)';
+                        document.getElementById('time-burst-text').style.color = 'var(--accent)';
+                        document.getElementById('classic-text').style.color = 'var(--text-secondary)';
                     } else {
-                        classicText.style.color = 'var(--text)';
-                        timeBurstText.style.color = 'var(--text-secondary)';
+                        document.getElementById('classic-text').style.color = 'var(--text)';
+                        document.getElementById('time-burst-text').style.color = 'var(--text-secondary)';
                     }
                 });
                 
-                document.getElementById('close-edition-select-btn').addEventListener('click', () => { editionModal.classList.remove('is-open'); document.body.classList.remove('modal-open'); });
-
-                document.getElementById('rules-btn').addEventListener('click', () => { this.currentGameInstance.DOMElements.rules_modal.classList.add('is-open'); document.body.classList.add('modal-open'); });
+                document.getElementById('rules-btn').addEventListener('click', () => { handleModalOpen(document.getElementById('rules-modal')); });
 
                 document.getElementById('new-game-btn').addEventListener('click', () => {
                     const game = this.currentGameInstance;
@@ -2273,12 +2715,9 @@
                         this.resetCurrentVariant();
                         return;
                     }
-                    const isGameInProgress = game && game.turnCount > 0;
-                    
-                    if (isGameInProgress) {
+                    if (game && game.turnCount > 0) {
                         this.pendingAction = () => this.resetCurrentVariant();
-                        confirmModal.classList.add('is-open');
-                        document.body.classList.add('modal-open');
+                        handleModalOpen(document.getElementById('confirm-restart-modal'));
                     } else {
                         this.resetCurrentVariant();
                     }
@@ -2286,8 +2725,7 @@
 
                 document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
                     this.pendingAction = null;
-                    confirmModal.classList.remove('is-open');
-                    document.body.classList.remove('modal-open');
+                    handleModalClose(document.getElementById('confirm-restart-modal'));
                 });
                 
                 document.getElementById('confirm-restart-btn').addEventListener('click', () => {
@@ -2295,8 +2733,7 @@
                         this.pendingAction();
                     }
                     this.pendingAction = null;
-                    confirmModal.classList.remove('is-open');
-                    document.body.classList.remove('modal-open');
+                    handleModalClose(document.getElementById('confirm-restart-modal'));
                 });
 
                 document.addEventListener('keydown', (e) => {
@@ -2305,19 +2742,18 @@
 
                     if (e.key === 'Escape') {
                         if (game.activeSuperpower) {
-                             if (game.activeSuperpower === 'swapThem' && game.swapFirstCell) {
-                                game.gridCells[game.swapFirstCell.r][game.swapFirstCell.c].classList.remove('pulse-animation');
+                             if (game.activeSuperpower === SUPERPOWERS.SWAP_THEM && game.swapFirstCell) {
+                                game.renderer.gridCells[game.swapFirstCell.r][game.swapFirstCell.c].classList.remove('pulse-animation');
                                 game.swapFirstCell = null;
                             }
                             game.activeSuperpower = null;
-                            game.updateSuperpowerButtonsUI();
+                            game.renderer.updateSuperpowerButtonsUI();
                             game.gameStateManager.setState(game.firstPlacementCell ? 'AWAITING_PLACEMENT' : 'AWAITING_ROLL');
                         } else {
-                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal', 'warning-modal', 'unlock-modal'].forEach(id => {
+                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal', 'warning-modal', 'unlock-modal', 'badges-modal'].forEach(id => {
                                 const modal = document.getElementById(id);
                                 if (modal?.classList.contains('is-open')) {
-                                   modal.classList.remove('is-open');
-                                   document.body.classList.remove('modal-open');
+                                   handleModalClose(modal);
                                 }
                            });
                         }
