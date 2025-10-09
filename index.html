@@ -1,14 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
     <title>Alloha</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: linear-gradient(135deg, #FDFCFB 0%, #E2D1C3 100%);
@@ -258,9 +256,22 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5em;
-            color: var(--text);
-            opacity: 0.1;
+            color: var(--accent);
+            opacity: 0.12;
             z-index: 0;
+            text-shadow: 0 0 6px var(--accent);
+            animation: hero-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes hero-pulse {
+            0%, 100% { 
+                opacity: 0.12;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.22;
+                transform: scale(1.02);
+            }
         }
         
         .curse-overlay {
@@ -338,15 +349,6 @@
             100% { transform: translate(-50%, -150%); }
         }
     </style>
-    
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-62DV4PDJ4X"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-62DV4PDJ4X');
-    </script>
 </head>
 <body class="p-2 lg:p-4">
     <audio id="audio-unlocker" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" preload="auto"></audio>
@@ -370,9 +372,9 @@
             <div id="scoring-panel" class="relative flex-1 flex flex-col gap-y-4 p-4 lg:p-6 glass-card rounded-2xl">
                 
                 <div class="glass-card enhanced-shadow rounded-2xl p-4 flex flex-col flex-1 min-h-0">
-                    <div id="in-game-content-wrapper" class="flex-1 min-h-0">
+                    <div id="in-game-content-wrapper" class="flex-1 min-h-0 flex flex-col">
                         <div id="pre-game-content"></div>
-                        <div id="in-game-content"></div>
+                        <div id="in-game-content" class="flex-1"></div>
                     </div>
                 </div>
 
@@ -439,7 +441,7 @@
                 </div>
 
             </div>
-            </div>
+        </div>
     </main>
 
     <div id="rules-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
@@ -632,7 +634,20 @@
         </div>
     </div>
 
+    <div id="post-game-modal" class="modal fixed inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 invisible z-50 backdrop-blur-sm">
+        <div class="modal-content w-full max-w-sm themed-modal p-8 text-center transform scale-95 -translate-y-4">
+            <button id="close-post-game-modal-btn" aria-label="Close" class="absolute top-4 right-4 w-10 h-10 rounded-full text-xl flex items-center justify-center font-bold">×</button>
+            <h2 class="text-2xl font-bold mb-4" style="color: var(--accent);">Game Over!</h2>
+            <p class="mb-6" style="color: var(--text-secondary);">What would you like to do next?</p>
+            <div class="flex flex-col justify-center items-center gap-3">
+                <button id="post-game-play-again-btn" class="w-full py-2.5 px-4 themed-button text-white text-sm" style="background: var(--accent-gradient);">Play This Edition Again</button>
+                <button id="post-game-select-edition-btn" class="w-full py-2.5 px-4 themed-button text-sm" style="color: var(--accent); background: var(--accent-light);">Choose New Edition</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        
     (function() {
         const DEV_UNLOCK_ALL = false;
 
@@ -735,9 +750,9 @@
             }
         }
 
-        function renderBadgesGrid() {
-            const grid = document.getElementById('badges-grid');
-            const infoText = document.getElementById('badge-info-text');
+        function renderBadgesGrid(elements) {
+            const grid = elements.badges_grid;
+            const infoText = elements.badge_info_text;
             if (!grid || !infoText) return;
 
             grid.innerHTML = '';
@@ -814,12 +829,10 @@
             container.textContent = valueStr;
         }
         
-        async function handleShareBadges() {
-            const shareBtn = document.getElementById('share-badges-btn');
-            if (!shareBtn) return;
+        async function handleShareBadges(shareBtn, modalContent) {
+            if (!shareBtn || !modalContent) return;
     
             const originalBtnText = shareBtn.textContent;
-            const modalContent = document.querySelector('#badges-modal .modal-content');
     
             try {
                 shareBtn.textContent = 'Generating...';
@@ -1138,11 +1151,18 @@
                 }
             }
 
-            unlock() {
+            unlock(unlockerEl) {
                 if (this.unlocked) return;
-                document.getElementById('audio-unlocker').play().finally(() => {
-                    this.unlocked = true;
-                });
+                unlockerEl.play()
+                    .catch(err => {
+                        // Ignore AbortError - it's expected for very short audio
+                        if (err.name !== 'AbortError') {
+                            console.error("Audio unlock failed:", err);
+                        }
+                    })
+                    .finally(() => {
+                        this.unlocked = true;
+                    });
             }
 
             play(soundName) {
@@ -1233,28 +1253,44 @@
                 const container = this.DOMElements.in_game_content;
                 container.className = '';
                 container.innerHTML = '';
-
+                
                 const wrapper = document.createElement('div');
-                wrapper.className = 'w-full flex flex-col justify-start gap-3 lg:gap-4';
                 let timerHTML = '';
                 if(this.game.isTimeBurst) {
                     timerHTML = `<div id="timer-display" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-2xl lg:text-3xl font-bold" style="color: var(--accent);" aria-live="polite">${this.game.timeLeft}</div>`;
                 }
 
-                wrapper.innerHTML = `<div class="flex justify-center items-center gap-2 lg:gap-4">
-                    <button id="roll-dice-btn" aria-label="Roll Dice" class="w-14 h-14 lg:w-16 lg:h-16 text-4xl lg:text-5xl flex items-center justify-center" style="color: var(--accent);">🎲</button>
-                    <div id="dice-1" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
-                    <div id="dice-2" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
-                    ${timerHTML}
-                </div>
-                <div class="glass-card enhanced-shadow rounded-xl px-3 py-2 text-center"><h2 class="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center justify-center gap-2" style="color: var(--text-secondary);">Alloha Superpowers <span id="sp-charges" class="text-base">✨✨</span></h2><div class="grid grid-cols-4 gap-1 text-center">
-                    <button id="past-lives-btn" class="superpower-btn"><div>Past</div><div>Lives</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
-                    <button id="no-return-btn" class="superpower-btn"><div>No</div><div>Return</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
-                    <button id="bomb-bae-btn" class="superpower-btn"><div>Bomb</div><div>Bae</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
-                    <button id="swap-them-btn" class="superpower-btn"><div>Swap</div><div>Them</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
-                </div></div>`;
-                
+                wrapper.innerHTML = `<div class="w-full flex flex-col justify-start gap-4">
+                    <div class="flex justify-center items-center gap-2 lg:gap-4">
+                        <button id="roll-dice-btn" aria-label="Roll Dice" class="w-14 h-14 lg:w-16 lg:h-16 text-4xl lg:text-5xl flex items-center justify-center" style="color: var(--accent);">🎲</button>
+                        <div id="dice-1" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
+                        <div id="dice-2" class="w-14 h-14 lg:w-16 lg:h-16 rounded-xl glass-card enhanced-shadow flex items-center justify-center text-3xl lg:text-4xl shimmer-text">?</div>
+                        ${timerHTML}
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-semibold uppercase tracking-wider mb-2 flex items-center justify-center gap-2" style="color: var(--text-secondary);">
+                            Alloha Superpowers <span id="sp-charges" class="text-base">✨✨</span>
+                        </h2>
+                        <div class="grid grid-cols-4 gap-1 text-center">
+                            <button id="past-lives-btn" class="superpower-btn"><div>Past</div><div>Lives</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
+                            <button id="no-return-btn" class="superpower-btn"><div>No</div><div>Return</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
+                            <button id="bomb-bae-btn" class="superpower-btn"><div>Bomb</div><div>Bae</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
+                            <button id="swap-them-btn" class="superpower-btn"><div>Swap</div><div>Them</div><div class="superpower-used-overlay hidden absolute inset-0 text-red-500 text-4xl font-extrabold flex items-center justify-center" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">X</div></button>
+                        </div>
+                    </div>
+                </div>`;
+
                 container.appendChild(wrapper);
+
+                this.DOMElements.roll_dice_btn = document.getElementById('roll-dice-btn');
+                this.DOMElements.dice_1 = document.getElementById('dice-1');
+                this.DOMElements.dice_2 = document.getElementById('dice-2');
+                this.DOMElements.timer_display = document.getElementById('timer-display');
+                this.DOMElements.past_lives_btn = document.getElementById('past-lives-btn');
+                this.DOMElements.no_return_btn = document.getElementById('no-return-btn');
+                this.DOMElements.bomb_bae_btn = document.getElementById('bomb-bae-btn');
+                this.DOMElements.swap_them_btn = document.getElementById('swap-them-btn');
+                this.DOMElements.sp_charges = document.getElementById('sp-charges');
 
                 this.updateControlsState();
                 this.game.inputHandler.attachSuperpowerEventListeners();
@@ -1264,11 +1300,11 @@
 
             updateControlsState() {
                 if (this.game.gameStateManager.is('PRE_GAME')) return;
-                const rollBtn = document.getElementById('roll-dice-btn');
+                const rollBtn = this.DOMElements.roll_dice_btn;
                 if (rollBtn) {
                     rollBtn.classList.toggle('bob-animation', this.game.gameStateManager.is('AWAITING_ROLL'));
                 }
-                const dice1 = document.getElementById('dice-1'), dice2 = document.getElementById('dice-2');
+                const dice1 = this.DOMElements.dice_1, dice2 = this.DOMElements.dice_2;
                 if (!dice1 || !dice2) return;
                 
                 dice1.classList.remove('shimmer-text');
@@ -1305,7 +1341,7 @@
             }
             
             updateScoreElement(id, score) { 
-                const el = document.getElementById(id); 
+                const el = document.getElementById(id); // Individual score elements are dynamically created
                 if (el) { 
                     const oldScore = parseInt(el.textContent);
                     el.textContent = score; 
@@ -1318,15 +1354,15 @@
             
             updateSuperpowerButtonsUI() {
                 const ids = {
-                    [SUPERPOWERS.PAST_LIVES]: 'past-lives-btn',
-                    [SUPERPOWERS.NO_RETURN]: 'no-return-btn',
-                    [SUPERPOWERS.BOMB_BAE]: 'bomb-bae-btn',
-                    [SUPERPOWERS.SWAP_THEM]: 'swap-them-btn',
+                    [SUPERPOWERS.PAST_LIVES]: this.DOMElements.past_lives_btn,
+                    [SUPERPOWERS.NO_RETURN]: this.DOMElements.no_return_btn,
+                    [SUPERPOWERS.BOMB_BAE]: this.DOMElements.bomb_bae_btn,
+                    [SUPERPOWERS.SWAP_THEM]: this.DOMElements.swap_them_btn,
                 };
-                Object.keys(ids).forEach(powerKey => {
-                    const btn = document.getElementById(ids[powerKey]);
+                Object.values(ids).forEach(btn => {
                     if (!btn) return;
                     const overlay = btn.querySelector('.superpower-used-overlay');
+                    const powerKey = Object.keys(ids).find(key => ids[key] === btn);
                     if(this.game.usedSuperpowers.has(powerKey)) {
                         if(overlay) overlay.classList.remove('hidden');
                     } else {
@@ -1336,10 +1372,10 @@
 
                 const totalUsed = this.game.usedSuperpowers.size, isMidMove = this.game.firstPlacementCell !== null, isPowerActive = this.game.activeSuperpower !== null, isAwaitingRoll = this.game.gameStateManager.is('AWAITING_ROLL');
                 const btns = { 
-                    [SUPERPOWERS.PAST_LIVES]: document.getElementById('past-lives-btn'), 
-                    [SUPERPOWERS.BOMB_BAE]: document.getElementById('bomb-bae-btn'), 
-                    [SUPERPOWERS.NO_RETURN]: document.getElementById('no-return-btn'), 
-                    [SUPERPOWERS.SWAP_THEM]: document.getElementById('swap-them-btn') 
+                    [SUPERPOWERS.PAST_LIVES]: this.DOMElements.past_lives_btn, 
+                    [SUPERPOWERS.BOMB_BAE]: this.DOMElements.bomb_bae_btn, 
+                    [SUPERPOWERS.NO_RETURN]: this.DOMElements.no_return_btn, 
+                    [SUPERPOWERS.SWAP_THEM]: this.DOMElements.swap_them_btn
                 };
                 
                 if (btns[SUPERPOWERS.PAST_LIVES]) btns[SUPERPOWERS.PAST_LIVES].disabled = totalUsed >= 2 || this.game.usedSuperpowers.has(SUPERPOWERS.PAST_LIVES) || !this.game.lastGameState || isMidMove || isPowerActive || !isAwaitingRoll;
@@ -1353,7 +1389,7 @@
                 }
                 document.body.style.cursor = this.game.activeSuperpower === SUPERPOWERS.BOMB_BAE ? 'crosshair' : '';
 
-                const spChargesEl = document.getElementById('sp-charges');
+                const spChargesEl = this.DOMElements.sp_charges;
                 if (spChargesEl) {
                     if (totalUsed === 0) {
                         spChargesEl.innerHTML = '✨✨';
@@ -1427,52 +1463,61 @@
 
             renderGoldenAllohaPlacementPrompt(symbol) {
                 const container = this.DOMElements.in_game_content;
-                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
+                container.className = 'flex items-center justify-center h-full';
                 container.innerHTML = '';
 
+                const wrapper = document.createElement('div');
+                wrapper.className = 'text-center';
+
                 const line1 = document.createElement('h2');
-                line1.className = 'text-xl lg:text-2xl font-semibold';
+                line1.className = 'text-xl lg:text-2xl font-semibold text-center';
                 line1.style.color = 'var(--accent)';
                 line1.innerHTML = `You chose <span class="text-5xl align-middle ${this.game.SYMBOL_COLORS[symbol] || 'text-gray-700'}">${symbol}</span>`;
 
                 const line2 = document.createElement('p');
-                line2.className = 'text-base lg:text-lg font-medium mt-2';
+                line2.className = 'text-base lg:text-lg font-medium mt-2 text-center';
                 line2.style.color = 'var(--text-secondary)';
                 line2.textContent = 'Place it on any highlighted Allohome!';
 
-                container.appendChild(line1);
-                container.appendChild(line2);
+                wrapper.appendChild(line1);
+                wrapper.appendChild(line2);
+                container.appendChild(wrapper);
             }
 
             renderEndGamePanel(score) {
                 const container = this.DOMElements.in_game_content;
-                container.className = 'w-full flex flex-col items-center justify-center h-full text-center p-4';
+                container.className = 'flex items-center justify-center h-full';
                 container.innerHTML = '';
 
+                const wrapper = document.createElement('div');
+                wrapper.className = 'text-center';
+
                 const title = document.createElement('h2');
-                title.className = 'text-3xl font-bold';
+                title.className = 'text-3xl font-bold text-center';
                 title.style.fontFamily = "'Pacifico', cursive";
                 title.style.color = 'var(--accent)';
                 title.textContent = 'Game Over Alloha!';
 
                 const scoreDisplay = document.createElement('div');
                 scoreDisplay.id = 'end-game-score-display';
-                scoreDisplay.className = 'text-7xl font-bold my-2';
+                scoreDisplay.className = 'text-7xl font-bold my-2 text-center';
                 scoreDisplay.style.color = 'var(--accent)';
                 
-                container.appendChild(title);
-                container.appendChild(scoreDisplay);
+                wrapper.appendChild(title);
+                wrapper.appendChild(scoreDisplay);
+                container.appendChild(wrapper);
+                
                 animateScoreUpdate('end-game-score-display', score, 3);
             }
 
             async renderGoldenAllohaSelector() {
                 const container = this.DOMElements.in_game_content;
-                container.className = '';
+                container.className = 'flex items-center justify-center h-full';
                 container.innerHTML = '';
 
                 return new Promise(resolve => {
                     const wrapper = document.createElement('div');
-                    wrapper.className = 'w-full flex flex-col items-center justify-center h-full gap-4 pt-2 pb-4';
+                    wrapper.className = 'w-full flex flex-col items-center justify-center h-full gap-4';
                     
                     const title = document.createElement('h2');
                     title.className = 'text-base lg:text-lg font-semibold text-center uppercase tracking-wider';
@@ -1484,10 +1529,12 @@
 
                     this.game.SYMBOLS.forEach(symbol => {
                         const btn = document.createElement('button');
-                        btn.className = `w-14 h-14 lg:w-16 lg:h-16 rounded-xl text-4xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95`;
+                        btn.className = `w-12 h-12 lg:w-14 lg:h-14 rounded-xl text-3xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95`;
                         const symbolSpan = document.createElement('span');
-                        symbolSpan.className = this.game.SYMBOL_COLORS[symbol] || '';
+                        // CORRECTED: Added h-full to the span
+                        symbolSpan.className = `${this.game.SYMBOL_COLORS[symbol] || ''} h-full flex items-center`;
                         symbolSpan.textContent = symbol;
+
                         btn.appendChild(symbolSpan);
                         btn.addEventListener('click', () => resolve(symbol));
                         selector.appendChild(btn);
@@ -1552,7 +1599,7 @@
             }
 
             updateTimerDisplay() {
-                const timerEl = document.getElementById('timer-display');
+                const timerEl = this.DOMElements.timer_display;
                 if (timerEl) {
                     timerEl.textContent = this.game.timeLeft;
                 }
@@ -1560,8 +1607,9 @@
         }
 
         class InputHandler {
-            constructor(game) {
+            constructor(game, DOMElements) {
                 this.game = game;
+                this.DOMElements = DOMElements;
                 // Bind 'this' and store the function references to be able to remove them later
                 this.handleContentClick = this._handleContentClick.bind(this);
                 this.handleBoardClick = this._handleBoardClick.bind(this);
@@ -1578,14 +1626,14 @@
             }
 
             attachAllListeners() {
-                document.getElementById('in-game-content-wrapper').addEventListener('click', this.handleContentClick);
-                document.getElementById('game-board').addEventListener('click', this.handleBoardClick);
+                this.DOMElements.in_game_content_wrapper.addEventListener('click', this.handleContentClick);
+                this.DOMElements.game_board.addEventListener('click', this.handleBoardClick);
                 window.addEventListener('resize', this.handleResize);
             }
 
             detachAllListeners() {
-                document.getElementById('in-game-content-wrapper').removeEventListener('click', this.handleContentClick);
-                document.getElementById('game-board').removeEventListener('click', this.handleBoardClick);
+                this.DOMElements.in_game_content_wrapper.removeEventListener('click', this.handleContentClick);
+                this.DOMElements.game_board.removeEventListener('click', this.handleBoardClick);
                 window.removeEventListener('resize', this.handleResize);
             }
             
@@ -1595,8 +1643,8 @@
             }
             
             attachSuperpowerEventListeners() {
-                document.getElementById('past-lives-btn')?.addEventListener('click', () => {
-                    if (document.getElementById('past-lives-btn').disabled) return;
+                this.DOMElements.past_lives_btn?.addEventListener('click', () => {
+                    if (this.DOMElements.past_lives_btn.disabled) return;
                     this.game.audioManager.play('power-activate');
                     this.game.triggerVibration(30);
 
@@ -1618,12 +1666,11 @@
                 });
 
                 const powerBtns = { 
-                    [SUPERPOWERS.BOMB_BAE]: 'bomb-bae-btn', 
-                    [SUPERPOWERS.NO_RETURN]: 'no-return-btn', 
-                    [SUPERPOWERS.SWAP_THEM]: 'swap-them-btn' 
+                    [SUPERPOWERS.BOMB_BAE]: this.DOMElements.bomb_bae_btn, 
+                    [SUPERPOWERS.NO_RETURN]: this.DOMElements.no_return_btn, 
+                    [SUPERPOWERS.SWAP_THEM]: this.DOMElements.swap_them_btn
                 };
-                for (const [power, id] of Object.entries(powerBtns)) { 
-                    const btn = document.getElementById(id);
+                for (const [power, btn] of Object.entries(powerBtns)) { 
                     if (btn) {
                         btn.addEventListener('click', () => {
                             if (btn.disabled) return;
@@ -1677,6 +1724,11 @@
             }
 
             async handleRollDice() {
+                if (this.game.gameStateManager.is('GAME_OVER')) {
+                    handleModalOpen(this.game.DOMElements.post_game_modal);
+                    return;
+                }
+                gameManager.unlockAudioContext();
                 if (this.game.gameStateManager.is('AWAITING_PLACEMENT')) {
                     handleModalOpen(this.game.DOMElements.warning_modal);
                     return;
@@ -1693,7 +1745,7 @@
                 this.game.gameStateManager.setState('ANIMATING_ROLL');
                 if (this.game.isTimeBurst && !this.game.timerId) { this.game.startTimer(); }
 
-                const d1 = document.getElementById('dice-1'), d2 = document.getElementById('dice-2');
+                const d1 = this.DOMElements.dice_1, d2 = this.DOMElements.dice_2;
                 this.game.renderer.updateControlsState();
                 d1.classList.add('dice-tumble');
                 d2.classList.add('dice-tumble');
@@ -1747,7 +1799,7 @@
                 this.DOMElements = this._getDOMElements();
                 this.audioManager = new AudioManager();
                 this.renderer = new Renderer(this, this.DOMElements);
-                this.inputHandler = new InputHandler(this);
+                this.inputHandler = new InputHandler(this, this.DOMElements);
                 
                 this._initializeState(savedState);
                 this._setupUI();
@@ -1807,6 +1859,7 @@
                 
                 this.audioManager.init();
 
+
                 this._superpowerStrategies = {
                     [SUPERPOWERS.SWAP_THEM]: (r, c, cell) => {
                         if (!this.gridData[r][c] || this.gridData[r][c] === this.SPECIAL_SYMBOLS.CURSED) { this.audioManager.play('invalid'); return; }
@@ -1863,9 +1916,8 @@
 
             _setupUI() {
                 animateScoreUpdate('high-score', this.highScore, 3);
-                ['game-over-modal', 'exchange-modal', 'rules-modal', 'tutorial-modal', 'warning-modal', 'unlock-modal', 'badges-modal'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.remove('is-open');
+                Object.values(this.DOMElements.modals).forEach(modal => {
+                    if (modal) modal.classList.remove('is-open');
                 });
                 
                 this.renderer.renderGrid().then(() => {
@@ -1881,34 +1933,117 @@
             }
 
             _getDOMElements() {
-                const elements = {};
+                const elements = { modals: {} };
                 const idMap = {
-                    game_board: 'game-board', row_scores_display: 'row-scores-display',
-                    col_scores_display: 'col-scores-display', total_score: 'total-score', high_score: 'high-score',
-                    rows_total_score: 'rows-total-score', cols_total_score: 'cols-total-score', cross_total_score: 'cross-total-score',
-                    bonus_grid_score: 'bonus-grid-score', empty_block_penalty: 'empty-block-penalty', hero_bonus_score: 'hero-bonus-score',
-                    rules_btn: 'rules-btn', rules_modal: 'rules-modal', close_rules_btn: 'close-rules-btn', 
-                    game_over_modal: 'game-over-modal', game_over_reason: 'game-over-reason', close_game_over_btn: 'close-game-over-btn',
-                    final_score_modal: 'final-score-modal', high_score_modal: 'high-score-modal', play_again_btn: 'play-again-btn',
-                    final_rows_score: 'final-rows-score', final_cols_score: 'final-cols-score', final_cross_score: 'final-cross-score',
-                    final_bonus_score: 'final-bonus-score', final_hero_score: 'final-hero-score', final_penalty_score: 'final-penalty-score',
-                    exchange_modal: 'exchange-modal', exchange_options: 'exchange-options', progress_bar_fill: 'progress-bar-fill',
-                    new_game_btn: 'new-game-btn', game_board_container: 'game-board-container', scoring_panel: 'scoring-panel',
-                    effects_container: 'effects-container', rules_title: 'rules-title', 
-                    in_game_content: 'in-game-content', pre_game_content: 'pre-game-content',
-                    'in_game_content_wrapper': 'in-game-content-wrapper',
-                    tutorial_modal: 'tutorial-modal', tutorial_content: 'tutorial-content', tutorial_next_btn: 'tutorial-next-btn', close_tutorial_btn: 'close-tutorial-btn',
-                    warning_modal: 'warning-modal', close_warning_btn: 'close-warning-btn',
-                    unlock_modal: 'unlock-modal', unlocked_edition_name: 'unlocked-edition-name', close_unlock_btn: 'close-unlock-btn'
+                    // Game Board & Scores
+                    game_board: 'game-board',
+                    row_scores_display: 'row-scores-display',
+                    col_scores_display: 'col-scores-display',
+                    total_score: 'total-score',
+                    high_score: 'high-score',
+                    rows_total_score: 'rows-total-score',
+                    cols_total_score: 'cols-total-score',
+                    cross_total_score: 'cross-total-score',
+                    bonus_grid_score: 'bonus-grid-score',
+                    empty_block_penalty: 'empty-block-penalty',
+                    hero_bonus_score: 'hero-bonus-score',
+                    progress_bar_fill: 'progress-bar-fill',
+                    game_board_container: 'game-board-container',
+                    scoring_panel: 'scoring-panel',
+                    effects_container: 'effects-container',
+                    in_game_content: 'in-game-content',
+                    pre_game_content: 'pre_game-content',
+                    in_game_content_wrapper: 'in-game-content-wrapper',
+                    audio_unlocker: 'audio-unlocker',
+                    post_game_modal: 'post-game-modal',
+                    close_post_game_modal_btn: 'close-post-game-modal-btn',
+                    post_game_play_again_btn: 'post-game-play-again-btn',
+                    post_game_select_edition_btn: 'post-game-select-edition-btn',
+
+                    // In-game controls (will be created dynamically but good to have keys)
+                    dice_1: 'dice-1',
+                    dice_2: 'dice-2',
+                    roll_dice_btn: 'roll-dice-btn',
+                    timer_display: 'timer-display',
+                    past_lives_btn: 'past-lives-btn',
+                    no_return_btn: 'no-return-btn',
+                    bomb_bae_btn: 'bomb-bae-btn',
+                    swap_them_btn: 'swap-them-btn',
+                    sp_charges: 'sp-charges',
+
+                    // Global Buttons
+                    rules_btn: 'rules-btn',
+                    new_game_btn: 'new-game-btn',
+                    badges_btn: 'badges-btn',
+                    select_edition_btn: 'select-edition-btn',
+
+                    // Modals & Modal Content
+                    rules_modal: 'rules-modal',
+                    game_over_modal: 'game-over-modal',
+                    exchange_modal: 'exchange-modal',
+                    tutorial_modal: 'tutorial-modal',
+                    warning_modal: 'warning-modal',
+                    unlock_modal: 'unlock-modal',
+                    badges_modal: 'badges-modal',
+                    edition_select_modal: 'edition-select-modal',
+                    confirm_restart_modal: 'confirm-restart-modal',
+
+                    // Modal Buttons
+                    close_rules_btn: 'close-rules-btn',
+                    close_game_over_btn: 'close-game-over-btn',
+                    play_again_btn: 'play-again-btn',
+                    share_score_btn: 'share-score-btn',
+                    change_edition_btn_modal: 'change-edition-btn-modal',
+                    close_edition_select_btn: 'close-edition-select-btn',
+                    confirm_cancel_btn: 'confirm-cancel-btn',
+                    confirm_restart_btn: 'confirm-restart-btn',
+                    close_tutorial_btn: 'close-tutorial-btn',
+                    tutorial_next_btn: 'tutorial-next-btn',
+                    close_warning_btn: 'close-warning-btn',
+                    close_warning_x_btn: 'close-warning-x-btn',
+                    close_unlock_btn: 'close-unlock-btn',
+                    close_unlock_x_btn: 'close-unlock-x-btn',
+                    close_badges_btn: 'close-badges-btn',
+                    share_badges_btn: 'share-badges-btn',
+                    
+                    // Modal Specific Content
+                    rules_title: 'rules-title',
+                    game_over_reason: 'game-over-reason',
+                    final_score_modal: 'final-score-modal',
+                    high_score_modal: 'high-score-modal',
+                    final_rows_score: 'final-rows-score',
+                    final_cols_score: 'final-cols-score',
+                    final_cross_score: 'final-cross-score',
+                    final_bonus_score: 'final-bonus-score',
+                    final_hero_score: 'final-hero-score',
+                    final_penalty_score: 'final-penalty-score',
+                    exchange_options: 'exchange-options',
+                    tutorial_content: 'tutorial-content',
+                    unlocked_edition_name: 'unlocked-edition-name',
+                    badges_grid: 'badges-grid',
+                    badge_info_text: 'badge-info-text',
+                    edition_options: 'edition-options',
+                    mode_toggle_switch: 'mode-toggle-switch',
+                    classic_text: 'classic-text',
+                    time_burst_text: 'time-burst-text',
                 };
                 
                 for (const key in idMap) {
                     const element = document.getElementById(idMap[key]);
                     if (!element) {
-                        console.warn(`[Alloha Dev Warning] DOM element not found for key: "${key}" with ID: "${idMap[key]}"`);
+                        // This warning is helpful during development but can be noisy if elements are dynamically created
+                        // console.warn(`[Alloha Dev Warning] DOM element not found for key: "${key}" with ID: "${idMap[key]}"`);
+                    }
+                    if (key.endsWith('_modal')) {
+                        elements.modals[key] = element;
                     }
                     elements[key] = element;
                 }
+                
+                // For elements without a simple ID, query them here too
+                elements.modal_content_badges = document.querySelector('#badges-modal .modal-content');
+                elements.modal_content_game_over = document.querySelector('#game-over-modal .modal-content');
+                
                 return elements;
             }
 
@@ -2342,17 +2477,16 @@
 
                 setTimeout(() => {
                     handleModalOpen(this.DOMElements.game_over_modal);
-                    // Event listeners for buttons inside this modal are now handled globally by gameManager
                 }, CONSTANTS.END_GAME_MODAL_DELAY);
             }
 
             async handleShareScore(score, highScore) {
-                const shareBtn = document.getElementById('share-score-btn');
+                const shareBtn = this.DOMElements.share_score_btn;
                 const shareBtnSpan = shareBtn.querySelector('span');
                 if (!shareBtn || !shareBtnSpan) return;
 
                 const originalBtnText = shareBtnSpan.textContent;
-                const modalContent = document.querySelector('#game-over-modal .modal-content');
+                const modalContent = this.DOMElements.modal_content_game_over;
 
                 try {
                     shareBtnSpan.textContent = 'Generating...';
@@ -2511,15 +2645,20 @@
             currentGameInstance: null,
             pendingAction: null,
             activeMode: 'classic',
+            isAudioUnlocked: false,
+
+            unlockAudioContext() {
+                if (this.isAudioUnlocked || !this.currentGameInstance) return;
+                this.currentGameInstance.audioManager.unlock(this.currentGameInstance.DOMElements.audio_unlocker);
+                this.isAudioUnlocked = true;
+            },
 
             init() {
-                this.populateEditionModal();
-                this.setupGlobalEventListeners();
                 this.switchVariant('plain_jean', false);
             },
 
             populateEditionModal() {
-                const container = document.getElementById('edition-options');
+                const container = this.currentGameInstance ? this.currentGameInstance.DOMElements.edition_options : document.getElementById('edition-options');
                 if (!container) return;
                 container.innerHTML = '';
 
@@ -2542,14 +2681,15 @@
                         button.classList.add('hover:bg-gray-200/50');
                         button.onclick = () => {
                             const game = this.currentGameInstance;
+                            const elements = game.DOMElements;
                             const isGameInProgress = game && game.turnCount > 0 && !game.gameStateManager.is('GAME_OVER');
                             
-                            handleModalClose(document.getElementById('edition-select-modal'));
+                            handleModalClose(elements.edition_select_modal);
                             const isTimeBurst = this.activeMode === 'timeburst';
 
                             if (isGameInProgress && config.id !== this.activeVariantId) {
                                 this.pendingAction = () => this.switchVariant(config.id, isTimeBurst, true);
-                                handleModalOpen(document.getElementById('confirm-restart-modal'));
+                                handleModalOpen(elements.confirm_restart_modal);
                             } else {
                                 this.switchVariant(config.id, isTimeBurst);
                             }
@@ -2601,7 +2741,9 @@
                     }
 
                     this.currentGameInstance = new Game(variantConfig, themeConfig, isTimeBurst, variantConfigs, savedState);
-                                        
+                    this.populateEditionModal();
+                    this.setupGlobalEventListeners();
+                    
                     gameContainer.style.opacity = '1';
                 }, CONSTANTS.VARIANT_SWITCH_DELAY);
             },
@@ -2626,62 +2768,77 @@
                 savePlayerStats(stats);
 
                 const unlockedEditionName = variantConfigs[editionId]?.name || 'a new edition';
-                const unlockedEditionNameEl = document.getElementById('unlocked-edition-name');
+                const unlockedEditionNameEl = this.currentGameInstance.DOMElements.unlocked_edition_name;
                 
                 if (unlockedEditionNameEl) {
                     unlockedEditionNameEl.textContent = unlockedEditionName;
                 }
 
-                handleModalOpen(document.getElementById('unlock-modal'));
+                handleModalOpen(this.currentGameInstance.DOMElements.unlock_modal);
                 
                 // Refresh the modal content to show the newly unlocked game
                 this.populateEditionModal();
             },
 
             setupGlobalEventListeners() {
-                const toggleSwitch = document.getElementById('mode-toggle-switch');
+                // This function runs after the first game instance is created.
+                // We can now safely access the DOMElements from it.
+                const elements = this.currentGameInstance.DOMElements;
 
                 // Centralized Modal Close Button Logic
                 const modalClosers = [
-                    ['close-rules-btn', 'rules-modal'],
-                    ['close-edition-select-btn', 'edition-select-modal'],
-                    ['close-game-over-btn', 'game-over-modal'],
-                    ['close-tutorial-btn', 'tutorial-modal'],
-                    ['close-warning-btn', 'warning-modal'],
-                    ['close-warning-x-btn', 'warning-modal'],
-                    ['close-unlock-btn', 'unlock-modal'],
-                    ['close-unlock-x-btn', 'unlock-modal'],
-                    ['close-badges-btn', 'badges-modal'],
+                    [elements.close_rules_btn, elements.rules_modal],
+                    [elements.close_edition_select_btn, elements.edition_select_modal],
+                    [elements.close_game_over_btn, elements.game_over_modal],
+                    [elements.close_tutorial_btn, elements.tutorial_modal],
+                    [elements.close_warning_btn, elements.warning_modal],
+                    [elements.close_warning_x_btn, elements.warning_modal],
+                    [elements.close_unlock_btn, elements.unlock_modal],
+                    [elements.close_unlock_x_btn, elements.unlock_modal],
+                    [elements.close_badges_btn, elements.badges_modal],
                 ];
 
-                modalClosers.forEach(([buttonId, modalId]) => {
-                    const button = document.getElementById(buttonId);
-                    const modal = document.getElementById(modalId);
+                modalClosers.forEach(([button, modal]) => {
                     if (button && modal) {
                         button.addEventListener('click', () => handleModalClose(modal));
                     }
                 });
 
-                document.getElementById('tutorial-next-btn').addEventListener('click', () => {
+                elements.tutorial_next_btn.addEventListener('click', () => {
                     if (gameManager.currentGameInstance) {
                         gameManager.currentGameInstance.tutorialStep++;
                         gameManager.currentGameInstance.showTutorialStep();
                     }
                 });
 
+                elements.close_post_game_modal_btn.addEventListener('click', () => {
+                    handleModalClose(elements.post_game_modal);
+                });
+
+                elements.post_game_play_again_btn.addEventListener('click', () => {
+                    handleModalClose(elements.post_game_modal);
+                    this.resetCurrentVariant();
+                });
+
+                elements.post_game_select_edition_btn.addEventListener('click', () => {
+                    handleModalClose(elements.post_game_modal);
+                    elements.select_edition_btn.click(); // Re-use existing logic
+                });
+
                 // Other Global Listeners
-                document.getElementById('select-edition-btn').addEventListener('click', () => {
+                elements.select_edition_btn.addEventListener('click', () => {
                     const isTimeBurst = this.currentGameInstance.isTimeBurst;
                     this.activeMode = isTimeBurst ? 'timeburst' : 'classic';
+                    this.unlockAudioContext();
                     
                     if(isTimeBurst) {
-                        toggleSwitch.classList.add('time-burst-active');
-                        document.getElementById('time-burst-text').style.color = 'var(--accent)';
-                        document.getElementById('classic-text').style.color = 'var(--text-secondary)';
+                        elements.mode_toggle_switch.classList.add('time-burst-active');
+                        elements.time_burst_text.style.color = 'var(--accent)';
+                        elements.classic_text.style.color = 'var(--text-secondary)';
                     } else {
-                        toggleSwitch.classList.remove('time-burst-active');
-                        document.getElementById('classic-text').style.color = 'var(--text)';
-                        document.getElementById('time-burst-text').style.color = 'var(--text-secondary)';
+                        elements.mode_toggle_switch.classList.remove('time-burst-active');
+                        elements.classic_text.style.color = 'var(--text)';
+                        elements.time_burst_text.style.color = 'var(--text-secondary)';
                     }
 
                     const currentEditionId = this.currentGameInstance.config.id;
@@ -2692,46 +2849,48 @@
                         }
                     });
 
-                    handleModalOpen(document.getElementById('edition-select-modal'));
+                    handleModalOpen(elements.edition_select_modal);
                 });
                 
-                document.getElementById('play-again-btn').addEventListener('click', () => { 
-                    handleModalClose(document.getElementById('game-over-modal'));
+                elements.play_again_btn.addEventListener('click', () => { 
+                    handleModalClose(elements.game_over_modal);
                     this.resetCurrentVariant();
                 });
 
-                document.getElementById('change-edition-btn-modal').addEventListener('click', () => {
-                    handleModalClose(document.getElementById('game-over-modal'));
-                    document.getElementById('select-edition-btn').click();
+                elements.change_edition_btn_modal.addEventListener('click', () => {
+                    handleModalClose(elements.game_over_modal);
+                    elements.select_edition_btn.click();
                 });
 
-                document.getElementById('share-score-btn').addEventListener('click', () => {
+                elements.share_score_btn.addEventListener('click', () => {
                     const game = this.currentGameInstance;
                     game.handleShareScore(game.currentTotalScore, game.highScore);
                 });
 
-                document.getElementById('badges-btn').addEventListener('click', () => {
-                    renderBadgesGrid();
-                    handleModalOpen(document.getElementById('badges-modal'));
+                elements.badges_btn.addEventListener('click', () => {
+                    renderBadgesGrid(elements);
+                    handleModalOpen(elements.badges_modal);
                 });
 
-                document.getElementById('share-badges-btn').addEventListener('click', handleShareBadges);
+                elements.share_badges_btn.addEventListener('click', () => {
+                    handleShareBadges(elements.share_badges_btn, elements.modal_content_badges);
+                });
                 
-                toggleSwitch.addEventListener('click', () => {
-                    toggleSwitch.classList.toggle('time-burst-active');
-                    this.activeMode = toggleSwitch.classList.contains('time-burst-active') ? 'timeburst' : 'classic';
+                elements.mode_toggle_switch.addEventListener('click', () => {
+                    elements.mode_toggle_switch.classList.toggle('time-burst-active');
+                    this.activeMode = elements.mode_toggle_switch.classList.contains('time-burst-active') ? 'timeburst' : 'classic';
                     if (this.activeMode === 'timeburst') {
-                        document.getElementById('time-burst-text').style.color = 'var(--accent)';
-                        document.getElementById('classic-text').style.color = 'var(--text-secondary)';
+                        elements.time_burst_text.style.color = 'var(--accent)';
+                        elements.classic_text.style.color = 'var(--text-secondary)';
                     } else {
-                        document.getElementById('classic-text').style.color = 'var(--text)';
-                        document.getElementById('time-burst-text').style.color = 'var(--text-secondary)';
+                        elements.classic_text.style.color = 'var(--text)';
+                        elements.time_burst_text.style.color = 'var(--text-secondary)';
                     }
                 });
                 
-                document.getElementById('rules-btn').addEventListener('click', () => { handleModalOpen(document.getElementById('rules-modal')); });
+                elements.rules_btn.addEventListener('click', () => { handleModalOpen(elements.rules_modal); });
 
-                document.getElementById('new-game-btn').addEventListener('click', () => {
+                elements.new_game_btn.addEventListener('click', () => {
                     const game = this.currentGameInstance;
                     if (game && game.gameStateManager.is('GAME_OVER')) {
                         this.resetCurrentVariant();
@@ -2739,28 +2898,30 @@
                     }
                     if (game && game.turnCount > 0) {
                         this.pendingAction = () => this.resetCurrentVariant();
-                        handleModalOpen(document.getElementById('confirm-restart-modal'));
+                        handleModalOpen(elements.confirm_restart_modal);
                     } else {
                         this.resetCurrentVariant();
                     }
+                    this.unlockAudioContext();
                 });
 
-                document.getElementById('confirm-cancel-btn').addEventListener('click', () => {
+                elements.confirm_cancel_btn.addEventListener('click', () => {
                     this.pendingAction = null;
-                    handleModalClose(document.getElementById('confirm-restart-modal'));
+                    handleModalClose(elements.confirm_restart_modal);
                 });
                 
-                document.getElementById('confirm-restart-btn').addEventListener('click', () => {
+                elements.confirm_restart_btn.addEventListener('click', () => {
                     if (typeof this.pendingAction === 'function') {
                         this.pendingAction();
                     }
                     this.pendingAction = null;
-                    handleModalClose(document.getElementById('confirm-restart-modal'));
+                    handleModalClose(elements.confirm_restart_modal);
                 });
 
                 document.addEventListener('keydown', (e) => {
                     const game = this.currentGameInstance;
                     if (!game) return;
+                    const elements = game.DOMElements;
 
                     if (e.key === 'Escape') {
                         if (game.activeSuperpower) {
@@ -2772,8 +2933,7 @@
                             game.renderer.updateSuperpowerButtonsUI();
                             game.gameStateManager.setState(game.firstPlacementCell ? 'AWAITING_PLACEMENT' : 'AWAITING_ROLL');
                         } else {
-                           ['rules-modal', 'game-over-modal', 'exchange-modal', 'edition-select-modal', 'confirm-restart-modal', 'tutorial-modal', 'warning-modal', 'unlock-modal', 'badges-modal'].forEach(id => {
-                                const modal = document.getElementById(id);
+                           Object.values(elements.modals).forEach(modal => {
                                 if (modal?.classList.contains('is-open')) {
                                    handleModalClose(modal);
                                 }
@@ -2782,7 +2942,7 @@
                     }
                     if (e.key === ' ' && game.gameStateManager.is('AWAITING_ROLL')) {
                         e.preventDefault();
-                        const rollBtn = document.getElementById('roll-dice-btn');
+                        const rollBtn = elements.roll_dice_btn;
                         if (rollBtn) rollBtn.click();
                     }
                 });
