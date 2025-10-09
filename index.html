@@ -3,6 +3,25 @@
 <head>
     <meta charset="utf-8">
     <title>Alloha</title>
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Alloha - Fun and Challenging Grid Game" />
+    <meta property="og:description" content="Play Alloha, a fun and challenging grid matching game with exciting power-ups and multiple editions." />
+    <meta property="og:image" content="https://abhimanyulodha.github.io/alloha/images/alloha-og-image.svg" />
+    <meta property="og:url" content="https://abhimanyulodha.github.io/alloha/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Alloha Game" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Alloha Game - Fun and Addictive Grid Game" />
+    <meta name="twitter:description" content="Play Alloha, a fun and challenging grid matching game with exciting power-ups and multiple editions." />
+    <meta name="twitter:image" content="https://abhimanyulodha.github.io/alloha/images/alloha-og-image.svg" />
+
+    <!-- Existing styles/scripts below -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -681,6 +700,9 @@
             baby: { name: 'Baby', emoji: '👶', description: 'Complete your first game of Alloha.' },
             enthusiast: { name: 'Enthusiast', emoji: '🎮', description: 'Play 10 games in any mode.' },
             veteran: { name: 'Veteran', emoji: '🎖️', description: 'Play 50 games in any mode.' },
+            onFire: { name: 'On Fire', emoji: '🔥', description: 'Win 3 days in a row.' },
+            unstoppable: { name: 'Unstoppable', emoji: '🔥🔥', description: 'Win 7 days in a row.' },
+            legendary: { name: 'Legendary', emoji: '🔥🔥🔥', description: 'Win 30 days in a row.' },
             timeTraveller: { name: 'Time Traveller', emoji: '⏱️', description: 'Complete your first game in Time Burst mode.' },
             masterOfTime: { name: 'Master of Time', emoji: '⏳', description: 'Win 10 games in Time Burst mode.' },
             centuryClub: { name: 'Century Club', emoji: '🏆', description: 'Score over 100 points in a single game.' },
@@ -733,8 +755,19 @@
         function savePlayerStats(stats) {
             try {
                 localStorage.setItem('allohaPlayerStats', JSON.stringify(stats));
+                return true;
             } catch (e) {
                 console.error("Could not save to localStorage.", e);
+                
+                // User-friendly error notification
+                if (e.name === 'QuotaExceededError') {
+                    showToast('⚠️ Storage full! Progress may not save. Clear browser data to continue.');
+                } else if (e.message && e.message.includes('access')) {
+                    showToast('⚠️ Cannot save progress. Check if cookies/storage is enabled.');
+                } else {
+                    showToast('⚠️ Could not save progress.');
+                }
+                return false;
             }
         }
 
@@ -744,7 +777,11 @@
                 const badge = badgeConfigs[badgeId];
                 stats.unlockedBadges[badgeId] = { unlockedAt: new Date().toISOString() };
                 if (!statsObj) { // Only save if we had to fetch the stats ourselves
-                    savePlayerStats(stats);
+                    const saved = savePlayerStats(stats);
+                    if (!saved) {
+                        console.warn(`Failed to save badge unlock for ${badgeId}`);
+                        // User already notified by savePlayerStats via showToast
+                    }
                 }
                 showToast(`<span>${badge.emoji}</span> Badge Unlocked: ${badge.name}`);
             }
@@ -895,7 +932,7 @@
             zedi_zodi: { name: "Zodiac Night", symbols: ['♋', '♒', '♎', '♐', '♌', '♉'], palette: { bg: 'linear-gradient(135deg, #0f0c29 0%, #302b63 100%)', card: 'rgba(48, 43, 99, 0.75)', text: '#FFFFFF', text_secondary: '#A9B4D1', accent: '#FFD700', 'accent-light': '#4A428A', accent_gradient: 'linear-gradient(135deg, #FFD700 0%, #FFA000 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)', highlighted_bg: 'rgba(255, 215, 0, 0.15)', highlighted_border: 'rgba(255, 215, 0, 0.3)', grid_cell_bg: '#6A6E89', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '♋':'text-gray-300', '♒':'text-blue-300', '♎':'text-pink-300', '♐':'text-orange-300', '♌':'text-yellow-300', '♉':'text-green-300' } },
             desert_oasis: { name: "Desert Oasis", symbols: ['🌵', '🪨', '☀️', '🐍', '⛺', '🌴'], palette: { bg: 'linear-gradient(135deg, #FFECB3 0%, #FFD54F 100%)', card: 'rgba(255, 255, 255, 0.85)', text: '#5D4037', text_secondary: '#6D4C41', accent: '#00897B', 'accent-light': '#B2DFDB', accent_gradient: 'linear-gradient(135deg, #00897B 0%, #26A69A 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #4DB6AC 0%, #80CBC4 100%)', highlighted_bg: 'rgba(0, 137, 123, 0.15)', highlighted_border: 'rgba(0, 137, 123, 0.3)', grid_cell_bg: '#FFFBF2', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🌵':'text-green-700', '🪨':'text-gray-600', '☀️':'text-yellow-600', '🐍':'text-emerald-800', '⛺':'text-orange-700', '🌴':'text-lime-800' } },
             morning_aviary: { name: "Morning Aviary", symbols: ['🐔', '🐦', '🐥', '🐣', '🐝', '🐧'], palette: { bg: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#0D47A1', text_secondary: '#1976D2', accent: '#FFA000', 'accent-light': '#FFECB3', accent_gradient: 'linear-gradient(135deg, #FFA000 0%, #FFB300 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)', highlighted_bg: 'rgba(255, 160, 0, 0.15)', highlighted_border: 'rgba(255, 160, 0, 0.3)', grid_cell_bg: '#F7FBFF', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🐔':'text-red-600', '🐦':'text-blue-500', '🐥':'text-yellow-500', '🐣':'text-yellow-400', '🐝':'text-yellow-600', '🐧':'text-gray-800' } },
-            creepy_crawlies: { name: "Creepy Crawlies", symbols: ['🐍', '🦎', '🦂', '🐭', '🥚', '🐁'], palette: { bg: 'linear-gradient(135deg, #37474F 0%, #212121 100%)', card: 'rgba(38, 50, 56, 0.8)', text: '#CFD8DC', text_secondary: '#90A4AE', accent: '#7E57C2', 'accent-light': '#512DA8', accent_gradient: 'linear-gradient(135deg, #7E57C2 0%, #9575CD 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #B39DDB 0%, #D1C4E9 100%)', highlighted_bg: 'rgba(126, 87, 194, 0.15)', highlighted_border: 'rgba(126, 87, 194, 0.3)', grid_cell_bg: '#546E7A', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🐍':'text-green-400', '🦎':'text-lime-400', '🦂':'text-red-400', '🐭':'text-gray-300', '🥚':'text-gray-200', '🐁':'text-gray-100' } },
+            creepy_crawlies: { name: "Sandstone Valley", symbols: ['🐍', '🦎', '🦂', '🐭', '🥚', '🐁'], palette: { bg: 'linear-gradient(135deg, #EFEBE9 0%, #D7CCC8 100%)', card: 'rgba(255, 255, 255, 0.92)', text: '#3E2723', text_secondary: '#5D4037', accent: '#BF360C', 'accent-light': 'rgba(191, 54, 12, 0.08)', accent_gradient: 'linear-gradient(135deg, #BF360C 0%, #D84315 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FF5722 0%, #FF7043 100%)', highlighted_bg: 'rgba(191, 54, 12, 0.1)', highlighted_border: 'rgba(191, 54, 12, 0.3)', grid_cell_bg: '#FAF8F6', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🐍':'text-green-900', '🦎':'text-lime-800', '🦂':'text-red-900', '🐭':'text-gray-800', '🥚':'text-stone-600', '🐁':'text-slate-800' } },
             ancient_secrets: { name: "Ancient Secrets", symbols: ['🔍', '🧩', '🀄', '🔑', '🧭', '👁️'], palette: { bg: 'linear-gradient(135deg, #5D4037 0%, #3E2723 100%)', card: 'rgba(62, 39, 35, 0.75)', text: '#D7CCC8', text_secondary: '#D7CCC8', accent: '#FFCA28', 'accent-light': '#4E342E', accent_gradient: 'linear-gradient(135deg, #FFC107 0%, #FF8F00 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #FFA000 0%, #FF6F00 100%)', highlighted_bg: 'rgba(255, 202, 40, 0.15)', highlighted_border: 'rgba(255, 202, 40, 0.3)', grid_cell_bg: '#795548', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🔍':'text-blue-300', '🧩':'text-orange-300', '🀄':'text-red-300', '🔑':'text-yellow-300', '🧭':'text-gray-300', '👁️':'text-cyan-300' } },
             cosmic_drift: { name: "Cosmic Drift", symbols: ['🌍', '🚀', '🪐', '🌗', '💫', '🛰️'], palette: { bg: 'linear-gradient(135deg, #1A237E 0%, #0D123B 100%)', card: 'rgba(48, 59, 128, 0.7)', text: '#E8EAF6', text_secondary: '#9FA8DA', accent: '#536DFE', 'accent-light': '#1A237E', accent_gradient: 'linear-gradient(135deg, #536DFE 0%, #7C4DFF 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #7C4DFF 0%, #B388FF 100%)', highlighted_bg: 'rgba(83, 109, 254, 0.2)', highlighted_border: 'rgba(83, 109, 254, 0.4)', grid_cell_bg: '#5C6BC0', toggle_bg_inactive: 'rgba(255,255,255,0.2)', }, symbolColors: { '🌍':'text-blue-300', '🚀':'text-gray-200', '🪐':'text-amber-300', '🌗':'text-gray-100', '💫':'text-yellow-300', '🛰️':'text-blue-200' } },
             petal_meadow: { name: "Petal Meadow", symbols: ['🌸', '🌺', '🌷', '🪷', '🪻', '🌻'], palette: { bg: 'linear-gradient(135deg, #E6EE9C 0%, #C5E1A5 100%)', card: 'rgba(255, 255, 255, 0.9)', text: '#2E7D32', text_secondary: '#558B2F', accent: '#D81B60', 'accent-light': '#F8BBD0', accent_gradient: 'linear-gradient(135deg, #D81B60 0%, #E91E63 100%)', accent_gradient_shaded: 'linear-gradient(135deg, #F06292 0%, #F48FB1 100%)', highlighted_bg: 'rgba(216, 27, 96, 0.1)', highlighted_border: 'rgba(216, 27, 96, 0.25)', grid_cell_bg: '#F8FFF0', toggle_bg_inactive: '#E0E0E0', }, symbolColors: { '🌸':'text-pink-400', '🌺':'text-red-500', '🌷':'text-orange-500', '🪷':'text-pink-500', '🪻':'text-purple-500', '🌻':'text-yellow-500' } },
@@ -997,7 +1034,7 @@
             'road_block': { id: 'road_block', name: 'Road Block', themeId: 'road_block_theme', timeLimit: 120, isTwinningCell: (r, c) => [0, 2, 4, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'box_vox': { id: 'box_vox', name: 'Box Vox', themeId: 'the_post_office', timeLimit: 120, isTwinningCell: (r, c) => [0, 3, 6].includes(r) || [0, 3, 6].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'hash_hush': { id: 'hash_hush', name: 'Hash Hush', themeId: 'tutti_frutti', timeLimit: 120, isTwinningCell: (r, c) => [2, 4].includes(r) || [2, 4].includes(c), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
-            'zedi_zodi': { id: 'zedi_zodi', name: 'Zedi Zodi', themeId: 'zedi_zodi', timeLimit: 120, isTwinningCell: (r, c) => r === 0 || r === 6 || r + c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
+            'zedi_zodi': { id: 'zedi_zodi', name: 'Zedi Zodi', themeId: 'zedi_zodi', timeLimit: 120, isTwinningCell: (r, c) => r === 0 || r === 6 || r + c === 6, getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); }, hasSpecialDiagonal: true, getSpecialDiagonalCells: function() { const cells = []; for (let i = 0; i < 7; i++) { cells.push({ r: i, c: 6 - i }); } return cells; } },
             'core': { id: 'core', name: 'Cacti Facti Edition', themeId: 'desert_oasis', timeLimit: 150, isTwinningCell: (r, c) => (r === 3 && c >= 3 && c <= 5) || (r === 5 && c >= 1 && c <= 3) || (c === 1 && r >= 1 && r <= 5) || (c === 3) || (c === 5 && r >= 0 && r <= 3), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'eight_and_watch': { id: 'eight_and_watch', name: 'Eight and Watch', themeId: 'morning_aviary', timeLimit: 150, isTwinningCell: (r, c) => (r === 0 && c >= 3) || (r === 3) || (r === 6 && c <= 3) || (c === 0 && r >= 3) || (c === 3) || (c === 6 && r <= 3), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
             'fake_snake': { id: 'fake_snake', name: 'Fake Snake', themeId: 'creepy_crawlies', timeLimit: 150, isTwinningCell: (r, c) => (r === 0 && c >= 4) || (r === 2 && c >= 2 && c <= 4) || (r === 4 && c <= 2) || (c === 0 && r >= 4) || (c === 2 && r >= 2 && r <= 4) || (c === 4 && r <= 2), getCrossScoreSegments: function() { return generateCrossScoreSegments(this.isTwinningCell); } },
@@ -1614,6 +1651,7 @@
                 this.handleContentClick = this._handleContentClick.bind(this);
                 this.handleBoardClick = this._handleBoardClick.bind(this);
                 this.handleResize = this.game.renderer.syncPanelHeights.bind(this.game.renderer);
+                this.superpowerHandlers = new Map();
             }
         
             _handleContentClick(e) {
@@ -1631,10 +1669,20 @@
                 window.addEventListener('resize', this.handleResize);
             }
 
+            detachSuperpowerEventListeners() {
+                for (const [key, {btn, handler}] of this.superpowerHandlers.entries()) {
+                    if (btn) {
+                        btn.removeEventListener('click', handler);
+                    }
+                }
+                this.superpowerHandlers.clear();
+            }
+
             detachAllListeners() {
                 this.DOMElements.in_game_content_wrapper.removeEventListener('click', this.handleContentClick);
                 this.DOMElements.game_board.removeEventListener('click', this.handleBoardClick);
                 window.removeEventListener('resize', this.handleResize);
+                this.detachSuperpowerEventListeners();
             }
             
             addCellEventListeners(cell) { 
@@ -1643,43 +1691,58 @@
             }
             
             attachSuperpowerEventListeners() {
-                this.DOMElements.past_lives_btn?.addEventListener('click', () => {
-                    if (this.DOMElements.past_lives_btn.disabled) return;
-                    this.game.audioManager.play('power-activate');
-                    this.game.triggerVibration(30);
+                // Clean up old listeners first
+                this.detachSuperpowerEventListeners();
+                
+                // Past Lives button - special handling
+                if (this.DOMElements.past_lives_btn) {
+                    const pastLivesHandler = () => {
+                        if (this.DOMElements.past_lives_btn.disabled) return;
+                        this.game.audioManager.play('power-activate');
+                        this.game.triggerVibration(30);
 
-                    const state = this.game.lastGameState;
-                    this.game.gridData = JSON.parse(state.gridData);
-                    this.game.currentRoll = state.currentRoll;
-                    this.game.firstPlacementCell = state.firstPlacementCell;
-                    this.game.turnCount = state.turnCount;
-                    this.game.stuckBlocks = new Set(state.stuckBlocks);
-                    this.game.gameStateManager.currentState = state.currentState;
-                    this.game.timeLeft = state.timeLeft;
+                        const state = this.game.lastGameState;
+                        this.game.gridData = JSON.parse(state.gridData);
+                        this.game.currentRoll = state.currentRoll;
+                        this.game.firstPlacementCell = state.firstPlacementCell;
+                        this.game.turnCount = state.turnCount;
+                        this.game.stuckBlocks = new Set(state.stuckBlocks);
+                        this.game.gameStateManager.currentState = state.currentState;
+                        this.game.timeLeft = state.timeLeft;
 
-                    this.game.renderer.updateFullGrid();
-                    this.game.renderer.updateControlsState();
-                    this.game.updateAllScores();
-                    this.game.renderer.updateProgressBar();
-                    
-                    this.game.consumeSuperpower(SUPERPOWERS.PAST_LIVES);
-                });
+                        this.game.renderer.updateFullGrid();
+                        this.game.renderer.updateControlsState();
+                        this.game.updateAllScores();
+                        this.game.renderer.updateProgressBar();
+                        
+                        this.game.consumeSuperpower(SUPERPOWERS.PAST_LIVES);
+                    };
+                    this.superpowerHandlers.set('past_lives', { 
+                        btn: this.DOMElements.past_lives_btn, 
+                        handler: pastLivesHandler 
+                    });
+                    this.DOMElements.past_lives_btn.addEventListener('click', pastLivesHandler);
+                }
 
+                // Other superpower buttons
                 const powerBtns = { 
                     [SUPERPOWERS.BOMB_BAE]: this.DOMElements.bomb_bae_btn, 
                     [SUPERPOWERS.NO_RETURN]: this.DOMElements.no_return_btn, 
                     [SUPERPOWERS.SWAP_THEM]: this.DOMElements.swap_them_btn
                 };
+                
                 for (const [power, btn] of Object.entries(powerBtns)) { 
                     if (btn) {
-                        btn.addEventListener('click', () => {
+                        const handler = () => {
                             if (btn.disabled) return;
                             this.game.activeSuperpower = power;
                             this.game.gameStateManager.setState('SUPERPOWER_ACTIVE');
                             this.game.audioManager.play('power-activate');
                             this.game.triggerVibration(30);
                             this.game.renderer.updateSuperpowerButtonsUI();
-                        });
+                        };
+                        this.superpowerHandlers.set(power, { btn, handler });
+                        btn.addEventListener('click', handler);
                     }
                 }
             }
@@ -2403,9 +2466,37 @@
                 if (!this.isTimeBurst && this.currentTotalScore > 0) stats.classicWins++;
                 stats.playedEditions[this.config.id] = true;
 
+                const today = new Date().toISOString().slice(0, 10);
+                const lastPlayed = stats.lastPlayed || '';
+                const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+                
+                if (this.currentTotalScore > 0) {
+                    // Only winning games count toward streak
+                    if (lastPlayed === yesterday) {
+                        // Played yesterday and won - continue streak
+                        stats.streak = (stats.streak || 0) + 1;
+                    } else if (lastPlayed === today) {
+                        // Already played today - don't change streak
+                    } else {
+                        // First play today, but didn't play yesterday - start new streak
+                        stats.streak = 1;
+                    }
+                } else {
+                    // Lost game - don't break streak, just don't increment it
+                    // Players can still maintain streak by winning later today
+                }
+                
+                // Always update last played date
+                stats.lastPlayed = today;
+
                 if (stats.gamesPlayed >= 1) unlockBadge('baby', stats);
                 if (stats.gamesPlayed >= 10) unlockBadge('enthusiast', stats);
                 if (stats.gamesPlayed >= 50) unlockBadge('veteran', stats);
+
+                if (stats.streak >= 3) unlockBadge('onFire', stats);
+                if (stats.streak >= 7) unlockBadge('unstoppable', stats);
+                if (stats.streak >= 30) unlockBadge('legendary', stats);
+
                 if (stats.timeBurstWins >= 10) unlockBadge('masterOfTime', stats);
 
                 if (this.currentTotalScore > 100) unlockBadge('centuryClub', stats);
@@ -2418,7 +2509,10 @@
                 if (stats.classicWins > 0 && stats.timeBurstWins > 0) unlockBadge('allRounder', stats);
                 
                 this.checkGridBadges(stats);
-                savePlayerStats(stats);
+                const saved = savePlayerStats(stats);
+                if (!saved) {
+                    console.warn('Game stats could not be saved. Progress may be lost.');
+                }
             }
 
             endGame(reason = "") {
@@ -2466,6 +2560,16 @@
                 this.DOMElements.game_over_reason.textContent = reason;
                 animateScoreUpdate('final-score-modal', finalScore, 3);
                 animateScoreUpdate('high-score-modal', this.highScore, 3);
+
+                // Show streak if player won
+                const stats = getPlayerStats();
+                const currentStreak = stats.streak || 0;
+                if (finalScore > 0 && currentStreak > 1) {
+                    const streakText = currentStreak >= 3 
+                        ? `🔥 ${currentStreak} Day Streak! 🔥` 
+                        : `${currentStreak} Day Streak`;
+                    this.DOMElements.game_over_reason.textContent = streakText;
+                }
                 
                 const formatNegative = (val, len = 2) => val < 0 ? `(${String(Math.abs(val)).padStart(len,'0')})` : String(val).padStart(len,'0');
                 this.DOMElements.final_rows_score.textContent = formatNegative(this.scores.rows);
@@ -2613,11 +2717,11 @@
                     bonusScore += getScoreForSegment(segmentSymbols);
                 });
 
-                if (this.config.id === 'zedi_zodi') {
-                    const diagonal = [];
-                    for (let i = 0; i < this.GRID_SIZE; i++) {
-                        diagonal.push(this.gridData[i][this.GRID_SIZE - 1 - i]);
-                    }
+                // Use config instead of hardcoded variant check
+                if (this.config.hasSpecialDiagonal && this.config.getSpecialDiagonalCells) {
+                    const diagonal = this.config.getSpecialDiagonalCells().map(
+                        ({r, c}) => this.gridData[r][c]
+                    );
                     bonusScore += getScoreForSegment(diagonal);
                 }
 
@@ -2646,6 +2750,7 @@
             pendingAction: null,
             activeMode: 'classic',
             isAudioUnlocked: false,
+            globalListenersAttached: false,
 
             unlockAudioContext() {
                 if (this.isAudioUnlocked || !this.currentGameInstance) return;
@@ -2783,6 +2888,8 @@
             setupGlobalEventListeners() {
                 // This function runs after the first game instance is created.
                 // We can now safely access the DOMElements from it.
+                if (this.globalListenersAttached) return;
+                this.globalListenersAttached = true;
                 const elements = this.currentGameInstance.DOMElements;
 
                 // Centralized Modal Close Button Logic
@@ -2869,6 +2976,14 @@
 
                 elements.badges_btn.addEventListener('click', () => {
                     renderBadgesGrid(elements);
+                    // Show current streak
+                    const stats = getPlayerStats();
+                    const currentStreak = stats.streak || 0;
+                    const infoText = elements.badge_info_text;
+                    if (infoText && currentStreak > 0) {
+                        const fireEmojis = '🔥'.repeat(Math.min(currentStreak, 10));
+                        infoText.innerHTML = `Current Win Streak: <strong>${currentStreak} day${currentStreak > 1 ? 's' : ''}</strong> ${fireEmojis}`;
+                    }
                     handleModalOpen(elements.badges_modal);
                 });
 
